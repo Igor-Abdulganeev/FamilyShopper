@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Commit
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -143,7 +142,7 @@ fun EmptyAlphabet(
                 shape = RoundedCornerShape(4.dp)
             )
     ) {
-        Text("Отсутствуют данные", modifier = Modifier.padding(16.dp))
+        Text(stringResource(R.string.label_empty_list), modifier = Modifier.padding(16.dp))
     }
 }
 

@@ -7,9 +7,9 @@ val LightGreen = Color(0xFFAECBA2)
 // Средне-зелёный
 val MediumGreen = Color(0xFF8A9A8C)
 // Тёмно-синий
-val DarkBlue = Color(0xFF3F51B5)
+val DarkBlue = Color(0xFF5360A8)
 // Светло-синий
-val LightBlue = Color(0xFF6200EA)
+val LightBlue = Color(0xFF9C71EC)
 
 // Нейтральные тона
 val VeryLightGray = Color(0xFFFFFBF2)

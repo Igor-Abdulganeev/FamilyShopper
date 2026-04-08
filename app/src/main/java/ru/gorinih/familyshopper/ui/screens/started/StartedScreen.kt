@@ -38,10 +38,10 @@ fun StartedScreen(
         Button(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             onClick = {
-                //router(NavigationKey.DictionariesScreen)
+                router(NavigationKey.EditListScreen(listUuid = ""))
             },
         ) {
-            Text("списки покупок")
+            Text("новый список")
         }
     }
 }

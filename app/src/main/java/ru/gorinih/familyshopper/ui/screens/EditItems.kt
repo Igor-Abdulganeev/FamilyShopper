@@ -3,6 +3,7 @@ package ru.gorinih.familyshopper.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -23,7 +24,8 @@ fun RoundedTextField(
     label: String = "",
     placeholder: String = "",
     isEditable: Boolean = true,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    action: (() -> Unit)? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -72,6 +74,19 @@ fun RoundedTextField(
         ),
         readOnly = !isEditable,
         enabled = isEditable,
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
+/*
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
+*/
+        keyboardActions = when(action) {
+            null -> KeyboardActions.Default
+            else -> KeyboardActions(
+                onDone = {
+                    action()
+                }
+            )
+        }
     )
 }

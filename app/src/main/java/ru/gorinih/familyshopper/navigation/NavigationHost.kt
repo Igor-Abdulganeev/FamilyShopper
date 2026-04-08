@@ -5,7 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesScreen
+import ru.gorinih.familyshopper.ui.screens.list.EditListScreen
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsScreen
 import ru.gorinih.familyshopper.ui.screens.started.StartedScreen
 
@@ -44,6 +46,11 @@ fun NavigationHost(
             StartedScreen() { key ->
                 navigationController.navigate(key)
             }
+        }
+
+        composable<NavigationKey.EditListScreen> { backStackEntry  ->
+            val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()
+            EditListScreen(args.listUuid)
         }
     }
 

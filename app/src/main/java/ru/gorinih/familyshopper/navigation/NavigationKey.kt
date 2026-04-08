@@ -18,4 +18,7 @@ sealed class NavigationKey {
     @Serializable
     data object StartedScreen: NavigationKey()
 
+    @Serializable
+    data class EditListScreen(val listUuid: String): NavigationKey()
+
 }

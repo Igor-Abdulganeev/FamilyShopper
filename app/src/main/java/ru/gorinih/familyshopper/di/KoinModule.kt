@@ -25,6 +25,7 @@ import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
+import ru.gorinih.familyshopper.ui.screens.list.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import java.util.concurrent.TimeUnit
 
@@ -88,4 +89,5 @@ fun koinModule(): Module = module {
 
     viewModel { SettingsViewModel(pref = get()) }
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
+    viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get()) }
 }
