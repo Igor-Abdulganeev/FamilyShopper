@@ -1,7 +1,7 @@
 package ru.gorinih.familyshopper.ui.screens.strikelist.models
 
 import ru.gorinih.familyshopper.ui.models.WarningState
-import ru.gorinih.familyshopper.ui.screens.list.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 
 /**
  * Created by Igor Abdulganeev on 11.04.2026
@@ -12,4 +12,5 @@ data class UiStrikeState(
     val warning: WarningState = WarningState(),
     val loading: Boolean = false,
     val isEditable: Boolean = false,
+    val listLegend: Int = 0,
 )

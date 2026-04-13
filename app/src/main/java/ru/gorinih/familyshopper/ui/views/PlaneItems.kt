@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens
+package ru.gorinih.familyshopper.ui.views
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -19,22 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.gorinih.familyshopper.ui.GlassCircleImage
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**
@@ -99,18 +96,18 @@ fun MaterialGroupBox(
     modifier: Modifier = Modifier,
     title: String = "",
     color: Color = MaterialTheme.colorScheme.surface,
+    brush: Brush? = null,
     alphaShadow: Float = 1f,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
+
+    val colorizedModifier = if (brush != null)
+        modifier.background(brush, RoundedCornerShape(18.dp))
+    else modifier.background(color, RoundedCornerShape(18.dp))
     Box(
-        modifier = modifier
-            .shadow(
-             //   colorLight = color,
-             //   alphaShadowLight = alphaShadow
-            )
-            .background(color, RoundedCornerShape(18.dp)) // Сам фон Box
+        modifier = colorizedModifier
             .clip(RoundedCornerShape(18.dp))
             .clickable(
                 enabled = onClick != null,
@@ -153,76 +150,40 @@ fun MaterialGroupBox(
     }
 }
 
-class GlassCircleImage(
-    private val color: Color
-): Painter() {
-    override val intrinsicSize: Size = Size(100f, 100f)
-
-    override fun DrawScope.onDraw() {
-        val radius = size.minDimension / 2
-        val center = Offset(size.width /2, size.height /2)
-
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    color.copy(alpha = 0.5f),
-                    color.copy(alpha = 0.2f)
-                ),
-                center = center,
-                radius = radius
-            ),
-        )
-        drawCircle(
-            brush = Brush.linearGradient(
-                listOf(
-                    Color.White.copy(alpha = 0.5f),
-                    Color.Transparent
-                ),
-                start = Offset(center.x / 2, center.y - radius),
-                end = center
-            ),
-            radius = radius * 0.9f
-        )
-        drawCircle(
-            brush = Brush.linearGradient(
-                colors = listOf(
-                    Color.White.copy(0.6f),
-                    color.copy(alpha = 0.2f)
-                ),
-                start = Offset(center.x, 0f),
-                end = Offset(center.x, size.height)
-            ),
-            style = Stroke(2f)
-        )
-    }
-}
-
 @Preview
 @Composable
 fun PreviewMaterialGroupBox() {
     FamilyShopperTheme {
-    Column(Modifier.background(color = MaterialTheme.colorScheme.background).fillMaxSize()) {
-        MaterialGroupBox(
-            title = "Первая плашка",
-            color = Color.Red.copy(alpha = 0.2f),
-            alphaShadow = 0.18f,
-            modifier = Modifier.fillMaxWidth()
-                .padding(16.dp)
-
-        ) {}
-        MaterialGroupBox(
-            title = "Вторая плашка",
-            color = MaterialTheme.colorScheme.primary,//.copy(alpha = 0.8f),//Color.Red.copy(alpha = 0.2f),
-            modifier = Modifier.fillMaxWidth()
-                .padding(16.dp)
-
-
+        Column(
+            Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxSize()
         ) {
-            Image(contentDescription = null,
-                painter = GlassCircleImage(color = Color.Blue))
+            MaterialGroupBox(
+                title = "Первая плашка",
+                color = Color.Red.copy(alpha = 0.2f),
+                alphaShadow = 0.18f,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+
+            ) {}
+            MaterialGroupBox(
+                title = "Вторая плашка",
+                color = MaterialTheme.colorScheme.primary,//.copy(alpha = 0.8f),//Color.Red.copy(alpha = 0.2f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+
+
+            ) {
+                Image(
+                    contentDescription = null,
+                    painter = GlassCircleImage(color = Color.Blue)
+                )
+            }
         }
     }
-}
 }
 
 
@@ -230,9 +191,11 @@ fun PreviewMaterialGroupBox() {
 @Composable
 fun PreviewMaterialGroupBoxNight() {
     FamilyShopperTheme {
-        Column(Modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .fillMaxSize()) {
+        Column(
+            Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+        ) {
             MaterialGroupBox(
                 title = "Вторая плашка",
                 color = Color(0xFF8FB1FF),//.copy(alpha = 0.2f),
@@ -254,8 +217,10 @@ fun PreviewMaterialGroupBoxNight() {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Image(contentDescription = null,
-                    painter = GlassCircleImage(color = Color.Blue))
+                Image(
+                    contentDescription = null,
+                    painter = GlassCircleImage(color = Color.Blue)
+                )
             }
         }
     }

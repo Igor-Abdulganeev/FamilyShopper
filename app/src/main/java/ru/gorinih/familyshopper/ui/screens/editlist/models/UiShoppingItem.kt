@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.list.models
+package ru.gorinih.familyshopper.ui.screens.editlist.models
 
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 

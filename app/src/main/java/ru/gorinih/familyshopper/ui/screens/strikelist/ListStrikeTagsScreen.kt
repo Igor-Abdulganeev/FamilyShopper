@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
@@ -28,9 +30,18 @@ import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.models.ActionTag
-import ru.gorinih.familyshopper.ui.screens.ErrorDialog
-import ru.gorinih.familyshopper.ui.screens.ProgressLoadingOverlay
-import ru.gorinih.familyshopper.ui.screens.TagsList
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.TagsList
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -40,7 +51,7 @@ import ru.gorinih.familyshopper.ui.screens.TagsList
 fun ListStrikeTagsScreen(
     listUuid: String = "",
     route: (String) -> Unit = {},
-    backPressed: ()-> Unit,
+    backPressed: () -> Unit,
     navigationActions: (NavigationActions) -> Unit,
     viewModel: ListStrikeTagsViewModel = koinViewModel(
         parameters = { parametersOf(listUuid) }
@@ -59,18 +70,117 @@ fun ListStrikeTagsScreen(
         navigationActions(NavigationActions(onNavigationClick = handleExit))
 
         onDispose {
-            navigationActions(NavigationActions(onNavigationClick = {backPressed()}))
+            navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }
+    val brush =
+        Brush.linearGradient(
+            colors =  if(isSystemInDarkTheme()) {
+                when (state.listLegend) {
+                    1 -> listOf(
+                        ListDarkGreen,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListDarkGreen
+                    )
+
+                    2 -> listOf(
+                        ListDarkBlue,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListDarkBlue
+                    )
+
+                    3 -> listOf(
+                        ListDarkYellow,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListDarkYellow
+                    )
+
+                    else -> listOf(
+                        ListDarkRed,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListDarkRed
+                    )
+                }
+            } else {
+                when (state.listLegend) {
+                    1 -> listOf(
+                        ListLightGreen,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListLightGreen
+                    )
+
+                    2 -> listOf(
+                        ListLightBlue,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListLightBlue
+                    )
+
+                    3 -> listOf(
+                        ListLightYellow,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListLightYellow
+                    )
+
+                    else -> listOf(
+                        ListLightRed,
+                        MaterialTheme.colorScheme.onSecondary,
+                        ListLightRed
+                    )
+                }
+            }
+    )
+
+    val colors = if(isSystemInDarkTheme()) {
+        when(state.listLegend) {
+            1 -> listOf(
+                ListDarkGreen,
+                MaterialTheme.colorScheme.surface
+            )
+            2 -> listOf(
+                ListDarkBlue,
+                MaterialTheme.colorScheme.primaryContainer
+            )
+            3 -> listOf(
+                ListDarkYellow,
+                MaterialTheme.colorScheme.surface
+            )
+            else -> listOf(
+                ListDarkRed,
+                MaterialTheme.colorScheme.surface
+            )
+        }
+    } else {
+        when(state.listLegend) {
+            1 -> listOf(
+                ListLightGreen,
+                MaterialTheme.colorScheme.onSecondary
+            )
+            2 -> listOf(
+                ListLightBlue,
+                MaterialTheme.colorScheme.onSecondary
+            )
+            3 -> listOf(
+                ListLightYellow,
+                MaterialTheme.colorScheme.onSecondary
+            )
+            else -> listOf(
+                ListLightRed,
+                MaterialTheme.colorScheme.onSecondary
+            )
+        }
+    }
+
 
     Column(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 4.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth(),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (state.isEditable) {
                 IconButton(
                     onClick = { route(listUuid) }
@@ -95,6 +205,7 @@ fun ListStrikeTagsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp, bottom = 4.dp)
+
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(4.dp)
@@ -107,27 +218,34 @@ fun ListStrikeTagsScreen(
                     shape = RoundedCornerShape(4.dp)
                 )
         ) {
-            TagsList(
-                list = state.tagNames,
-                isDeleteTag = false,
+            AnimatedAgsl(
                 modifier = Modifier.weight(1f),
-                onClick = { name ->
-                    viewModel.updateTag(name, ActionTag.STRIKE)
-                },
-                onDelete = { name ->
-                    viewModel.updateTag(
-                        addedTagName = name,
-                        action = ActionTag.DELETE
-                    )
-                },
-                onEditComment = { name, comment ->
-                    viewModel.updateTag(
-                        name,
-                        ActionTag.COMMENT,
-                        comment
-                    )
-                }
-            )
+                brush = brush,
+                startedColor = colors.first(),
+                endedColor = colors.last()
+            ) {
+                TagsList(
+                    list = state.tagNames,
+                    isDeleteTag = false,
+                    //  modifier = Modifier.weight(1f),
+                    onClick = { name ->
+                        viewModel.updateTag(name, ActionTag.STRIKE)
+                    },
+                    onDelete = { name ->
+                        viewModel.updateTag(
+                            addedTagName = name,
+                            action = ActionTag.DELETE
+                        )
+                    },
+                    onEditComment = { name, comment ->
+                        viewModel.updateTag(
+                            name,
+                            ActionTag.COMMENT,
+                            comment
+                        )
+                    }
+                )
+            }
         }
     }
     if (state.loading) ProgressLoadingOverlay()
@@ -137,5 +255,6 @@ fun ListStrikeTagsScreen(
             else -> stringResource(state.warning.resourceWarning)
         }
     ) { viewModel.dismissWarning() }
+
 }
 

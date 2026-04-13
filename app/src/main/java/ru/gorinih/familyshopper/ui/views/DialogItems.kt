@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens
+package ru.gorinih.familyshopper.ui.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

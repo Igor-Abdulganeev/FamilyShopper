@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
-import ru.gorinih.familyshopper.ui.screens.shadow
+import ru.gorinih.familyshopper.ui.views.shadow
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**

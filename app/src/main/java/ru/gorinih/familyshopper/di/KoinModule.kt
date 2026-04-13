@@ -31,8 +31,9 @@ import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsImpl
+import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
-import ru.gorinih.familyshopper.ui.screens.list.EditListViewModel
+import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
@@ -99,6 +100,8 @@ fun koinModule(): Module = module {
     factory<SaveList> { SaveListImpl(database = get(), remote = get()) }
     factory<SynchronizeLists> { SynchronizeListsImpl(database = get(), remote = get()) }
     factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
+
+    single { GlassCircleImageHolder }
 
     viewModel { SettingsViewModel(pref = get()) }
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }

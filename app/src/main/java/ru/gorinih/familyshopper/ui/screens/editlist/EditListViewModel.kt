@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.list
+package ru.gorinih.familyshopper.ui.screens.editlist
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,10 +19,10 @@ import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
 import ru.gorinih.familyshopper.domain.usecases.SaveList
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeShoppedList
-import ru.gorinih.familyshopper.ui.screens.list.models.UiShoppingItem
-import ru.gorinih.familyshopper.ui.screens.list.models.UiShoppingState
-import ru.gorinih.familyshopper.ui.screens.list.models.toShoppedList
-import ru.gorinih.familyshopper.ui.screens.list.models.toUiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingState
+import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedList
+import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

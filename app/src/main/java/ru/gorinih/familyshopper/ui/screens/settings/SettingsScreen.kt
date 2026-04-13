@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.ui.screens.RoundedTextField
+import ru.gorinih.familyshopper.ui.views.RoundedTextField
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026

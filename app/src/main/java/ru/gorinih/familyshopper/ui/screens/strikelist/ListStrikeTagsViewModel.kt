@@ -15,9 +15,9 @@ import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.WarningState
-import ru.gorinih.familyshopper.ui.screens.list.models.UiShoppingItem
-import ru.gorinih.familyshopper.ui.screens.list.models.toShoppedItem
-import ru.gorinih.familyshopper.ui.screens.list.models.toUiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.strikelist.models.UiStrikeState
 
 /**
@@ -54,7 +54,8 @@ class ListStrikeTagsViewModel(
                     shoppedList =
                         shoppedList.copy(
                             tagNames = tagNames,
-                            isEditable = isEditable
+                            isEditable = isEditable,
+                            listLegend = listData.listLegend
                         )
                 }
             }

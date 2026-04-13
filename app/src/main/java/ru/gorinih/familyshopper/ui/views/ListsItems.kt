@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens
+package ru.gorinih.familyshopper.ui.views
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -38,7 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.ui.screens.list.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
@@ -63,7 +63,7 @@ fun TagsList(
     if (list.isEmpty()) {
         Text(
             stringResource(R.string.label_empty_list),
-            modifier = modifier
+            modifier = modifier.fillMaxWidth()
                 .padding(16.dp)
         )
     } else {
@@ -208,7 +208,7 @@ fun TagItem(
         )
         BracketTextField(
             comment = tag.tagComment,
-            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+//            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
             onChange = { comment ->
                 onEditComment(comment)
             },

@@ -6,7 +6,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -36,12 +42,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.ui.screens.ErrorDialog
-import ru.gorinih.familyshopper.ui.screens.GlassCircleImage
-import ru.gorinih.familyshopper.ui.screens.MaterialGroupBox
-import ru.gorinih.familyshopper.ui.screens.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -50,6 +64,7 @@ import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 @Composable
 fun ListEntityScreen(
     router: (String) -> Unit,
+    addList: () -> Unit,
     viewModel: ListEntityVewModel = koinViewModel()
 ) {
 
@@ -61,24 +76,34 @@ fun ListEntityScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 8.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+            .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
     ) {
         Row(
-           modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            Text(text=stringResource(R.string.label_sync_tags))
             IconButton(
-                onClick = { viewModel.updateList() }
+                onClick = { addList() }
             ) {
-                Icon(Icons.Default.Repeat, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(text = stringResource(R.string.label_sync_tags))
+                IconButton(
+                    onClick = { viewModel.updateList() }
+                ) {
+                    Icon(Icons.Default.Repeat, contentDescription = null)
+                }
             }
         }
         LazyColumn(state = stateLazy) {
             items(state.lists, key = { item -> item.listId }) { item ->
-                val painter =
-                    if (state.typedList.containsKey(item.listLegend)) state.typedList[item.listLegend] else null
+                val painter = GlassCircleImageHolder.getImage(item.listLegend)
                 CardListItem(item, painter) {
                     router(item.listId)
                 }
@@ -106,6 +131,9 @@ fun CardListItem(
     painter: Painter? = null,
     onClick: () -> Unit,
 ) {
+    val title = item.listName.takeIf { it.isNotBlank() }
+        ?: stringResource(R.string.label_empty_list_name)
+    val isDark = isSystemInDarkTheme()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,6 +147,55 @@ fun CardListItem(
             else -> Color.Red
         }.run { copy(alpha = 0.1f) }
 */
+        val brush = Brush.horizontalGradient(
+            colors = if (isDark) {
+                when (item.listLegend) {
+                    1 -> listOf(
+                        ListDarkGreen,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    2 -> listOf(
+                        ListDarkBlue,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    3 -> listOf(
+                        ListDarkYellow,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    else -> listOf(
+                        ListDarkRed,
+                        MaterialTheme.colorScheme.primary,
+                    )
+                }
+            } else {
+                when (item.listLegend) {
+                    1 -> listOf(
+                        ListLightGreen,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    2 -> listOf(
+                        ListLightBlue,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    3 -> listOf(
+                        ListLightYellow,
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                    else -> listOf(
+                        ListLightRed,
+                        MaterialTheme.colorScheme.primary,
+                    )
+                }
+            },
+            startX = 0.0f,
+            endX = 550f
+        )
 
         MaterialGroupBox(
             modifier =
@@ -127,33 +204,62 @@ fun CardListItem(
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 16.dp),
             onClick = { onClick() },
-            title = item.listName.takeIf { it.isNotBlank() }
-                ?: stringResource(R.string.label_empty_list_name),
             color = MaterialTheme.colorScheme.primary, //tintBackground
-
+            brush = brush
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                if (painter != null) {
-                    Image(painter, contentDescription = null, Modifier.size(20.dp))
+            Column() {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    Text(
+                        text = title,
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            drawStyle = Stroke(
+                                width = 4f,
+                                join = StrokeJoin.Round
+                            )
+                        ),
+                        color = if (isDark) Color.Black else Color.White
+                    )
+                    Text(
+                        text = title,
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
-                Text(
-                    text ="${item.countTags} / ${item.countStrikes}",
-                    modifier = Modifier.padding(start = 32.dp)
-                )
-                Text(
-                    text = item.listDatetime,
-                    style = TextStyle(fontSize = 12.sp, baselineShift = BaselineShift.Subscript),
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    textAlign = TextAlign.End
-                )
+                        .padding(horizontal = 2.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    if (painter != null) {
+                        Image(painter, contentDescription = null, Modifier.size(20.dp))
+                    }
+                    Text(
+                        text = "${item.countTags} / ${item.countStrikes}",
+                        modifier = Modifier.padding(start = 32.dp)
+                    )
+                    Text(
+                        text = item.listDatetime,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            baselineShift = BaselineShift.Subscript
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        textAlign = TextAlign.End
+                    )
+
+                }
 
             }
         }
@@ -163,13 +269,6 @@ fun CardListItem(
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewMat() {
-    val typedList = mapOf<Int, Painter>(
-        1 to GlassCircleImage(Color.Green),
-        2 to GlassCircleImage(Color.Blue),
-        3 to GlassCircleImage(Color.Yellow),
-        4 to GlassCircleImage(Color.Red),
-    )
-
     FamilyShopperTheme {
         Column(Modifier.padding(top = 32.dp)) {
             CardListItem(
@@ -184,7 +283,7 @@ fun PreviewMat() {
                     countTags = 10,
                     countStrikes = 2,
                 ),
-                typedList[1]
+                GlassCircleImageHolder.getImage(1)
             ) {}
             CardListItem(
                 UiListObject(
@@ -198,8 +297,8 @@ fun PreviewMat() {
                     countTags = 5,
                     countStrikes = 0
                 ),
-                typedList[2]
-            ){}
+                GlassCircleImageHolder.getImage(2)
+            ) {}
             CardListItem(
                 UiListObject(
                     listId = "sdgsgsd",
@@ -212,9 +311,9 @@ fun PreviewMat() {
                     countTags = 4,
                     countStrikes = 4
                 ),
-                typedList[3]
+                GlassCircleImageHolder.getImage(3)
 
-            ){}
+            ) {}
             CardListItem(
                 UiListObject(
                     listId = "sdgsgsd",
@@ -227,9 +326,9 @@ fun PreviewMat() {
                     countTags = 0,
                     countStrikes = 0
                 ),
-                typedList[4]
+                GlassCircleImageHolder.getImage(4)
 
-            ){}
+            ) {}
         }
     }
 }

@@ -42,9 +42,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
-import ru.gorinih.familyshopper.ui.screens.ErrorDialog
-import ru.gorinih.familyshopper.ui.screens.ProgressLoadingOverlay
-import ru.gorinih.familyshopper.ui.screens.RoundedTextField
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.RoundedTextField
 
 /**
  * Редактирование тэгов

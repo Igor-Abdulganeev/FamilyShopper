@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.list
+package ru.gorinih.familyshopper.ui.screens.editlist
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -38,12 +38,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
@@ -51,14 +51,15 @@ import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.ScreenLayoutType
 import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
+import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeShoppedList
-import ru.gorinih.familyshopper.ui.screens.DictionaryList
-import ru.gorinih.familyshopper.ui.screens.ErrorDialog
-import ru.gorinih.familyshopper.ui.screens.ProgressLoadingOverlay
-import ru.gorinih.familyshopper.ui.screens.RoundedTextField
-import ru.gorinih.familyshopper.ui.screens.TagsList
-import ru.gorinih.familyshopper.ui.screens.shadow
+import ru.gorinih.familyshopper.ui.views.DictionaryList
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.RoundedTextField
+import ru.gorinih.familyshopper.ui.views.TagsList
+import ru.gorinih.familyshopper.ui.views.shadow
 
 /**
  * Created by Igor Abdulganeev on 07.04.2026
@@ -106,16 +107,22 @@ fun EditListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(2.dp),
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.inverseSurface
+                            ),
+                            shape = RoundedCornerShape(4.dp)
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.type_all),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
@@ -129,19 +136,13 @@ fun EditListScreen(
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply {
-                                    setToSaturation(
-                                        when {
-                                            state.listLegend == TypeShoppedList.valueOf(
-                                                TypeShoppedList.ALL.name
-                                            ).listId -> 1f
+                            colorFilter = when {
+                                state.listLegend == TypeShoppedList.valueOf(
+                                    TypeShoppedList.ALL.name
+                                ).listId -> null
 
-                                            else -> 0f
-                                        }
-                                    )
-                                }
-                            )
+                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                            }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_all),
@@ -151,10 +152,10 @@ fun EditListScreen(
                     }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.type_add),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
@@ -168,19 +169,13 @@ fun EditListScreen(
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply {
-                                    setToSaturation(
-                                        when {
-                                            state.listLegend == TypeShoppedList.valueOf(
-                                                TypeShoppedList.ADD.name
-                                            ).listId -> 1f
+                            colorFilter = when {
+                                state.listLegend == TypeShoppedList.valueOf(
+                                    TypeShoppedList.ADD.name
+                                ).listId -> null
 
-                                            else -> 0f
-                                        }
-                                    )
-                                }
-                            )
+                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                            }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_add),
@@ -190,10 +185,10 @@ fun EditListScreen(
                     }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.type_view),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
@@ -207,19 +202,13 @@ fun EditListScreen(
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply {
-                                    setToSaturation(
-                                        when {
-                                            state.listLegend == TypeShoppedList.valueOf(
-                                                TypeShoppedList.VIEW.name
-                                            ).listId -> 1f
+                            colorFilter = when {
+                                state.listLegend == TypeShoppedList.valueOf(
+                                    TypeShoppedList.VIEW.name
+                                ).listId -> null
 
-                                            else -> 0f
-                                        }
-                                    )
-                                }
-                            )
+                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                            }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_view),
@@ -229,10 +218,10 @@ fun EditListScreen(
                     }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.type_private),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend),
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -246,19 +235,13 @@ fun EditListScreen(
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply {
-                                    setToSaturation(
-                                        when {
-                                            state.listLegend == TypeShoppedList.valueOf(
-                                                TypeShoppedList.PRIVATE.name
-                                            ).listId -> 1f
+                            colorFilter = when {
+                                state.listLegend == TypeShoppedList.valueOf(
+                                    TypeShoppedList.PRIVATE.name
+                                ).listId -> null
 
-                                            else -> 0f
-                                        }
-                                    )
-                                }
-                            )
+                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                            }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_private),
@@ -363,7 +346,8 @@ fun EditListScreen(
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp).shadow(
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .shadow(
                         colorLight = MaterialTheme.colorScheme.primary,
                         shadowRadius = 4.dp,
                         borderRadius = 16.dp,
@@ -394,7 +378,7 @@ fun EditListScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.type_all),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
@@ -408,22 +392,16 @@ fun EditListScreen(
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
-                        colorFilter = ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    when {
-                                        state.listLegend == TypeShoppedList.valueOf(
-                                            TypeShoppedList.ALL.name
-                                        ).listId -> 1f
+                        colorFilter = when {
+                            state.listLegend == TypeShoppedList.valueOf(
+                                TypeShoppedList.ALL.name
+                            ).listId -> null
 
-                                        else -> 0f
-                                    }
-                                )
-                            }
-                        )
+                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                        }
                     )
                     Image(
-                        painter = painterResource(R.drawable.type_add),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
@@ -437,22 +415,16 @@ fun EditListScreen(
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
-                        colorFilter = ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    when {
-                                        state.listLegend == TypeShoppedList.valueOf(
-                                            TypeShoppedList.ADD.name
-                                        ).listId -> 1f
+                        colorFilter = when {
+                            state.listLegend == TypeShoppedList.valueOf(
+                                TypeShoppedList.ADD.name
+                            ).listId -> null
 
-                                        else -> 0f
-                                    }
-                                )
-                            }
-                        )
+                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                        }
                     )
                     Image(
-                        painter = painterResource(R.drawable.type_view),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
@@ -466,22 +438,16 @@ fun EditListScreen(
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
-                        colorFilter = ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    when {
-                                        state.listLegend == TypeShoppedList.valueOf(
-                                            TypeShoppedList.VIEW.name
-                                        ).listId -> 1f
+                        colorFilter = when {
+                            state.listLegend == TypeShoppedList.valueOf(
+                                TypeShoppedList.VIEW.name
+                            ).listId -> null
 
-                                        else -> 0f
-                                    }
-                                )
-                            }
-                        )
+                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                        }
                     )
                     Image(
-                        painter = painterResource(R.drawable.type_private),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend),
                         contentDescription = null,
                         modifier = Modifier
                             .clip(CircleShape)
@@ -495,19 +461,13 @@ fun EditListScreen(
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
-                        colorFilter = ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    when {
-                                        state.listLegend == TypeShoppedList.valueOf(
-                                            TypeShoppedList.PRIVATE.name
-                                        ).listId -> 1f
+                        colorFilter = when {
+                            state.listLegend == TypeShoppedList.valueOf(
+                                TypeShoppedList.PRIVATE.name
+                            ).listId -> null
 
-                                        else -> 0f
-                                    }
-                                )
-                            }
-                        )
+                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                        }
                     )
                 }
             }
@@ -530,7 +490,8 @@ fun EditListScreen(
                     Button(
                         modifier = Modifier
                             .weight(0.2f)
-                            .padding(horizontal = 4.dp).shadow(
+                            .padding(horizontal = 4.dp)
+                            .shadow(
                                 colorLight = MaterialTheme.colorScheme.primary,
                                 shadowRadius = 4.dp,
                                 borderRadius = 16.dp,

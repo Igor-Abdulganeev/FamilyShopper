@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesScreen
-import ru.gorinih.familyshopper.ui.screens.list.EditListScreen
+import ru.gorinih.familyshopper.ui.screens.editlist.EditListScreen
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityScreen
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsScreen
 import ru.gorinih.familyshopper.ui.screens.started.StartedScreen
@@ -61,10 +61,14 @@ fun NavigationHost(
         }
 
         composable<NavigationKey.ListEntityScreen> {
-            ListEntityScreen(router = { listId ->
-                navigationController.navigate(NavigationKey.ListStrikeTagsScreen(listUuid = listId))
-                //               navigationController.navigate(NavigationKey.EditListScreen(listUuid = listId))
-            })
+            ListEntityScreen(
+                router = { listId ->
+                    navigationController.navigate(NavigationKey.ListStrikeTagsScreen(listUuid = listId))
+                },
+                addList = {
+                    navigationController.navigate(NavigationKey.EditListScreen(listUuid = ""))
+                }
+            )
         }
 
         composable<NavigationKey.ListStrikeTagsScreen> { backStackEntry ->

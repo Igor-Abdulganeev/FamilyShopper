@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens
+package ru.gorinih.familyshopper.ui.views
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -117,7 +117,7 @@ fun BracketTextField(
     emptyText: String = "...",
     startBracket: Char = '<',
     endBracket: Char = '>',
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    backgroundColor: Color = Color.Transparent,
     onChange: (String) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -208,6 +208,15 @@ fun PreviewRoundedTextField() {
                 startBracket = '<',
                 endBracket = '>',
                 modifier = Modifier,
+                onChange = {}
+            )
+            BracketTextField(
+                comment = "данные",
+                emptyText = "...",
+                startBracket = '<',
+                endBracket = '>',
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = MaterialTheme.colorScheme.secondary,
                 onChange = {}
             )
         }

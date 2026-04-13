@@ -3,8 +3,6 @@ package ru.gorinih.familyshopper.ui.screens.lists
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +12,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
-import ru.gorinih.familyshopper.ui.screens.GlassCircleImage
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 
@@ -39,14 +36,6 @@ class ListEntityVewModel(
                 }
                 .stateIn(viewModelScope)
         }
-
-        val typedList = mapOf<Int, Painter>(
-            1 to GlassCircleImage(Color.Green),
-            2 to GlassCircleImage(Color.Blue),
-            3 to GlassCircleImage(Color.Yellow),
-            4 to GlassCircleImage(Color.Red),
-        )
-        listsState = listsState.copy(typedList = typedList)
     }
 
     fun onDismiss() {
