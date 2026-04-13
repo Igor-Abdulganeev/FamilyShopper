@@ -3,6 +3,7 @@ package ru.gorinih.familyshopper.domain
 import kotlinx.coroutines.flow.Flow
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
+import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
  * Created by Igor Abdulganeev on 05.04.2026
@@ -22,8 +23,21 @@ interface DatabaseRepository {
 
     fun takeDictionaries(): Flow<List<DictionaryLocalTag>>
 
+    suspend fun getDictionaryTags(): List<String>
+
     suspend fun addTag(tag: DictionaryLocalTag)
+
+    suspend fun addTags(tags: List<DictionaryLocalTag>)
 
     suspend fun deleteTag(tagId: String, tagName: String)
 
+    suspend fun updateList(data: ShoppedList)
+
+    fun takeLists(): Flow<List<ShoppedList>>
+
+    suspend fun takeListsWithVersions(): Map<String,ShoppedList>
+
+    suspend fun takeList(listId: String): ShoppedList
+
+    fun observeList(listId: String): Flow<ShoppedList>
 }

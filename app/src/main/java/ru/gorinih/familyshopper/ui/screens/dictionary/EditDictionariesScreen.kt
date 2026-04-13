@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.ui.models.UiDictionary
+import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.screens.ErrorDialog
 import ru.gorinih.familyshopper.ui.screens.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.screens.RoundedTextField

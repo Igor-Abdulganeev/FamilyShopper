@@ -7,5 +7,6 @@ package ru.gorinih.familyshopper.ui.models
 enum class ActionTag {
     ADD,
     DELETE,
-    STRIKE
+    STRIKE,
+    COMMENT
 }

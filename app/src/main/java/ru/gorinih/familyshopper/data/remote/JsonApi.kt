@@ -5,6 +5,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.Path
+import ru.gorinih.familyshopper.data.remote.models.ListObject
+import ru.gorinih.familyshopper.data.remote.models.ListVersionInfo
 import ru.gorinih.familyshopper.data.remote.models.RemoteDictionary
 
 /**
@@ -44,32 +46,42 @@ interface JsonApi {
     //endregion
 
     // --- СПИСКИ ПОКУПОК (Current Lists) ---
-/*
+
     // Получение списка версий списков покупок
     @GET("shared_data/{group_id}/current_lists_versions.json")
     suspend fun getListsVersions(
         @Path("group_id") groupId: String
-    ): Map<String, ListVersionInfo>?
-
-    // Получение всех списков, приватные фильтруем в коде
-    @GET("shared_data/{group_id}/current_lists.json")
-    suspend fun getAllCurrentLists(
-        @Path("group_id") groupId: String
-    ): Map<String, CurrentList>?
-
-    // Удаление списка (Удаляет из двух веток сразу через PATCH со значениями null)
-    @PATCH("shared_data/{group_id}.json")
-    suspend fun deleteListWithVersion(
-        @Path("group_id") groupId: String,
-        @Body updates: Map<String, Any?> // В Body: {"current_lists/ID": null, "current_lists_versions/ID": null}
-    ): Response<Unit>
+    ): Response<Map<String, ListVersionInfo>?>
 
     // Обновление списка покупок
     @PATCH("shared_data/{group_id}.json")
     suspend fun updateListWithVersion(
         @Path("group_id") groupId: String,
-        @Body updates: Map<String, Any> // В Body: {"current_lists/ID": listObject, "current_lists_versions/ID": versionInfo}
+        @Body updates: Map<String, @JvmSuppressWildcards Any> // В Body: {"current_lists/ID": listObject, "current_lists_versions/ID": ListVersionInfo}
     ): Response<Unit>
 
- */
+    // Получение всех списков, приватные фильтруем в коде
+    @GET("shared_data/{group_id}/current_lists.json")
+    suspend fun getAllCurrentLists(
+        @Path("group_id") groupId: String
+    ): Response<Map<String, ListObject>?>
+
+    // Получение конкретного списка, приватные фильтруем в коде
+    @GET("shared_data/{group_id}/current_lists/{list_id}.json")
+    suspend fun getCurrentListById(
+        @Path("group_id") groupId: String,
+        @Path("list_id") listId: String
+    ): Response<ListObject?>
+
+    /*
+
+        // Удаление списка (Удаляет из двух веток сразу через PATCH со значениями null)
+        @PATCH("shared_data/{group_id}.json")
+        suspend fun deleteListWithVersion(
+            @Path("group_id") groupId: String,
+            @Body updates: Map<String, Any?> // В Body: {"current_lists/ID": null, "current_lists_versions/ID": null}
+        ): Response<Unit>
+
+
+     */
 }

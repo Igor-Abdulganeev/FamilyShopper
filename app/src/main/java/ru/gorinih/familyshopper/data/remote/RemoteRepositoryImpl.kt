@@ -1,11 +1,17 @@
 package ru.gorinih.familyshopper.data.remote
 
-import android.util.Log
+import ru.gorinih.familyshopper.data.remote.models.ListObject
+import ru.gorinih.familyshopper.data.remote.models.ListVersionInfo
 import ru.gorinih.familyshopper.data.remote.models.RemoteDictionary
 import ru.gorinih.familyshopper.data.remote.models.toDictionaryRemoteTags
+import ru.gorinih.familyshopper.data.remote.models.toListRemoteInfo
+import ru.gorinih.familyshopper.data.remote.models.toListTagObject
+import ru.gorinih.familyshopper.data.remote.models.toShoppedList
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
+import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
+import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -13,6 +19,8 @@ import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 
 private const val PATH_DICTIONARY = "dictionaries/"
 private const val PATH_DICTIONARY_VERSION = "dictionaries_versions/"
+private const val PATH_CURRENT_LISTS = "current_lists/"
+private const val PATH_CURRENT_LISTS_VERSIONS = "current_lists_versions/"
 
 class RemoteRepositoryImpl(
     private val remoteApi: JsonApi,
@@ -46,17 +54,54 @@ class RemoteRepositoryImpl(
     override suspend fun updateDictionaryWithVersion(
         updates: List<DictionaryRemoteTag>
     ) {
-        Log.e("GINES","updates=$updates")
-        val uuid = pref.getGroupUUID()
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return
         val maps = mutableMapOf<String, Any>()
         updates.forEach {
             maps.putAll(it.toUpdateRemote())
         }
-        Log.e("GINES","uuid = ${uuid} / maps=$maps")
         remoteApi.updateDictionaryWithVersion(
-            groupId = uuid,
+            groupId = groupId,
             updates = maps
         )
+    }
+
+    override suspend fun getListsVersions(): Map<String, ListRemoteInfo> {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return emptyMap()
+        val result = remoteApi.getListsVersions(groupId = groupId)
+        return result.body()?.mapValues { it.value.toListRemoteInfo() } ?: emptyMap()
+     }
+
+    override suspend fun updateListWithVersion(updates: List<ShoppedList>) {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return
+        val maps = updates.associate { it.listId to it.toUpdateRemote() }
+        remoteApi.updateListWithVersion(
+            groupId = groupId,
+            updates = maps
+        )
+    }
+
+    override suspend fun getAllCurrentLists(): Map<String, ShoppedList> {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return emptyMap()
+        val result = remoteApi.getAllCurrentLists(groupId = groupId)
+        return when {
+            result.body() != null && result.code() == 200 -> result.body()
+                ?.mapValues { entity -> entity.value.toShoppedList() } ?: emptyMap()
+
+            else -> emptyMap()
+        }
+    }
+
+    override suspend fun getCurrentListById(
+        listId: String
+    ): ShoppedList? {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return null
+        val result = remoteApi.getCurrentListById(groupId = groupId, listId = listId)
+        return  result.body()?.toShoppedList()
     }
 }
 
@@ -67,4 +112,25 @@ fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any> = mapOf(
         tagId = this.tagId,
         tagNames = this.tagNames
     )
+)
+
+fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
+    "$PATH_CURRENT_LISTS_VERSIONS${this.listId}" to ListVersionInfo(
+        listVersion = this.listVersion,
+        listLegend = this.listLegend,
+        listOwner = this.ownerUuid,
+        listDatetime = this.dateTime
+    ),
+    "$PATH_CURRENT_LISTS${this.listId}" to ListObject(
+        listId = this.listId,
+        listVersion = this.listVersion,
+        listDateTime = this.dateTime,
+        listName = this.listName,
+        listLegend = this.listLegend,
+        listOwner = this.ownerUuid,
+        listTo = this.clientsUuid,
+        listTags = this.tagNames.map { it.toListTagObject() }
+    )
+
+
 )

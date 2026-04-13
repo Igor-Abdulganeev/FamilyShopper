@@ -15,4 +15,6 @@
     <string name="label_icon_view">только чтение</string>
     <string name="label_icon_add">только добавление</string>
     <string name="label_icon_private">частный</string>
+    <string name="label_empty_list_name">Список без названия</string>
+    <string name="warning_list_not_found_text">Возникли проблемы с данным списком, он не обнаружен</string>
 </resources>

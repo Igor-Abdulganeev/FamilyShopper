@@ -4,23 +4,32 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.data.db.dao.DictionaryDao
+import ru.gorinih.familyshopper.data.db.dao.ListsDao
 import ru.gorinih.familyshopper.data.db.models.DbDeletedTags
 import ru.gorinih.familyshopper.data.db.models.DbDictionary
 import ru.gorinih.familyshopper.data.db.models.DbDictionaryVersions
+import ru.gorinih.familyshopper.data.db.models.DbListTags
+import ru.gorinih.familyshopper.data.db.models.DbListVersions
 import ru.gorinih.familyshopper.data.db.models.toDbDictionary
 import ru.gorinih.familyshopper.data.db.models.toDbDictionaryVersions
+import ru.gorinih.familyshopper.data.db.models.toDbListVersions
 import ru.gorinih.familyshopper.data.db.models.toDictionaryLocalTag
+import ru.gorinih.familyshopper.data.db.models.toListDbListTags
 import ru.gorinih.familyshopper.data.db.models.toListOfDbDictionary
+import ru.gorinih.familyshopper.data.db.models.toShoppedList
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
+import ru.gorinih.familyshopper.domain.models.ShoppedItem
+import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
  * Created by Igor Abdulganeev on 05.04.2026
  */
 
 class DatabaseRepositoryImpl(
-    private val dictionaryDao: DictionaryDao
+    private val dictionaryDao: DictionaryDao,
+    private val listsDao: ListsDao,
 ) : DatabaseRepository {
     override suspend fun takeDictionariesVersions(): Map<String, Int> =
         dictionaryDao.takeDictionariesVersions()
@@ -75,8 +84,96 @@ class DatabaseRepositoryImpl(
         dictionaryDao.keepTag(tag.toDbDictionary())
     }
 
+    override suspend fun addTags(tags: List<DictionaryLocalTag>) {
+        dictionaryDao.keepTags(tags.map { it.toDbDictionary() })
+    }
+
     override suspend fun deleteTag(tagId: String, tagName: String) {
         dictionaryDao.deleteTag(DbDeletedTags(tagId, tagName))
     }
 
+    /**
+     * сохранение списка
+     */
+    override suspend fun updateList(data: ShoppedList) {
+        val version: DbListVersions = data.toDbListVersions()
+        val tags: List<DbListTags> = data.toListDbListTags()
+        listsDao.updateList(list = version, tags = tags)
+
+    }
+
+    /**
+     * получение статического списка
+     */
+    override suspend fun getDictionaryTags(): List<String> =
+        dictionaryDao.selectDictionaries().map { it.tagName }
+
+    /**
+     * получение всех локальных списков
+     */
+    override fun takeLists(): Flow<List<ShoppedList>> =
+        listsDao.takeLists().map { list -> list.map { item -> item.toShoppedList() } }
+
+    /**
+     * получение слепка локальных списков
+     */
+    override suspend fun takeListsWithVersions(): Map<String, ShoppedList> =
+        listsDao.selectLists().map { it.toShoppedList() }.associateBy { list -> list.listId }
+
+    /**
+     * получение подробного списка
+     */
+    override suspend fun takeList(listId: String): ShoppedList =
+        listsDao.takeList(listId = listId).groupBy { dbList -> dbList.listId }
+            .map { (_, values) ->
+                val firstItem = values.first()
+                ShoppedList(
+                    listId = firstItem.listId,
+                    listName = firstItem.listName,
+                    ownerUuid = firstItem.listOwner,
+                    listVersion = firstItem.listVersion,
+                    listLegend = firstItem.listLegend,
+                    clientsUuid = firstItem.listTo,
+                    dateTime = firstItem.listDatetime,
+                    tagNames = values.mapNotNull { value ->
+                        if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
+                            ShoppedItem(
+                                tagId = value.tagName.first().uppercase(),
+                                tagName = value.tagName,
+                                isStrike = value.tagStrike,
+                                tagComment = value.tagComment
+                            )
+                    },
+                    countTags = values.mapNotNull { value -> value.tagName }.size,
+                    countStrikes = values.filter { value -> value.tagStrike == true }.size
+                )
+            }.first()
+
+    override fun observeList(listId: String): Flow<ShoppedList> =
+        listsDao.flowList(listId = listId).map { listsDao ->
+            listsDao.groupBy { dbList -> dbList.listId }
+                .map { (_, values) ->
+                    val firstItem = values.first()
+                    ShoppedList(
+                        listId = firstItem.listId,
+                        listName = firstItem.listName,
+                        ownerUuid = firstItem.listOwner,
+                        listVersion = firstItem.listVersion,
+                        listLegend = firstItem.listLegend,
+                        clientsUuid = firstItem.listTo,
+                        dateTime = firstItem.listDatetime,
+                        tagNames = values.mapNotNull { value ->
+                            if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
+                                ShoppedItem(
+                                    tagId = value.tagName.first().uppercase(),
+                                    tagName = value.tagName,
+                                    isStrike = value.tagStrike,
+                                    tagComment = value.tagComment
+                                )
+                        },
+                        countTags = values.mapNotNull { value -> value.tagName }.size,
+                        countStrikes = values.filter { value -> value.tagStrike == true }.size
+                    )
+                }.first()
+        }
 }

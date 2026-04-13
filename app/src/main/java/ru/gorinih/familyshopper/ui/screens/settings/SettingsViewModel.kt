@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.settings
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,10 +25,6 @@ class SettingsViewModel(
 
     private val _shareData = Channel<String>()
     val shareEvents = _shareData.receiveAsFlow()
-
-    init {
-        Log.d("GINES", "CREATE VM=$this")
-    }
 
     fun updateClientUuid(uuid: String) {
         stateSettings = stateSettings.copy(clientUUID = uuid)

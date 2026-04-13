@@ -159,6 +159,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.adaptive)
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.navigation)
 
@@ -171,6 +172,7 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
 
     implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(platform(libs.androidx.firebase.bom))
     implementation(libs.androidx.firebase.database)

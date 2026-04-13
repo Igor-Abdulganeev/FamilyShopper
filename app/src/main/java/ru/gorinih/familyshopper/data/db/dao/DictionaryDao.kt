@@ -18,6 +18,8 @@ import ru.gorinih.familyshopper.data.db.models.DbDictionaryVersions
 @Dao
 interface DictionaryDao {
 
+    //region работа со словарями
+
     @Query("UPDATE dictionary SET need_update=0 WHERE need_update=1")
     suspend fun updateToRemoteTags()
 
@@ -27,7 +29,7 @@ interface DictionaryDao {
     @Query("SELECT DISTINCT tag_id FROM dictionary WHERE need_update=1 UNION SELECT DISTINCT tag_id FROM dictionary_deleted")
     suspend fun selectKeysDictionaryForUpdate(): List<String>
 
-    @Query("SELECT tag_version FROM dictionary_ver WHERE tag_id=:tagId" )
+    @Query("SELECT tag_version FROM dictionary_ver WHERE tag_id=:tagId")
     suspend fun selectVersionFromKey(tagId: String): Int?
 
     suspend fun takeKeysDictionaryForUpdate(): Map<String, Int> {
@@ -69,8 +71,14 @@ interface DictionaryDao {
     @Query("SELECT * FROM dictionary ORDER BY tag_id")
     fun takeDictionaries(): Flow<List<DbDictionary>>
 
-    @Insert(entity = DbDictionary::class, onConflict = OnConflictStrategy.REPLACE)
+    @Query("SELECT * FROM dictionary ORDER BY tag_id")
+    suspend fun selectDictionaries(): List<DbDictionary>
+
+    @Insert(entity = DbDictionary::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun keepTag(tag: DbDictionary)
+
+    @Insert(entity = DbDictionary::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun keepTags(tags: List<DbDictionary>)
 
     @Query("DELETE FROM dictionary WHERE tag_name=:tagName")
     suspend fun deleteTagByName(tagName: String)
@@ -89,4 +97,7 @@ interface DictionaryDao {
 
     @Query("DELETE FROM dictionary_deleted")
     suspend fun clearDeleteTags()
+
+    //endregion
+
 }

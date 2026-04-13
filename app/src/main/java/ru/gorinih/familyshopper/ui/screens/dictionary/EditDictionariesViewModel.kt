@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -16,9 +15,9 @@ import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
-import ru.gorinih.familyshopper.ui.models.UiDictionary
-import ru.gorinih.familyshopper.ui.models.toUiTag
-import java.util.Locale
+import ru.gorinih.familyshopper.ui.screens.dictionary.models.EditDictionariesState
+import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
+import ru.gorinih.familyshopper.ui.screens.dictionary.models.toUiTag
 
 /**
  * Created by Igor Abdulganeev on 06.04.2026
@@ -54,7 +53,6 @@ class EditDictionariesViewModel(
     */
 
     init {
-        Log.d("GINES", "CREATE VM=$this")
         database.takeDictionaries()
             .map { list ->
                 list.groupBy { it.tagId }
@@ -74,8 +72,8 @@ class EditDictionariesViewModel(
 
     fun addTag(tag: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val tagName = tag.lowercase(locale = Locale.ROOT)
-            val tagId: String = tagName.first().toString().uppercase(Locale.ROOT)
+            val tagName = tag.lowercase()
+            val tagId: String = tagName.first().toString().uppercase()
             database.addTag(
                 DictionaryLocalTag(
                     tagId = tagId,
@@ -88,7 +86,7 @@ class EditDictionariesViewModel(
 
     fun deleteTag(tagNane: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val tagId = tagNane.first().uppercase(Locale.ROOT)
+            val tagId = tagNane.first().uppercase()
             database.deleteTag(tagId, tagNane)
         }
     }

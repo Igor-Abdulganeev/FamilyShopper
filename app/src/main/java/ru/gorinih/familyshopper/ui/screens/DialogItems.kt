@@ -20,12 +20,14 @@ import androidx.compose.ui.unit.dp
  */
 
 @Composable
-fun ProgressLoadingOverlay() {
+fun ProgressLoadingOverlay(
+    color: Color = Color.Black
+) {
     // Box на весь экран
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.2f)) // Затенение на 20% черного
+            .background(color.copy(alpha = 0.3f)) // Затенение на 40% черного
             .pointerInput(Unit) {}, // блок нажатий по элементам под ним
         contentAlignment = Alignment.Center
     ) {

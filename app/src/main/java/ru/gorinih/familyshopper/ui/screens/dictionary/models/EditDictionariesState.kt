@@ -1,6 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.dictionary
-
-import ru.gorinih.familyshopper.ui.models.UiDictionary
+package ru.gorinih.familyshopper.ui.screens.dictionary.models
 
 /**
  * Created by Igor Abdulganeev on 06.04.2026

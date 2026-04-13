@@ -1,24 +1,18 @@
-package ru.gorinih.familyshopper.ui.models
+package ru.gorinih.familyshopper.ui.screens.dictionary.models
 
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 
 /**
- * Created by Igor Abdulganeev on 06.04.2026
+ * Created by Igor Abdulganeev on 09.04.2026
  */
 
-data class UiDictionary(
-    val tagId: String,
-    val tagNames: List<UiTag>,
-
-    )
-
-data class UiTag(
+data class UiDictionaryTag(
     val tagName: String,
     val needUpdate: Boolean = false
 )
 
 fun DictionaryLocalTag.toUiTag() =
-    UiTag(
+    UiDictionaryTag(
         tagName = this.tagName,
         needUpdate = this.needUpdate
     )

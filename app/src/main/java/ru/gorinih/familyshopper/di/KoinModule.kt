@@ -12,6 +12,7 @@ import ru.gorinih.familyshopper.BuildConfig
 import ru.gorinih.familyshopper.data.db.DatabaseRepositoryImpl
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.db.dao.DictionaryDao
+import ru.gorinih.familyshopper.data.db.dao.ListsDao
 import ru.gorinih.familyshopper.data.db.shopperDatabaseBuilder
 import ru.gorinih.familyshopper.data.remote.JsonApi
 import ru.gorinih.familyshopper.data.remote.RemoteRepositoryImpl
@@ -22,11 +23,19 @@ import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListImpl
+import ru.gorinih.familyshopper.domain.usecases.SaveList
+import ru.gorinih.familyshopper.domain.usecases.SaveListImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsImpl
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.list.EditListViewModel
+import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
+import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
 import java.util.concurrent.TimeUnit
 
 /**
@@ -37,9 +46,10 @@ fun koinModule(): Module = module {
 
     single<ShopperDatabase> { shopperDatabaseBuilder(get()) }
     single<DictionaryDao> { get<ShopperDatabase>().dictionaryDao() }
+    single<ListsDao> { get<ShopperDatabase>().listDao() }
 
     single<StorageRepository> { StorageSharedPreference(get()) }
-    single<DatabaseRepository> { DatabaseRepositoryImpl(dictionaryDao = get()) }
+    single<DatabaseRepository> { DatabaseRepositoryImpl(dictionaryDao = get(), listsDao = get()) }
 
     factory<JsonService> { JsonServiceImpl() }
     factory<LoggerInterceptor> { LoggerInterceptor(jsonService = get()) }
@@ -86,8 +96,13 @@ fun koinModule(): Module = module {
             database = get()
         )
     }
+    factory<SaveList> { SaveListImpl(database = get(), remote = get()) }
+    factory<SynchronizeLists> { SynchronizeListsImpl(database = get(), remote = get()) }
+    factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
 
     viewModel { SettingsViewModel(pref = get()) }
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
-    viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get()) }
+    viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
+    viewModel { ListEntityVewModel(database = get(), sync=get()) }
+    viewModel { (listId: String) -> ListStrikeTagsViewModel(listUuid = listId, database = get(), sync = get(), pref = get()) }
 }

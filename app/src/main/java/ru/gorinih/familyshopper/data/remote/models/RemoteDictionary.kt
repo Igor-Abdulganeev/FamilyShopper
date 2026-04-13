@@ -24,34 +24,3 @@ fun RemoteDictionary.toDictionaryRemoteTags() =
         tagVersion = this.tagVersion,
         tagNames = this.tagNames
     )
-
-/*
-
-@Serializable
-data class ListVersionInfo(
-    @SerialName("owner")
-    val owner: String,
-    @SerialName("version_list")
-    val versionList: Int,
-    @SerialName("type")
-    val type: Int
-)
-
-@Serializable
-data class CurrentList(
-    @SerialName("owner")
-    val owner: String,
-    @SerialName("version_list")
-    val versionList: Int,
-    @SerialName("type")
-    val type: Int,
-    @SerialName("name")
-    val name: String,
-    @SerialName("current")
-    val current: List<String> = emptyList(),
-    @SerialName("deleted")
-    val deleted: List<String> = emptyList(),
-    @SerialName("purchased")
-    val purchased: List<String> = emptyList()
-    )
- */
