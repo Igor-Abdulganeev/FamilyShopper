@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
@@ -65,11 +67,17 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 fun ListEntityScreen(
     router: (String) -> Unit,
     addList: () -> Unit,
+    backClick: () -> Unit,
+    navigationActions: (NavigationActions) -> Unit,
     viewModel: ListEntityVewModel = koinViewModel()
 ) {
 
     val state = viewModel.listsState
     val stateLazy = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        navigationActions(NavigationActions(onNavigationClick = { backClick() }))
+    }
 
     BackHandler(enabled = false) {}
 

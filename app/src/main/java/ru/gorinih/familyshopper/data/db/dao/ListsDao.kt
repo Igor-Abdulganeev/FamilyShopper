@@ -31,7 +31,7 @@ interface ListsDao {
         insertListTags(tags)
     }
 
-    @Query("SELECT A.*, COALESCE(COUNT(B.tag_name), 0) AS \"count_tags\", COALESCE(SUM(B.tag_strike), 0) AS \"count_strike\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON A.list_id=B.list_id GROUP BY A.list_id ORDER BY A.list_datetime")
+    @Query("SELECT A.*, COALESCE(COUNT(B.tag_name), 0) AS \"count_tags\", COALESCE(SUM(B.tag_strike), 0) AS \"count_strike\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON A.list_id=B.list_id GROUP BY A.list_id ORDER BY A.list_datetime DESC")
     fun takeLists(): Flow<List<DbListVersionsOut>>
 
 

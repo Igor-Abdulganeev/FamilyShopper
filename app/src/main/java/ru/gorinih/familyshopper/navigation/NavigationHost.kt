@@ -75,6 +75,8 @@ fun NavigationHost(
                 router = { listId ->
                     navigationController.navigate(NavigationKey.ListStrikeTagsScreen(listUuid = listId))
                 },
+                backClick = { popupBackStack() },
+                navigationActions = navigationActions,
                 addList = {
                     navigationController.navigate(NavigationKey.EditListScreen(listUuid = ""))
                 }
