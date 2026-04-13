@@ -10,4 +10,5 @@ import kotlinx.parcelize.Parcelize
 data class SettingsState(
     val clientUUID: String,
     val groupUUID: String,
+    val isFirstTime: Boolean, // первый запуск или нет
 ): Parcelable

@@ -12,4 +12,8 @@ interface StorageRepository {
     fun getGroupUUID(): String
 
     fun setGroupUUID(uuid: String)
+
+    fun getStartedKey(): Boolean
+
+    fun setStartedKey()
 }

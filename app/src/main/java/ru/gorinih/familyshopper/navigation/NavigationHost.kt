@@ -20,6 +20,7 @@ import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsScreen
 @Composable
 fun NavigationHost(
     modifier: Modifier = Modifier,
+    startedScreenKey: NavigationKey,
     navigationController: NavHostController,
     onExit: () -> Unit,
     navigationActions: (NavigationActions) -> Unit = {}
@@ -35,10 +36,19 @@ fun NavigationHost(
     NavHost(
         modifier = modifier,
         navController = navigationController,
-        startDestination = NavigationKey.StartedScreen
+        startDestination = startedScreenKey
     ) {
         composable<NavigationKey.SettingsScreen> {
-            SettingsScreen()
+            SettingsScreen(
+                navigationActions = navigationActions,
+                backPressed = { popupBackStack() },
+                firstTimeBackPressed = {
+                    navigationController.navigate(NavigationKey.StartedScreen) {
+                        popUpTo(NavigationKey.SettingsScreen) {
+                            inclusive = true
+                        }
+                    }
+                })
         }
 
         composable<NavigationKey.DictionariesScreen> {

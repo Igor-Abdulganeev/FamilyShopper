@@ -30,6 +30,7 @@ fun StartedScreen(
         navigationActions(NavigationActions(onNavigationClick = {backClick()}))
     }
     Column(modifier = modifier.padding(horizontal = 2.dp)) {
+/*
         Button(
             modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
                 colorLight = MaterialTheme.colorScheme.primary,
@@ -45,30 +46,36 @@ fun StartedScreen(
         ) {
             Text("настройки")
         }
+*/
+        /*
+                Button(
+                    modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
+                        colorLight = MaterialTheme.colorScheme.primary,
+                        shadowRadius = 4.dp,
+                        borderRadius = 16.dp,
+                        offsetYLight = 2.dp,
+                        offsetXLight = 3.dp,
+                        alphaShadowLight = 0.3f
+                    ),
+                    onClick = {
+                        router(NavigationKey.DictionariesScreen)
+                    },
+                ) {
+                    Text("все товары")
+                }
+        */
         Button(
-            modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
-                colorLight = MaterialTheme.colorScheme.primary,
-                shadowRadius = 4.dp,
-                borderRadius = 16.dp,
-                offsetYLight = 2.dp,
-                offsetXLight = 3.dp,
-                alphaShadowLight = 0.3f
-            ),
-            onClick = {
-                router(NavigationKey.DictionariesScreen)
-            },
-        ) {
-            Text("все товары")
-        }
-        Button(
-            modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
-                colorLight = MaterialTheme.colorScheme.primary,
-                shadowRadius = 4.dp,
-                borderRadius = 16.dp,
-                offsetYLight = 2.dp,
-                offsetXLight = 3.dp,
-                alphaShadowLight = 0.3f
-            ),
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .shadow(
+                    colorLight = MaterialTheme.colorScheme.primary,
+                    shadowRadius = 4.dp,
+                    borderRadius = 16.dp,
+                    offsetYLight = 2.dp,
+                    offsetXLight = 3.dp,
+                    alphaShadowLight = 0.3f
+                ),
             onClick = {
                 router(NavigationKey.EditListScreen(listUuid = ""))
             },
@@ -76,14 +83,17 @@ fun StartedScreen(
             Text("новый список")
         }
         Button(
-            modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
-                colorLight = MaterialTheme.colorScheme.primary,
-                shadowRadius = 4.dp,
-                borderRadius = 16.dp,
-                offsetYLight = 2.dp,
-                offsetXLight = 3.dp,
-                alphaShadowLight = 0.3f
-            ),
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .shadow(
+                    colorLight = MaterialTheme.colorScheme.primary,
+                    shadowRadius = 4.dp,
+                    borderRadius = 16.dp,
+                    offsetYLight = 2.dp,
+                    offsetXLight = 3.dp,
+                    alphaShadowLight = 0.3f
+                ),
             onClick = {
                 router(NavigationKey.ListEntityScreen)
             },
@@ -99,14 +109,17 @@ fun PreviewButtons() {
     FamilyShopperTheme() {
         Column(Modifier.padding(top = 32.dp, start = 16.dp, end = 16.dp)) {
             Button(
-                modifier = Modifier.padding(8.dp).fillMaxWidth().shadow(
-                    colorLight = MaterialTheme.colorScheme.primary,
-                    shadowRadius = 3.dp,
-                    borderRadius = 16.dp,
-                    offsetYLight = 3.dp,
-                    offsetXLight = 3.dp,
-                    alphaShadowLight = 0.1f
-                ),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .shadow(
+                        colorLight = MaterialTheme.colorScheme.primary,
+                        shadowRadius = 3.dp,
+                        borderRadius = 16.dp,
+                        offsetYLight = 3.dp,
+                        offsetXLight = 3.dp,
+                        alphaShadowLight = 0.1f
+                    ),
                 onClick = { },
             ) {
                 Text("новый список")

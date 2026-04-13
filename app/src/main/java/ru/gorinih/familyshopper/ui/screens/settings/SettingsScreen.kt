@@ -1,6 +1,7 @@
 package ru.gorinih.familyshopper.ui.screens.settings
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 
 /**
@@ -46,6 +49,9 @@ import ru.gorinih.familyshopper.ui.views.RoundedTextField
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
+    navigationActions: (NavigationActions) -> Unit,
+    backPressed: () -> Unit,
+    firstTimeBackPressed: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val state = viewModel.stateSettings
@@ -63,6 +69,21 @@ fun SettingsScreen(
             }
             val shareIntent = Intent.createChooser(intent, null)
             context.startActivity(shareIntent)
+        }
+    }
+
+    if (state.isFirstTime) {
+        BackHandler(enabled = true) {
+            firstTimeBackPressed()
+        }
+        DisposableEffect(Unit) {
+            navigationActions(NavigationActions(onNavigationClick = {
+                firstTimeBackPressed()
+            }))
+
+            onDispose {
+                navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
+            }
         }
     }
 
@@ -130,7 +151,7 @@ fun SettingsScreen(
                         Icon(imageVector = icon, contentDescription = null)
                     }
                     IconButton(
-                        onClick = {viewModel.onShareGroupUuid()}
+                        onClick = { viewModel.onShareGroupUuid() }
                     ) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     }
@@ -192,7 +213,7 @@ fun SettingsScreen(
                         Icon(imageVector = icon, contentDescription = null)
                     }
                     IconButton(
-                        onClick = {viewModel.onShareClientUuid()}
+                        onClick = { viewModel.onShareClientUuid() }
                     ) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     }

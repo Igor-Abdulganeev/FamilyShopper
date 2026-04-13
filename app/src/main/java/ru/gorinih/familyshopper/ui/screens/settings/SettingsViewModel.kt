@@ -76,5 +76,8 @@ class SettingsViewModel(
         SettingsState(
             clientUUID = pref.getClientUUID(),
             groupUUID = pref.getGroupUUID(),
-        )
+            isFirstTime = !pref.getStartedKey()
+        ).apply {
+            pref.setStartedKey()
+        }
 }

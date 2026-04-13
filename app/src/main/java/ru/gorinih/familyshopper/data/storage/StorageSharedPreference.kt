@@ -12,14 +12,15 @@ import java.util.UUID
 
 class StorageSharedPreference(
     context: Context
-): StorageRepository {
+) : StorageRepository {
     private val preference: SharedPreferences =
         context.getSharedPreferences(SETTING_FILE_NAME, Context.MODE_PRIVATE)
 
-    override fun getClientUUID(): String = preference.getString(CLIENT_UUID, "").takeIf { !it.isNullOrBlank() }
-        ?: UUID.randomUUID().toString().also {
-            setClientUUID(it)
-        }
+    override fun getClientUUID(): String =
+        preference.getString(CLIENT_UUID, "").takeIf { !it.isNullOrBlank() }
+            ?: UUID.randomUUID().toString().also {
+                setClientUUID(it)
+            }
 
     override fun setClientUUID(uuid: String) = preference.edit {
         putString(CLIENT_UUID, uuid)
@@ -31,10 +32,18 @@ class StorageSharedPreference(
         putString(GROUP_UUID, uuid)
     }
 
+    override fun getStartedKey(): Boolean = preference.getBoolean(APP_FIRST_TIME, false)
+
+    override fun setStartedKey() {
+        preference.edit {
+            putBoolean(APP_FIRST_TIME, true)
+        }
+    }
 
     companion object {
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
+        private const val APP_FIRST_TIME = "family_shopper_is_first_time"
 
         private const val SETTING_FILE_NAME = "family_settings"
     }
