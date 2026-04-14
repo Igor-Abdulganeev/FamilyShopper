@@ -98,6 +98,9 @@ interface DictionaryDao {
     @Query("DELETE FROM dictionary_deleted")
     suspend fun clearDeleteTags()
 
+    @Query("DELETE FROM dictionary_ver WHERE tag_id=:tagId")
+    suspend fun deleteDictionaryVersion(tagId: String)
+
     //endregion
 
 }

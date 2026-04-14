@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -60,17 +62,29 @@ fun EditDictionariesScreen(
     val pagerState = rememberPagerState(initialPage = 0) { state.list.size }
     var addedTag by remember { mutableStateOf("") }
 
+    fun addNewTag() {
+        if (addedTag.isNotBlank()) {
+            viewModel.addTag(addedTag)
+            addedTag = ""
+        }
+    }
+
     BackHandler(enabled = false) { }
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+    ) {
         if (state.canSync) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+
             ) {
-                Text(text = stringResource(R.string.label_sync_tags))
+                Spacer(Modifier.width(48.dp))
+                Text(text = stringResource(R.string.label_sync_header))
                 IconButton(
-                    modifier = Modifier,
                     onClick = {
                         viewModel.refreshDictionaries()
                     }
@@ -93,12 +107,12 @@ fun EditDictionariesScreen(
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        if (addedTag.isNotBlank()) {
-                            viewModel.addTag(addedTag)
-                            addedTag = ""
-                        }
+                        addNewTag()
                     },
                 ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+            },
+            action = {
+                addNewTag()
             }
         )
         when(state.list.count()) {

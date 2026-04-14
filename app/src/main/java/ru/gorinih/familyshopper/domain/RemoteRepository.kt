@@ -18,6 +18,8 @@ interface RemoteRepository {
 
     suspend fun updateDictionaryWithVersion(updates: List<DictionaryRemoteTag>)
 
+    suspend fun deleteDictionaryWithVersion(updates: List<DictionaryRemoteTag>)
+
     suspend fun getListsVersions(): Map<String, ListRemoteInfo>
 
     suspend fun updateListWithVersion(updates: List<ShoppedList>)

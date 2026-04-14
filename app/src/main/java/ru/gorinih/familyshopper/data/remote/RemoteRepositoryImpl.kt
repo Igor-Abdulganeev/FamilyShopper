@@ -58,14 +58,20 @@ class RemoteRepositoryImpl(
     ) {
         val groupId = pref.getGroupUUID()
         if (groupId.isBlank()) return
-        val maps = mutableMapOf<String, Any>()
+        val maps = mutableMapOf<String, Any?>()
         updates.forEach {
             maps.putAll(it.toUpdateRemote())
         }
-        remoteApi.updateDictionaryWithVersion(
+        remoteApi.updateSharedData(
             groupId = groupId,
             updates = maps
         )
+    }
+
+    override suspend fun deleteDictionaryWithVersion(updates: List<DictionaryRemoteTag>) {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return
+
     }
 
     override suspend fun getListsVersions(): Map<String, ListRemoteInfo> {
@@ -79,7 +85,7 @@ class RemoteRepositoryImpl(
         val groupId = pref.getGroupUUID()
         if (groupId.isBlank()) return
         val maps = updates.associate { it.listId to it.toUpdateRemote() }
-        remoteApi.updateListWithVersion(
+        remoteApi.updateSharedData(
             groupId = groupId,
             updates = maps
         )
@@ -110,7 +116,7 @@ class RemoteRepositoryImpl(
         val groupId = pref.getGroupUUID()
         if (groupId.isBlank()) return
         val user = pref.getClientUUID().toUpdateRemote(pref.getUserName())
-        remoteApi.updateUserName(groupId = groupId, updates = user)
+        remoteApi.updateSharedData(groupId = groupId, updates = user)
     }
 
     override suspend fun getUsersNames(): Map<String, String> {
@@ -125,16 +131,16 @@ fun String.toUpdateRemote(name: String): Map<String, String> = mapOf(
     "$PATH_USERS${this}" to name
 )
 
-fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any> = mapOf(
-    "$PATH_DICTIONARY_VERSION${this.tagId}" to this.tagVersion,
-    "$PATH_DICTIONARY${this.tagId}" to RemoteDictionary(
+fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any?> = mapOf(
+    "$PATH_DICTIONARY_VERSION${this.tagId}" to if (this.tagNames.isNotEmpty()) this.tagVersion else null,
+    "$PATH_DICTIONARY${this.tagId}" to if (this.tagNames.isNotEmpty()) RemoteDictionary(
         tagVersion = this.tagVersion,
         tagId = this.tagId,
         tagNames = this.tagNames
-    )
+    ) else null
 )
 
-fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
+fun ShoppedList.toUpdateRemote(): Map<String, Any?> = mapOf(
     "$PATH_CURRENT_LISTS_VERSIONS${this.listId}" to ListVersionInfo(
         listVersion = this.listVersion,
         listLegend = this.listLegend,

@@ -15,6 +15,21 @@ import ru.gorinih.familyshopper.data.remote.models.RemoteDictionary
 
 interface JsonApi {
 
+    /**
+     * Сохранение/Обновление данных на сервер
+     *      для словаря: В Body: {"dictionaries/A": dictionaryObject, "dictionaries_versions/A": 2}
+     *      для списков: В Body: {"current_lists/ID": listObject, "current_lists_versions/ID": ListVersionInfo}
+     *      для пользователей: В Body: {"current_users/ID": userObject}
+     *
+     * Удаление аналогично для всех
+     *      В Body: {"current_lists/ID": null, "current_lists_versions/ID": null}
+     */
+    @PATCH("shared_data/{group_id}.json")
+    suspend fun updateSharedData(
+        @Path("group_id") groupId: String,
+        @Body updates: Map<String, @JvmSuppressWildcards Any?>
+    ): Response<Unit>
+
     //region СЛОВАРИ (Dictionaries) ---
 
     // Получение списка версий словарей
@@ -36,13 +51,6 @@ interface JsonApi {
         @Path("tag_id") tagId: String
     ): Response<RemoteDictionary?>
 
-    // Сохранение/Обновление словаря (Атомарно обновляет и данные, и версию)
-    @PATCH("shared_data/{group_id}.json")
-    suspend fun updateDictionaryWithVersion(
-        @Path("group_id") groupId: String,
-        @Body updates: Map<String, @JvmSuppressWildcards Any> // В Body: {"dictionaries/A": dictionaryObject, "dictionaries_versions/A": 2}
-    )
-
     //endregion
 
     // --- СПИСКИ ПОКУПОК (Current Lists) ---
@@ -52,13 +60,6 @@ interface JsonApi {
     suspend fun getListsVersions(
         @Path("group_id") groupId: String
     ): Response<Map<String, ListVersionInfo>?>
-
-    // Обновление списка покупок
-    @PATCH("shared_data/{group_id}.json")
-    suspend fun updateListWithVersion(
-        @Path("group_id") groupId: String,
-        @Body updates: Map<String, @JvmSuppressWildcards Any> // В Body: {"current_lists/ID": listObject, "current_lists_versions/ID": ListVersionInfo}
-    ): Response<Unit>
 
     // Получение всех списков, приватные фильтруем в коде
     @GET("shared_data/{group_id}/current_lists.json")
@@ -84,12 +85,6 @@ interface JsonApi {
 
 
      */
-    // Обновление имени пользователя
-    @PATCH("shared_data/{group_id}.json")
-    suspend fun updateUserName(
-        @Path("group_id") groupId: String,
-        @Body updates: Map<String, String>
-    ): Response<Unit>
 
     // Получение всех пользователей
     @GET("shared_data/{group_id}/current_users.json")

@@ -80,12 +80,19 @@ class SynchronizeDictionariesImpl(
             }
             if (updates.isNotEmpty()) {
                 remote.updateDictionaryWithVersion(updates)
+                val versions = updates.filter { it.tagNames.isEmpty() }
                 // 6) обновим всё в БД
                 database.updateDictionariesWithVersions(needSendToRemoteKeys)
+                for (version in versions) {
+                    database.deleteDictionaryVersion(version.tagId)
+                }
             }
-            return Results(false, if(needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else "")
+            return Results(
+                false,
+                if (needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else ""
+            )
         } catch (ex: Throwable) {
-            return Results(true,ex.localizedMessage ?: "unknown error")
+            return Results(true, ex.localizedMessage ?: "unknown error")
         }
     }
 }

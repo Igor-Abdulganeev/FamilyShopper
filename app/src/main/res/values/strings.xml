@@ -6,10 +6,11 @@
     <string name="label_key_group">Ключ группы</string>
     <string name="label_key_client">Ключ пользователя</string>
     <string name="label_enter_new_tag">введите наименование</string>
-    <string name="label_sync_tags">"синхронизировать - "</string>
+    <string name="label_lists_header">"все списки"</string>
+    <string name="label_sync_header">"сохраненные продукты"</string>
     <string name="new_list_name">"Список от %s"</string>
     <string name="label_list_name">"Наименование списка"</string>
-    <string name="label_list_add_tag">"добавление продукта"</string>
+    <string name="label_list_add_tag">"введите наименование"</string>
     <string name="label_empty_list">Отсутствуют данные</string>
     <string name="label_icon_all">открыт для всех</string>
     <string name="label_icon_add">только отметки</string>

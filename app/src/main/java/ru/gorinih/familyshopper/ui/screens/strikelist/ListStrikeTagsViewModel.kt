@@ -50,12 +50,18 @@ class ListStrikeTagsViewModel(
                     else -> false
                 }
                 val tagNames = listData.tagNames.map { it.toUiShoppingItem() }
+                val l = listData.listName.length
+                val listName = when {
+                    l > 20 -> "${listData.listName.substring(IntRange(0, 20))}..."
+                    else -> listData.listName
+                }
                 withContext(Dispatchers.Main.immediate) {
                     shoppedList =
                         shoppedList.copy(
                             tagNames = tagNames,
                             isEditable = isEditable,
-                            listLegend = listData.listLegend
+                            listLegend = listData.listLegend,
+                            listName = listName
                         )
                 }
             }

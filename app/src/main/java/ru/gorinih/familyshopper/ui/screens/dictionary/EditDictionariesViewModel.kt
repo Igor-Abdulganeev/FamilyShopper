@@ -96,7 +96,7 @@ class EditDictionariesViewModel(
             dictionaryState.update { it.copy(isLoading = true) }
             syncRemote().apply {
                 when{// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
-                    !this.isError && this.textError.isNotEmpty() -> dictionaryState.update { it.copy(isLoading = false) }
+                    !this.isError -> dictionaryState.update { it.copy(isLoading = false) }
                     this.isError -> dictionaryState.update { it.copy(isLoading = false, error = this.textError) }
                 }
             }

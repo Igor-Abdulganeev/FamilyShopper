@@ -77,7 +77,10 @@ fun koinModule(): Module = module {
 
     single<GsonConverterFactory> {
         GsonConverterFactory.create(
-            GsonBuilder().setStrictness(Strictness.LENIENT).create()
+            GsonBuilder()
+                .setStrictness(Strictness.LENIENT)
+                .serializeNulls()
+                .create()
         )
     }
 

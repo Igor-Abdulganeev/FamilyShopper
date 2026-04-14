@@ -202,4 +202,8 @@ class DatabaseRepositoryImpl(
     override suspend fun keepUser(user: ShoppedUsers) {
         userDao.insertUser(user.toDbUsers())
     }
+
+    override suspend fun deleteDictionaryVersion(tagId: String) {
+        dictionaryDao.deleteDictionaryVersion(tagId = tagId)
+    }
 }
