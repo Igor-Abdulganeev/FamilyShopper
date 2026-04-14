@@ -21,6 +21,8 @@ private const val PATH_DICTIONARY = "dictionaries/"
 private const val PATH_DICTIONARY_VERSION = "dictionaries_versions/"
 private const val PATH_CURRENT_LISTS = "current_lists/"
 private const val PATH_CURRENT_LISTS_VERSIONS = "current_lists_versions/"
+private const val PATH_USERS = "current_users/"
+
 
 class RemoteRepositoryImpl(
     private val remoteApi: JsonApi,
@@ -103,7 +105,25 @@ class RemoteRepositoryImpl(
         val result = remoteApi.getCurrentListById(groupId = groupId, listId = listId)
         return  result.body()?.toShoppedList()
     }
+
+    override suspend fun setUserName() {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return
+        val user = pref.getClientUUID().toUpdateRemote(pref.getUserName())
+        remoteApi.updateUserName(groupId = groupId, updates = user)
+    }
+
+    override suspend fun getUsersNames(): Map<String, String> {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return emptyMap()
+        val result = remoteApi.getAllCurrentUsers(groupId = groupId)
+        return result.body() ?: emptyMap()
+    }
 }
+
+fun String.toUpdateRemote(name: String): Map<String, String> = mapOf(
+    "$PATH_USERS${this}" to name
+)
 
 fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any> = mapOf(
     "$PATH_DICTIONARY_VERSION${this.tagId}" to this.tagVersion,
@@ -128,7 +148,7 @@ fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
         listName = this.listName,
         listLegend = this.listLegend,
         listOwner = this.ownerUuid,
-        listTo = this.clientsUuid,
+        listTo = this.usersUuid.map { it.userUuid },
         listTags = this.tagNames.map { it.toListTagObject() }
     )
 

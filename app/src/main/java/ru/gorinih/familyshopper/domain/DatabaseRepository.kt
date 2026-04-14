@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
 /**
  * Created by Igor Abdulganeev on 05.04.2026
@@ -40,4 +41,12 @@ interface DatabaseRepository {
     suspend fun takeList(listId: String): ShoppedList
 
     fun observeList(listId: String): Flow<ShoppedList>
+
+    fun takeUsers(): Flow<List<ShoppedUsers>>
+
+    suspend fun takeUser(userUuid: String): ShoppedUsers?
+
+    suspend fun keepUsers(users: List<ShoppedUsers>)
+
+    suspend fun keepUser(user: ShoppedUsers)
 }

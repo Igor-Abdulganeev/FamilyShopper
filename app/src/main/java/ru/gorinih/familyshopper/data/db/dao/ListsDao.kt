@@ -31,17 +31,16 @@ interface ListsDao {
         insertListTags(tags)
     }
 
-    @Query("SELECT A.*, COALESCE(COUNT(B.tag_name), 0) AS \"count_tags\", COALESCE(SUM(B.tag_strike), 0) AS \"count_strike\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON A.list_id=B.list_id GROUP BY A.list_id ORDER BY A.list_datetime DESC")
+    @Query("SELECT A.*, COALESCE(COUNT(B.tag_name), 0) AS \"count_tags\", COALESCE(SUM(B.tag_strike), 0) AS \"count_strike\", COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON A.list_id=B.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner GROUP BY A.list_id ORDER BY A.list_datetime DESC")
     fun takeLists(): Flow<List<DbListVersionsOut>>
-
 
     @Query("SELECT * FROM lists_ver")
     suspend fun selectLists(): List<DbListVersions>
 
-    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment FROM lists_ver AS A LEFT JOIN list_tags AS B  ON B.list_id = A.list_id WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
+    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
     suspend fun takeList(listId: String): List<DbList>
 
-    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment FROM lists_ver AS A LEFT JOIN list_tags AS B  ON B.list_id = A.list_id WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
+    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
     fun flowList(listId: String): Flow<List<DbList>>
 
     //endregion

@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.editlist
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,14 +17,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.SupervisedUserCircle
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -45,7 +52,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
@@ -79,7 +89,8 @@ fun EditListScreen(
     val keyboardManager = LocalFocusManager.current
     val screen = rememberScreenConfiguration()
     val named = stringResource(state.listNameId, state.date)
-
+    val stateLazyList = rememberLazyListState()
+    BackHandler(enabled = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
     }
@@ -260,7 +271,66 @@ fun EditListScreen(
                 action = {
                     keyboardManager.clearFocus()
                 },
+                trailingIcon = {
+                    if (state.allUsersUuid.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                viewModel.showUsersSelect()
+                            },
+                            modifier = Modifier.padding(end = 16.dp)
+                        ) {
+                            Icon(Icons.Default.SupervisedUserCircle, contentDescription = null)
+                        }
+                        Text(
+                            text = state.usersUuid.count().toString(),
+                            modifier = Modifier.padding(bottom = 16.dp, start = 12.dp),
+                            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                        )
+                    }
+                }
             )
+            AnimatedVisibility(
+                visible = state.usersSelect,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .padding(top = 2.dp)
+                        .border(
+                            width = 1.dp,
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.inverseSurface
+                        )
+                        .background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                ) {
+
+                    LazyColumn(state = stateLazyList) {
+                        items(state.allUsersUuid, key = { list -> list.userUuid }) { item ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = item.isSelected,
+                                    onCheckedChange = { viewModel.selectUser(item.userUuid) }
+                                )
+                                Text(
+                                    text = item.userName,
+                                    modifier = Modifier.padding(start = 12.dp)
+                                )
+                            }
+                        }
+                    }
+
+                }
+            }
             RoundedTextField(
                 value = addedTag,
                 onValueChange = { name ->

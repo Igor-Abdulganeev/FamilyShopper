@@ -3,6 +3,7 @@ package ru.gorinih.familyshopper.data.db.models
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -14,7 +15,9 @@ data class DbListVersionsOut(
     @ColumnInfo(name = "count_tags")
     val countTags: Int,
     @ColumnInfo(name = "count_strike")
-    val countStrike: Int
+    val countStrike: Int,
+    @ColumnInfo(name = "user_name")
+    val userName: String
 )
 
 fun DbListVersionsOut.toShoppedList() =
@@ -25,9 +28,10 @@ fun DbListVersionsOut.toShoppedList() =
         listVersion = this.listVersion.listVersion,
         listLegend = this.listVersion.listLegend,
         tagNames = emptyList(),
-        clientsUuid = this.listVersion.listTo,
+        usersUuid = this.listVersion.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.listVersion.listDatetime,
         countTags = this.countTags,
-        countStrikes = this.countStrike
+        countStrikes = this.countStrike,
+        userName = this.userName,
     )
 

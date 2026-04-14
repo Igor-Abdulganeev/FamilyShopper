@@ -63,7 +63,8 @@ fun TagsList(
     if (list.isEmpty()) {
         Text(
             stringResource(R.string.label_empty_list),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
                 .padding(16.dp)
         )
     } else {
@@ -162,7 +163,9 @@ fun TagItem(
                 onClick = {
                     onDelete()
                 },
-                modifier = Modifier.padding(end = 8.dp).weight(0.3f)
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .weight(0.3f)
             ) {
                 Icon(Icons.Default.Clear, contentDescription = null)
             }
@@ -171,7 +174,8 @@ fun TagItem(
             text = tag.tagName,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .clickable(
                     onClick = {
                         onClick()
@@ -212,7 +216,7 @@ fun TagItem(
             onChange = { comment ->
                 onEditComment(comment)
             },
-            modifier = Modifier.weight(0.5f)
+            modifier = Modifier.weight(0.7f)
         )
     }
 }

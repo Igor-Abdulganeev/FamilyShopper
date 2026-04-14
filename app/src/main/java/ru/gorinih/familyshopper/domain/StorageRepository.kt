@@ -16,4 +16,8 @@ interface StorageRepository {
     fun getStartedKey(): Boolean
 
     fun setStartedKey()
+
+    fun getUserName(): String
+
+    fun setUserName(name: String)
 }

@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,6 +60,7 @@ fun EditDictionariesScreen(
     val pagerState = rememberPagerState(initialPage = 0) { state.list.size }
     var addedTag by remember { mutableStateOf("") }
 
+    BackHandler(enabled = false) { }
     Column(modifier = modifier.fillMaxSize()) {
         if (state.canSync) {
             Row(

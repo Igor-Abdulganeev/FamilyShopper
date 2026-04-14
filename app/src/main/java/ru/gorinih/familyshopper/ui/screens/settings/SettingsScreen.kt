@@ -72,18 +72,24 @@ fun SettingsScreen(
         }
     }
 
-    if (state.isFirstTime) {
-        BackHandler(enabled = true) {
-            firstTimeBackPressed()
+    val handlerExit = {
+        viewModel.saveUserName()
+        when (state.isFirstTime) {
+            true -> firstTimeBackPressed()
+            false -> backPressed()
         }
-        DisposableEffect(Unit) {
-            navigationActions(NavigationActions(onNavigationClick = {
-                firstTimeBackPressed()
-            }))
+    }
 
-            onDispose {
-                navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
-            }
+    BackHandler(enabled = true) {
+        handlerExit()
+    }
+    DisposableEffect(Unit) {
+        navigationActions(NavigationActions(onNavigationClick = {
+            handlerExit()
+        }))
+
+        onDispose {
+            navigationActions(NavigationActions(onNavigationClick = { handlerExit() }))
         }
     }
 
@@ -231,6 +237,30 @@ fun SettingsScreen(
             style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
             textAlign = TextAlign.Justify,
             fontWeight = FontWeight.Bold,
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+        )
+        Text(
+            text = stringResource(R.string.help_user_name_property),
+            autoSize = TextAutoSize.StepBased(maxFontSize = TextAutoSizeDefaults.MaxFontSize * 0.1),
+            style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+            textAlign = TextAlign.Justify,
+            modifier = Modifier.alpha(0.5f)
+        )
+        RoundedTextField(
+            value = state.userName,
+            onValueChange = { str ->
+                viewModel.updateUserName(str)
+            },
+            label = stringResource(R.string.label_user_name),
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
         )
 
     }

@@ -31,5 +31,8 @@ interface RemoteRepository {
 
          suspend fun deleteListWithVersion(groupId: String, updates: Map<String, Any?>): Response<UniUnit>
      */
+    suspend fun setUserName()
+
+    suspend fun getUsersNames(): Map<String, String>
 
 }

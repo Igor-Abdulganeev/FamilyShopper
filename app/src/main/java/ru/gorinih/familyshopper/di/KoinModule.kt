@@ -13,6 +13,7 @@ import ru.gorinih.familyshopper.data.db.DatabaseRepositoryImpl
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.db.dao.DictionaryDao
 import ru.gorinih.familyshopper.data.db.dao.ListsDao
+import ru.gorinih.familyshopper.data.db.dao.UserDao
 import ru.gorinih.familyshopper.data.db.shopperDatabaseBuilder
 import ru.gorinih.familyshopper.data.remote.JsonApi
 import ru.gorinih.familyshopper.data.remote.RemoteRepositoryImpl
@@ -31,6 +32,8 @@ import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsers
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersImpl
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
@@ -48,9 +51,16 @@ fun koinModule(): Module = module {
     single<ShopperDatabase> { shopperDatabaseBuilder(get()) }
     single<DictionaryDao> { get<ShopperDatabase>().dictionaryDao() }
     single<ListsDao> { get<ShopperDatabase>().listDao() }
+    single<UserDao> { get<ShopperDatabase>().userDao() }
 
     single<StorageRepository> { StorageSharedPreference(get()) }
-    single<DatabaseRepository> { DatabaseRepositoryImpl(dictionaryDao = get(), listsDao = get()) }
+    single<DatabaseRepository> {
+        DatabaseRepositoryImpl(
+            dictionaryDao = get(),
+            listsDao = get(),
+            userDao = get()
+        )
+    }
 
     factory<JsonService> { JsonServiceImpl() }
     factory<LoggerInterceptor> { LoggerInterceptor(jsonService = get()) }
@@ -100,10 +110,11 @@ fun koinModule(): Module = module {
     factory<SaveList> { SaveListImpl(database = get(), remote = get()) }
     factory<SynchronizeLists> { SynchronizeListsImpl(database = get(), remote = get()) }
     factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
+    factory<UpdateUsers> { UpdateUsersImpl(remote = get(), database = get()) }
 
     single { GlassCircleImageHolder }
 
-    viewModel { SettingsViewModel(pref = get()) }
+    viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
     viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
     viewModel { ListEntityVewModel(database = get(), sync=get()) }

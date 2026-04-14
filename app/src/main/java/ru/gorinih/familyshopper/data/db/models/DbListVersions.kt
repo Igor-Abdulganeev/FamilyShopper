@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -37,7 +38,7 @@ fun ShoppedList.toDbListVersions() =
         listName = this.listName,
         listLegend = this.listLegend,
         listOwner = this.ownerUuid,
-        listTo = this.clientsUuid,
+        listTo = this.usersUuid.map { it.userUuid },
         listDatetime = this.dateTime
     )
 
@@ -49,8 +50,9 @@ fun DbListVersions.toShoppedList() =
         listVersion = this.listVersion,
         listLegend = this.listLegend,
         tagNames = emptyList(),
-        clientsUuid = this.listTo,
+        usersUuid = this.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.listDatetime,
         countTags = 0,
-        countStrikes = 0
+        countStrikes = 0,
+        userName = "",
     )

@@ -84,4 +84,18 @@ interface JsonApi {
 
 
      */
+    // Обновление имени пользователя
+    @PATCH("shared_data/{group_id}.json")
+    suspend fun updateUserName(
+        @Path("group_id") groupId: String,
+        @Body updates: Map<String, String>
+    ): Response<Unit>
+
+    // Получение всех пользователей
+    @GET("shared_data/{group_id}/current_users.json")
+    suspend fun getAllCurrentUsers(
+        @Path("group_id") groupId: String
+    ): Response<Map<String, String>?>
+
+
 }

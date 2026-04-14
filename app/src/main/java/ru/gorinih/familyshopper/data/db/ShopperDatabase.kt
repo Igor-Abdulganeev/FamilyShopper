@@ -9,11 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import ru.gorinih.familyshopper.data.db.converters.DbListStringConverter
 import ru.gorinih.familyshopper.data.db.dao.DictionaryDao
 import ru.gorinih.familyshopper.data.db.dao.ListsDao
+import ru.gorinih.familyshopper.data.db.dao.UserDao
 import ru.gorinih.familyshopper.data.db.models.DbDeletedTags
 import ru.gorinih.familyshopper.data.db.models.DbDictionary
 import ru.gorinih.familyshopper.data.db.models.DbDictionaryVersions
 import ru.gorinih.familyshopper.data.db.models.DbListTags
 import ru.gorinih.familyshopper.data.db.models.DbListVersions
+import ru.gorinih.familyshopper.data.db.models.DbUsers
 
 /**
  * Created by Igor Abdulganeev on 04.04.2026
@@ -24,7 +26,8 @@ import ru.gorinih.familyshopper.data.db.models.DbListVersions
         DbDictionaryVersions::class,
         DbDeletedTags::class,
         DbListVersions::class,
-        DbListTags::class
+        DbListTags::class,
+        DbUsers::class
     ],
     exportSchema = false,
     version = 1
@@ -33,6 +36,7 @@ import ru.gorinih.familyshopper.data.db.models.DbListVersions
 abstract class ShopperDatabase : RoomDatabase() {
     abstract fun dictionaryDao(): DictionaryDao
     abstract fun listDao(): ListsDao
+    abstract fun userDao(): UserDao
 }
 
 fun shopperDatabaseBuilder(context: Context): ShopperDatabase {

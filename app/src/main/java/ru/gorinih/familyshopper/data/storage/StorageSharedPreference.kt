@@ -40,10 +40,17 @@ class StorageSharedPreference(
         }
     }
 
+    override fun getUserName(): String = preference.getString(USER_NAME, "") ?: ""
+
+    override fun setUserName(name: String) = preference.edit {
+        putString(USER_NAME, name)
+    }
+
     companion object {
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
         private const val APP_FIRST_TIME = "family_shopper_is_first_time"
+        private const val USER_NAME = "family_shopper_user_name"
 
         private const val SETTING_FILE_NAME = "family_settings"
     }

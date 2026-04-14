@@ -3,7 +3,7 @@ package ru.gorinih.familyshopper.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Светло-зелёный (кардиган)
-val LightGreen = Color(0xFFAECBA2)
+val LightGreen = Color(0xFFB5E1AD)
 // Средне-зелёный
 val MediumGreen = Color(0xFF8A9A8C)
 // Тёмно-синий

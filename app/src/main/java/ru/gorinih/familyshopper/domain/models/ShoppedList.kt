@@ -12,10 +12,11 @@ data class ShoppedList(
     val listVersion: Int,
     val listLegend: Int,
     val tagNames: List<ShoppedItem>,
-    val clientsUuid: List<String>,
+    val usersUuid: List<ShoppedUsers>,
     val dateTime: Long,
     val countTags: Int,
-    val countStrikes: Int
+    val countStrikes: Int,
+    val userName: String,
 )
 
 fun ShoppedList.getNewerOrNull(list: ShoppedList): ShoppedList? =when {
@@ -28,11 +29,11 @@ fun ShoppedList.getNewerOrNull(list: ShoppedList): ShoppedList? =when {
 
 fun ShoppedList.fullCompare(shoppedList: ShoppedList): Boolean = when {
     tagNames.count() != shoppedList.tagNames.count() -> false
-    clientsUuid.count() != shoppedList.clientsUuid.count() -> false
+    usersUuid.count() != shoppedList.usersUuid.count() -> false
     listName != shoppedList.listName -> false
     listVersion != shoppedList.listVersion -> false
     listLegend != shoppedList.listLegend -> false
-    !shoppedList.clientsUuid.containsAll(clientsUuid) -> false
+    !shoppedList.usersUuid.containsAll(usersUuid) -> false
     !tagNames.all { tag ->
         val listItem = shoppedList.tagNames.findLast { it.tagName == tag.tagName }
                 listItem != null &&

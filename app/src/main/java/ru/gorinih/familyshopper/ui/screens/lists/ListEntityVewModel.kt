@@ -6,14 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
+import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -24,17 +24,25 @@ class ListEntityVewModel(
     private val sync: SynchronizeLists,
 ) : ViewModel() {
     var listsState by mutableStateOf(UiListsState())
+        private set
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            database.takeLists()
-                .catch { throwable ->
-                    listsState = listsState.copy(error = throwable.localizedMessage, loading = false)
+            combine(
+                database.takeLists(),
+                database.takeUsers()
+            ) { list, users ->
+                val userMap = users.associateBy { it.userName }
+                list.map { entity ->
+                    val users = entity.usersUuid.mapNotNull { uuid -> userMap[uuid.userUuid] }
+                        .map { it.toUiListUsers() }
+                    entity.toUiListObject().copy(listTo = users)
                 }
-                .onEach { entry ->
-                    listsState = listsState.copy(lists = entry.map { it.toUiListObject() }, loading = false)
+            }.collect { list ->
+                withContext(Dispatchers.Main.immediate) {
+                    listsState = listsState.copy(lists = list, loading = false)
                 }
-                .stateIn(viewModelScope)
+            }
         }
     }
 

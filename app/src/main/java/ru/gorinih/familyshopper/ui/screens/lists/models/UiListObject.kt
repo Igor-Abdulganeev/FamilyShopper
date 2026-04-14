@@ -12,17 +12,18 @@ import java.time.format.DateTimeFormatter
  */
 
 @Parcelize
-data class UiListObject (
+data class UiListObject(
     val listId: String,
     val listVersion: Int,
     val listName: String,
     val listLegend: Int,
     val listOwner: String,
-    val listTo: List<String> = emptyList(),
+    val listTo: List<UiListUsers> = emptyList(),
     val listDatetime: String,
     val countTags: Int,
-    val countStrikes: Int
-): Parcelable
+    val countStrikes: Int,
+    val userName: String
+) : Parcelable
 
 fun ShoppedList.toUiListObject() =
     UiListObject(
@@ -31,10 +32,11 @@ fun ShoppedList.toUiListObject() =
         listName = this.listName,
         listLegend = this.listLegend,
         listOwner = this.ownerUuid,
-        listTo = this.clientsUuid,
+        listTo = this.usersUuid.map { it.toUiListUsers() },
         listDatetime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
             .withZone(ZoneId.systemDefault())
             .format(Instant.ofEpochMilli(this.dateTime)),
         countTags = this.countTags,
-        countStrikes = this.countStrikes
+        countStrikes = this.countStrikes,
+        userName = this.userName
     )

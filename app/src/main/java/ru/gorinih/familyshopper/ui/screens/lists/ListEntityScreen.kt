@@ -36,8 +36,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +48,7 @@ import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
 import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
@@ -215,7 +218,7 @@ fun CardListItem(
             color = MaterialTheme.colorScheme.primary, //tintBackground
             brush = brush
         ) {
-            Column() {
+            Column {
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 2.dp),
@@ -241,6 +244,50 @@ fun CardListItem(
                     )
                 }
 
+                if (item.userName.isNotBlank()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_owner_name),
+                            modifier = Modifier.padding(start = 48.dp),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = item.userName,
+                            modifier = Modifier.padding(start = 4.dp),
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+                if (item.listTo.any { it.userName.isNotBlank() }) {
+                    Text(
+                        text = stringResource(R.string.label_member_name),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 48.dp),
+                        style = TextStyle(
+                            textDecoration = TextDecoration.Underline,
+                            fontSize = 12.sp
+                        ),
+                        textAlign = TextAlign.End
+                    )
+                    val stringBuilder = StringBuilder()
+                    for (name in item.listTo) {
+                        stringBuilder.append("")
+                        if (name.userName.isNotBlank()) stringBuilder.append(name.userName)
+                    }
+                    Text(
+                        text = stringBuilder.toString(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 48.dp),
+                        textAlign = TextAlign.End,
+                        fontSize = 16.sp
+                    )
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -266,9 +313,7 @@ fun CardListItem(
                             .padding(top = 4.dp),
                         textAlign = TextAlign.End
                     )
-
                 }
-
             }
         }
     }
@@ -286,10 +331,22 @@ fun PreviewMat() {
                     listName = "Тестовый зеленый",
                     listLegend = 1,
                     listOwner = "asdas0,",
-                    listTo = emptyList(),
+                    listTo = listOf(
+                        UiListUsers(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "Марья",
+                            isSelected = false
+                        ),
+                        UiListUsers(
+                            userUuid = "fkgjfkddfkккlgk",
+                            userName = "Олег",
+                            isSelected = false
+                        ),
+                    ),
                     listDatetime = "10.04.2026 12:09",
                     countTags = 10,
                     countStrikes = 2,
+                    userName = "Иван"
                 ),
                 GlassCircleImageHolder.getImage(1)
             ) {}
@@ -303,7 +360,8 @@ fun PreviewMat() {
                     listTo = emptyList(),
                     listDatetime = "10.04.2026 12:09",
                     countTags = 5,
-                    countStrikes = 0
+                    countStrikes = 0,
+                    userName = "Марья"
                 ),
                 GlassCircleImageHolder.getImage(2)
             ) {}
@@ -314,10 +372,17 @@ fun PreviewMat() {
                     listName = "Тестовый желтый",
                     listLegend = 3,
                     listOwner = "asdas0,",
-                    listTo = emptyList(),
+                    listTo = listOf(
+                        UiListUsers(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "Марья",
+                            isSelected = false
+                        )
+                    ),
                     listDatetime = "10.04.2026 12:09",
                     countTags = 4,
-                    countStrikes = 4
+                    countStrikes = 4,
+                    userName = "Олег"
                 ),
                 GlassCircleImageHolder.getImage(3)
 
@@ -329,10 +394,17 @@ fun PreviewMat() {
                     listName = "Тестовый красный",
                     listLegend = 4,
                     listOwner = "asdas0,",
-                    listTo = emptyList(),
+                    listTo = listOf(
+                        UiListUsers(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "",
+                            isSelected = true
+                        )
+                    ),
                     listDatetime = "10.04.2026 12:09",
                     countTags = 0,
-                    countStrikes = 0
+                    countStrikes = 0,
+                    userName = "Игорь"
                 ),
                 GlassCircleImageHolder.getImage(4)
 

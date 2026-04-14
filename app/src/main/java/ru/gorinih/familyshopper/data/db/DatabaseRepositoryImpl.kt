@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.data.db.dao.DictionaryDao
 import ru.gorinih.familyshopper.data.db.dao.ListsDao
+import ru.gorinih.familyshopper.data.db.dao.UserDao
 import ru.gorinih.familyshopper.data.db.models.DbDeletedTags
 import ru.gorinih.familyshopper.data.db.models.DbDictionary
 import ru.gorinih.familyshopper.data.db.models.DbDictionaryVersions
@@ -13,15 +14,18 @@ import ru.gorinih.familyshopper.data.db.models.DbListVersions
 import ru.gorinih.familyshopper.data.db.models.toDbDictionary
 import ru.gorinih.familyshopper.data.db.models.toDbDictionaryVersions
 import ru.gorinih.familyshopper.data.db.models.toDbListVersions
+import ru.gorinih.familyshopper.data.db.models.toDbUsers
 import ru.gorinih.familyshopper.data.db.models.toDictionaryLocalTag
 import ru.gorinih.familyshopper.data.db.models.toListDbListTags
 import ru.gorinih.familyshopper.data.db.models.toListOfDbDictionary
 import ru.gorinih.familyshopper.data.db.models.toShoppedList
+import ru.gorinih.familyshopper.data.db.models.toShoppedUsers
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
 /**
  * Created by Igor Abdulganeev on 05.04.2026
@@ -30,6 +34,7 @@ import ru.gorinih.familyshopper.domain.models.ShoppedList
 class DatabaseRepositoryImpl(
     private val dictionaryDao: DictionaryDao,
     private val listsDao: ListsDao,
+    private val userDao: UserDao,
 ) : DatabaseRepository {
     override suspend fun takeDictionariesVersions(): Map<String, Int> =
         dictionaryDao.takeDictionariesVersions()
@@ -133,7 +138,7 @@ class DatabaseRepositoryImpl(
                     ownerUuid = firstItem.listOwner,
                     listVersion = firstItem.listVersion,
                     listLegend = firstItem.listLegend,
-                    clientsUuid = firstItem.listTo,
+                    usersUuid = firstItem.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
                     dateTime = firstItem.listDatetime,
                     tagNames = values.mapNotNull { value ->
                         if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
@@ -145,7 +150,8 @@ class DatabaseRepositoryImpl(
                             )
                     },
                     countTags = values.mapNotNull { value -> value.tagName }.size,
-                    countStrikes = values.filter { value -> value.tagStrike == true }.size
+                    countStrikes = values.filter { value -> value.tagStrike == true }.size,
+                    userName = firstItem.userName
                 )
             }.first()
 
@@ -160,7 +166,12 @@ class DatabaseRepositoryImpl(
                         ownerUuid = firstItem.listOwner,
                         listVersion = firstItem.listVersion,
                         listLegend = firstItem.listLegend,
-                        clientsUuid = firstItem.listTo,
+                        usersUuid = firstItem.listTo.map {
+                            ShoppedUsers(
+                                userUuid = it,
+                                userName = ""
+                            )
+                        },
                         dateTime = firstItem.listDatetime,
                         tagNames = values.mapNotNull { value ->
                             if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
@@ -172,8 +183,23 @@ class DatabaseRepositoryImpl(
                                 )
                         },
                         countTags = values.mapNotNull { value -> value.tagName }.size,
-                        countStrikes = values.filter { value -> value.tagStrike == true }.size
+                        countStrikes = values.filter { value -> value.tagStrike == true }.size,
+                        userName = firstItem.userName
                     )
                 }.first()
         }
+
+    override fun takeUsers(): Flow<List<ShoppedUsers>> =
+        userDao.takeUsers().map { list -> list.map { it.toShoppedUsers() } }
+
+    override suspend fun takeUser(userUuid: String): ShoppedUsers? =
+        userDao.takeUser(userUuid = userUuid)?.toShoppedUsers()
+
+    override suspend fun keepUsers(users: List<ShoppedUsers>) {
+        userDao.insertUsers(users.map { it.toDbUsers() })
+    }
+
+    override suspend fun keepUser(user: ShoppedUsers) {
+        userDao.insertUser(user.toDbUsers())
+    }
 }

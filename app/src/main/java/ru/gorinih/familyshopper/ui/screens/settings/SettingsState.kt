@@ -11,4 +11,6 @@ data class SettingsState(
     val clientUUID: String,
     val groupUUID: String,
     val isFirstTime: Boolean, // первый запуск или нет
+    val userName: String, // имя пользователя, по желанию
+    val userNameSaved: String, // старое имя, будем сохранять если отличия есть
 ): Parcelable

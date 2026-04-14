@@ -2,6 +2,8 @@ package ru.gorinih.familyshopper.ui.screens.editlist.models
 
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import java.util.UUID
 import kotlin.String
 
@@ -16,8 +18,9 @@ data class UiShoppingState(
     val listVersion: Int = 0, // версия списка
     val listLegend: Int = 0, // тип списка из TypeShoppedList
     val tagNames: List<UiShoppingItem> = emptyList(), // таги товаров с пометкой то отмечено
-    val clientsUuid: List<String> = emptyList(), // задел на будущее - можно будет список назначать пользователю
+    val usersUuid: List<String> = emptyList(), // это список пользователей которым назначен список
     val dateTime: Long = 0L, // дата создания/обновления списка
+    val userName: String = "", // имя полльзователя что в настройках ввел
 
     val listNameId: Int = 0, // ресурс имени для нового списка
     val date: String = "", // дата создания, для имени
@@ -28,6 +31,8 @@ data class UiShoppingState(
     val error: String? = null, // показ ошибки
     val isAdd: Boolean = true, // можно ли добавлять - нет если owner другой и listLegend >2
     val isEdit: Boolean = true, // можно ли редактировать - нет если owner другой и listLegend >1
+    val usersSelect: Boolean = false, // если будут пользователи еще, то показываем или нет панель с их выбором
+    val allUsersUuid: List<UiListUsers> = emptyList(), // список всех пользователей
 )
 
 fun UiShoppingState.toShoppedList() =
@@ -38,10 +43,11 @@ fun UiShoppingState.toShoppedList() =
         listVersion = this.listVersion,
         listLegend = this.listLegend,
         tagNames = this.tagNames.map { it.toShoppedItem() },
-        clientsUuid = this.clientsUuid,
+        usersUuid = this.usersUuid.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.dateTime,
         countTags = 0, // в обратную сторону в БД они не нужны
         countStrikes = 0,
+        userName = this.userName
 )
 
 fun UiShoppingItem.toShoppedItem() =

@@ -3,6 +3,8 @@ package ru.gorinih.familyshopper.data.remote.models
 import androidx.room.ColumnInfo
 import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.domain.models.ShoppedList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
+import kotlin.collections.map
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -36,8 +38,9 @@ fun ListObject.toShoppedList() =
         listVersion = this.listVersion,
         listLegend = this.listLegend,
         tagNames = this.listTags?.map { it.toShoppedItem() } ?: emptyList(),
-        clientsUuid = this.listTo ?: emptyList(),
+        usersUuid = this.listTo?.map { ShoppedUsers(userUuid = it, userName = "") } ?: emptyList(),
         dateTime = this.listDateTime,
         countTags = 0,
-        countStrikes = 0
+        countStrikes = 0,
+        userName = ""
     )

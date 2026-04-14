@@ -27,4 +27,6 @@ data class DbList(
     val tagComment: String?,
     @ColumnInfo("list_datetime")
     val listDatetime: Long,
+    @ColumnInfo("user_name")
+    val userName: String,
 )

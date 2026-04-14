@@ -23,6 +23,7 @@ import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedList
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -59,9 +60,23 @@ class EditListViewModel(
                     shoppedList = shoppedList.copy(listAllTags = list.map { it.tagName })
                 }
                 .stateIn(viewModelScope)
+            database.takeUsers()
+                .catch { }
+                .onEach { listUuids ->
+                    val selectedUsers = shoppedList.usersUuid.associateBy { it }
+                    val allUsers = listUuids.filter { it.userUuid != pref.getClientUUID() }
+                        .map { it.toUiListUsers(selectedUsers.containsKey(it.userUuid)) }
+                    shoppedList = shoppedList.copy(allUsersUuid = allUsers)
+                }.stateIn(
+                    viewModelScope
+                )
             if (listUuid.isNotBlank()) {
                 val dbList = database.takeList(listUuid)
                     .apply {
+                        val selectedUsers = this.usersUuid.associateBy { it.userUuid }
+                        val allUsers =
+                            shoppedList.allUsersUuid.filter { it.userUuid != pref.getClientUUID() }
+                                .map { it.copy(isSelected = selectedUsers.containsKey(it.userUuid)) }
                         shoppedList = shoppedList.copy(
                             listName = this.listName,
                             listUuid = this.listId,
@@ -69,16 +84,18 @@ class EditListViewModel(
                             listVersion = this.listVersion,
                             listLegend = this.listLegend,
                             tagNames = this.tagNames.map { it.toUiShoppingItem() },
-                            clientsUuid = this.clientsUuid,
+                            usersUuid = this.usersUuid.map { it.userUuid },
                             loading = false,
                             isAdd = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 3), // owner другой и listLegend >2
                             isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 2),
+                            userName = this.userName,
+                            allUsersUuid = allUsers
                         )
                     }
-                updateList(listUuid)?.let{ list ->
+                updateList(listUuid)?.let { list ->
                     list.getNewerOrNull(dbList)?.let { newList ->
 
-                        with(newList){
+                        with(newList) {
                             shoppedList = shoppedList.copy(
                                 listName = listName,
                                 listUuid = listId,
@@ -86,10 +103,11 @@ class EditListViewModel(
                                 listVersion = listVersion,
                                 listLegend = listLegend,
                                 tagNames = tagNames.map { it.toUiShoppingItem() },
-                                clientsUuid = clientsUuid,
+                                usersUuid = usersUuid.map { it.userUuid },
                                 loading = false,
                                 isAdd = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 3), // owner другой и listLegend >2
                                 isEdit = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 2),
+                                userName = this.userName,
                             )
                         }
                     }
@@ -103,6 +121,22 @@ class EditListViewModel(
                 )
             }
         }
+    }
+
+    fun selectUser(uuid: String) {
+        val allUsers = shoppedList.allUsersUuid.toMutableList()
+        val selectedUser = shoppedList.usersUuid.toMutableList()
+        val changedItem = allUsers.findLast { it.userUuid == uuid } ?: return
+        val changedItemIndex = allUsers.indexOf(changedItem)
+        val isSelect = !changedItem.isSelected
+        when (isSelect) {
+            true -> selectedUser.add(uuid)
+            false -> selectedUser.remove(uuid)
+        }
+        val item = changedItem.copy(isSelected = isSelect)
+        allUsers.remove(changedItem)
+        allUsers.add(changedItemIndex, item)
+        shoppedList = shoppedList.copy(usersUuid = selectedUser, allUsersUuid = allUsers)
     }
 
     fun updateLegend(type: TypeShoppedList) {
@@ -165,6 +199,10 @@ class EditListViewModel(
                     }
             }
         }
+    }
+
+    fun showUsersSelect() {
+        shoppedList = shoppedList.copy(usersSelect = !shoppedList.usersSelect)
     }
 
     fun saveList() {
