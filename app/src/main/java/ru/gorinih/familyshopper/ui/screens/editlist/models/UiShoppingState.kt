@@ -3,7 +3,7 @@ package ru.gorinih.familyshopper.ui.screens.editlist.models
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import java.util.UUID
@@ -18,7 +18,7 @@ data class UiShoppingState(
     val listUuid: String = "", // идентификатор списка
     val ownerUuid: String = "", // идентификатор создателя (client)
     val listVersion: Int = 0, // версия списка
-    val listLegend: TypeShoppedList = TypeShoppedList.ALL, // тип списка из TypeShoppedList
+    val listLegend: TypeLegendList = TypeLegendList.ALL, // тип списка из TypeShoppedList
     val tagNames: List<UiShoppingItem> = emptyList(), // таги товаров с пометкой то отмечено
     val usersUuid: List<String> = emptyList(), // это список пользователей которым назначен список
     val dateTime: Long = 0L, // дата создания/обновления списка
@@ -35,6 +35,7 @@ data class UiShoppingState(
     val isEdit: Boolean = true, // можно ли редактировать - нет если owner другой и listLegend >1 TODO и этот, в редактирование чужого уже не попасть, только в пометках надо это внести
     val usersSelect: Boolean = false, // если будут пользователи еще, то показываем или нет панель с их выбором
     val allUsersUuid: List<UiListUsers> = emptyList(), // список всех пользователей
+    val error: Boolean = false, // метка сетевой ошибки, когда список сохранен только в БД и не отправлен на сервер, например нет интернета
 )
 
 fun UiShoppingState.toShoppedList() =

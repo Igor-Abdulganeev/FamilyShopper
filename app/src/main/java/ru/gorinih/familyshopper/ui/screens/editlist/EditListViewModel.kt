@@ -6,11 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import okio.IOException
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -18,7 +18,7 @@ import ru.gorinih.familyshopper.domain.models.getNewerOrNull
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
 import ru.gorinih.familyshopper.domain.usecases.SaveList
 import ru.gorinih.familyshopper.ui.models.ActionTag
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
@@ -48,7 +48,7 @@ class EditListViewModel(
             date = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(System.currentTimeMillis())),
-            listLegend = TypeShoppedList.entries.first { it.listId == pref.getTypeList() }
+            listLegend = TypeLegendList.entries.first { it.listId == pref.getTypeList() }
         )
     )
         private set
@@ -90,35 +90,37 @@ class EditListViewModel(
                             listUuid = this.listId,
                             ownerUuid = this.ownerUuid,
                             listVersion = this.listVersion,
-                            listLegend = TypeShoppedList.entries.first { it.listId == this.listLegend },
+                            listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
                             tagNames = this.tagNames.map { it.toUiShoppingItem() },
                             usersUuid = this.usersUuid.map { it.userUuid },
                             loading = false,
                             isAdd = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 3), // owner другой и listLegend >2
-                            isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < TypeShoppedList.ADD.listId),
+                            isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < TypeLegendList.ADD.listId),
                             userName = this.userName,
                             allUsersUuid = allUsers
                         )
                     }
-                updateList(listUuid)?.let { list ->
-                    list.getNewerOrNull(dbList)?.let { newList ->
-
-                        with(newList) {
-                            shoppedList = shoppedList.copy(
-                                listName = listName,
-                                listUuid = listId,
-                                ownerUuid = ownerUuid,
-                                listVersion = listVersion,
-                                listLegend = TypeShoppedList.entries.first { it.listId == this.listLegend },
-                                tagNames = tagNames.map { it.toUiShoppingItem() },
-                                usersUuid = usersUuid.map { it.userUuid },
-                                loading = false,
-                                isAdd = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 3), // owner другой и listLegend >2
-                                isEdit = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 2),
-                                userName = this.userName,
-                            )
+                try {
+                    updateList(listUuid)?.let { list ->
+                        list.getNewerOrNull(dbList)?.let { newList ->
+                            with(newList) {
+                                shoppedList = shoppedList.copy(
+                                    listName = listName,
+                                    listUuid = listId,
+                                    ownerUuid = ownerUuid,
+                                    listVersion = listVersion,
+                                    listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
+                                    tagNames = tagNames.map { it.toUiShoppingItem() },
+                                    usersUuid = usersUuid.map { it.userUuid },
+                                    loading = false,
+                                    isAdd = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 3), // owner другой и listLegend >2
+                                    isEdit = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 2),
+                                    userName = this.userName,
+                                )
+                            }
                         }
                     }
+                } catch (_: Throwable) {
                 }
             } else {
                 shoppedList = shoppedList.copy(
@@ -146,7 +148,7 @@ class EditListViewModel(
         shoppedList = shoppedList.copy(usersUuid = selectedUser, allUsersUuid = allUsers)
     }
 
-    fun updateLegend(type: TypeShoppedList) {
+    fun updateLegend(type: TypeLegendList) {
         shoppedList = shoppedList.copy(listLegend = type)
     }
 
@@ -219,12 +221,12 @@ class EditListViewModel(
             try {
                 val result = saveList(shoppedList.toShoppedList()).toWarningState()
                 if (!result.isWarning) {
-                    val delta = 1000L - (System.currentTimeMillis() - startedTime)
-                    if (delta > 0) delay(delta) // красотульку добавим, мельтешенье уберем
                     shoppedList = shoppedList.copy(loading = false, saved = true)
                 } else {
                     throw IllegalArgumentException(result.textWarning)
                 }
+            } catch (_: IOException) {
+                shoppedList = shoppedList.copy(error = true, loading = false)
             } catch (ex: Throwable) {
                 shoppedList = shoppedList.copy(
                     loading = false,

@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.editlist
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -63,7 +65,8 @@ import ru.gorinih.familyshopper.navigation.ScreenLayoutType
 import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.ActionTag
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.views.DictionaryList
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
@@ -79,7 +82,7 @@ import ru.gorinih.familyshopper.ui.views.shadow
 fun EditListScreen(
     listUuid: String,
     modifier: Modifier = Modifier,
-    router: () -> Unit,
+    onBack: () -> Unit,
     viewModel: EditListViewModel = koinViewModel(
         parameters = { parametersOf(listUuid) }
     )
@@ -93,6 +96,11 @@ fun EditListScreen(
     BackHandler(enabled = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
+    }
+    val context = LocalContext.current
+    if (state.error) {
+        Toast.makeText(context, "Ошибка сети, изменения внесены локально", Toast.LENGTH_LONG).show()
+        onBack()
     }
 
     fun addNewTag(item: String = "", comment: String = "") {
@@ -140,19 +148,19 @@ fun EditListScreen(
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        viewModel.updateLegend(TypeShoppedList.ALL)
+                                        viewModel.updateLegend(TypeLegendList.ALL)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.ALL -> null
+                                state.listLegend == TypeLegendList.ALL -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_all),
-                            color = if (state.listLegend == TypeShoppedList.ALL) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+                            color = if (state.listLegend == TypeLegendList.ALL) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
                     }
@@ -168,19 +176,19 @@ fun EditListScreen(
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        viewModel.updateLegend(TypeShoppedList.ADD)
+                                        viewModel.updateLegend(TypeLegendList.ADD)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.ADD -> null
+                                state.listLegend == TypeLegendList.ADD -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_add),
-                            color = if (state.listLegend == TypeShoppedList.ADD) MaterialTheme.colorScheme.secondary
+                            color = if (state.listLegend == TypeLegendList.ADD) MaterialTheme.colorScheme.secondary
                             else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
@@ -197,19 +205,19 @@ fun EditListScreen(
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        viewModel.updateLegend(TypeShoppedList.VIEW)
+                                        viewModel.updateLegend(TypeLegendList.VIEW)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.VIEW -> null
+                                state.listLegend == TypeLegendList.VIEW -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_view),
-                            color = if (state.listLegend == TypeShoppedList.VIEW) MaterialTheme.colorScheme.secondary
+                            color = if (state.listLegend == TypeLegendList.VIEW) MaterialTheme.colorScheme.secondary
                             else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
@@ -226,19 +234,19 @@ fun EditListScreen(
                                 .padding(bottom = 2.dp)
                                 .clickable(
                                     onClick = {
-                                        viewModel.updateLegend(TypeShoppedList.PRIVATE)
+                                        viewModel.updateLegend(TypeLegendList.PRIVATE)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.PRIVATE -> null
+                                state.listLegend == TypeLegendList.PRIVATE -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_private),
-                            color = if (state.listLegend == TypeShoppedList.PRIVATE) MaterialTheme.colorScheme.secondary
+                            color = if (state.listLegend == TypeLegendList.PRIVATE) MaterialTheme.colorScheme.secondary
                             else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
@@ -255,7 +263,7 @@ fun EditListScreen(
                     keyboardManager.clearFocus()
                 },
                 trailingIcon = {
-                    if (state.allUsersUuid.isNotEmpty() && state.listLegend != TypeShoppedList.PRIVATE) {
+                    if (state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
                         IconButton(
                             onClick = {
                                 viewModel.showUsersSelect()
@@ -368,7 +376,7 @@ fun EditListScreen(
             ) {
                 TagsList(
                     list = state.tagNames,
-                    isDeleteTag = true,
+                    typeList = TypeListTags.EDIT,
                     modifier = Modifier.weight(1f),
                     onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
                     onDelete = { name ->
@@ -438,13 +446,13 @@ fun EditListScreen(
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    viewModel.updateLegend(TypeShoppedList.ALL)
+                                    viewModel.updateLegend(TypeLegendList.ALL)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.ALL -> null
+                            state.listLegend == TypeLegendList.ALL -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
@@ -456,13 +464,13 @@ fun EditListScreen(
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    viewModel.updateLegend(TypeShoppedList.ADD)
+                                    viewModel.updateLegend(TypeLegendList.ADD)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.ADD -> null
+                            state.listLegend == TypeLegendList.ADD -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
@@ -474,13 +482,13 @@ fun EditListScreen(
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    viewModel.updateLegend(TypeShoppedList.VIEW)
+                                    viewModel.updateLegend(TypeLegendList.VIEW)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.VIEW -> null
+                            state.listLegend == TypeLegendList.VIEW -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
@@ -492,13 +500,13 @@ fun EditListScreen(
                             .padding(bottom = 2.dp)
                             .clickable(
                                 onClick = {
-                                    viewModel.updateLegend(TypeShoppedList.PRIVATE)
+                                    viewModel.updateLegend(TypeLegendList.PRIVATE)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.PRIVATE -> null
+                            state.listLegend == TypeLegendList.PRIVATE -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
@@ -594,7 +602,7 @@ fun EditListScreen(
                 ) {
                     TagsList(
                         list = state.tagNames,
-                        isDeleteTag = true,
+                        typeList = TypeListTags.EDIT,
                         modifier = Modifier.weight(1f),
                         onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
                         onDelete = { name -> viewModel.updateTag(name, ActionTag.DELETE) },
@@ -635,6 +643,6 @@ fun EditListScreen(
             viewModel.onDismiss()
         }
     }
-    if (state.saved) router()
+    if (state.saved) onBack()
 
 }

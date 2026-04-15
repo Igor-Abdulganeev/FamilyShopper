@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.domain.usecases
 
+import android.util.Log
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.models.Results
@@ -18,41 +19,51 @@ class SaveListImpl(
     private val database: DatabaseRepository,
     private val remote: RemoteRepository,
 ) : SaveList {
-    override suspend fun invoke(data: ShoppedList): Results =
-        try {
-            // 1 подготовить данные для заливки в локальную БД и на сервер
-            //  надо получить с сервера версии, найти нашу если есть, если нет то 0, и увеличить на 1
-            val remoteLists = remote.getListsVersions()
-            val remoteListVersion =
-                if (remoteLists.containsKey(data.listId)) remoteLists[data.listId]?.listVersion
-                    ?: 0 else 0
-            //    получить список локальных тэгоы и если есть новые то их добавить (только для легенды 1-3)
-            if (data.listLegend != 4) {
-                val localTags = database.getDictionaryTags()
-                val newTags = data.tagNames.filter { tag -> tag.tagName !in localTags }
-                    .map { it.toDictionaryLocalTag(true) }
-                if (newTags.isNotEmpty()) {
-                    database.addTags(newTags)
-                }
+    override suspend fun invoke(data: ShoppedList): Results {
+        //   try {
+        // 1 подготовить данные для заливки в локальную БД и на сервер
+        //  надо получить с сервера версии, найти нашу если есть, если нет то 0, и увеличить на 1
+        val remoteLists = remote.getListsVersions()
+
+        Log.i("GINES", "remoteLists=$remoteLists")
+        val remoteListVersion =
+            if (remoteLists.containsKey(data.listId)) remoteLists[data.listId]?.listVersion
+                ?: 0 else 0
+        Log.i("GINES", "remoteListVersion=$remoteListVersion")
+        //    получить список локальных тэгоы и если есть новые то их добавить (только для легенды 1-3)
+        if (data.listLegend != 4) {
+            val localTags = database.getDictionaryTags()
+            val newTags = data.tagNames.filter { tag -> tag.tagName !in localTags }
+                .map { it.toDictionaryLocalTag(true) }
+            if (newTags.isNotEmpty()) {
+                database.addTags(newTags)
             }
-            //  залить сперва в локальную
-            //  залить изменение на сервер
-            when(remoteLists.containsKey(data.listId) && remoteListVersion > data.listVersion) {
-                true -> {
-                    val saveData = remote.getCurrentListById(data.listId)
-                    saveData?.let{database.updateList(it)}
-                }
-                false -> {
-                    val localListVersion =
-                        (if (remoteListVersion > data.listVersion) remoteListVersion else data.listVersion) + 1
-                    val saveData = data.copy(listVersion = localListVersion)
-                    database.updateList(saveData)
-                    remote.updateListWithVersion(listOf(saveData))
-                }
-            }
-            Results(isError = false)
-        } catch (ex: Throwable) {
-            Results(isError = true, textError = ex.localizedMessage ?: "unknown error")
         }
+        //  залить сперва в локальную
+        //  залить изменение на сервер
+        when (remoteLists.containsKey(data.listId) && remoteListVersion > data.listVersion) {
+            true -> {
+                val saveData = remote.getCurrentListById(data.listId)
+                Log.i("GINES", "true remote getCurrentListById=$saveData")
+                saveData?.let {
+
+                    database.updateList(it)
+                }
+            }
+
+            false -> {
+                val localListVersion =
+                    (if (remoteListVersion > data.listVersion) remoteListVersion else data.listVersion) + 1
+                val saveData = data.copy(listVersion = localListVersion)
+                Log.i("GINES", "false remote? localsaveData=$saveData")
+                database.updateList(saveData)
+                remote.updateListWithVersion(listOf(saveData))
+            }
+        }
+        return Results(isError = false)
+        //    } catch (ex: Throwable) {
+        //        Results(isError = true, textError = ex.localizedMessage ?: "unknown error")
+        //   }
+    }
 
 }

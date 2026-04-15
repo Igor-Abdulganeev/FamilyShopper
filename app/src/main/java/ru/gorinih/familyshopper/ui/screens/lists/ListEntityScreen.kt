@@ -49,7 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
@@ -168,44 +168,44 @@ fun CardListItem(
         val brush = Brush.horizontalGradient(
             colors = if (isDark) {
                 when (item.listLegend) {
-                    TypeShoppedList.ALL -> listOf(
+                    TypeLegendList.ALL -> listOf(
                         ListDarkGreen,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.ADD -> listOf(
+                    TypeLegendList.ADD -> listOf(
                         ListDarkBlue,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.VIEW -> listOf(
+                    TypeLegendList.VIEW -> listOf(
                         ListDarkYellow,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.PRIVATE -> listOf(
+                    TypeLegendList.PRIVATE -> listOf(
                         ListDarkRed,
                         MaterialTheme.colorScheme.primary,
                     )
                 }
             } else {
                 when (item.listLegend) {
-                    TypeShoppedList.ALL -> listOf(
+                    TypeLegendList.ALL -> listOf(
                         ListLightGreen,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.ADD -> listOf(
+                    TypeLegendList.ADD -> listOf(
                         ListLightBlue,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.VIEW -> listOf(
+                    TypeLegendList.VIEW -> listOf(
                         ListLightYellow,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    TypeShoppedList.PRIVATE -> listOf(
+                    TypeLegendList.PRIVATE -> listOf(
                         ListLightRed,
                         MaterialTheme.colorScheme.primary,
                     )
@@ -336,7 +336,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый зеленый",
-                    listLegend = TypeShoppedList.ALL,
+                    listLegend = TypeLegendList.ALL,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(
@@ -362,7 +362,7 @@ fun PreviewMat() {
                     listId = "sdgsfggsd",
                     listVersion = 1,
                     listName = "Тестовый синий",
-                    listLegend = TypeShoppedList.ADD,
+                    listLegend = TypeLegendList.ADD,
                     listOwner = "asdas0,",
                     listTo = emptyList(),
                     listDatetime = "10.04.2026 12:09",
@@ -377,7 +377,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый желтый",
-                    listLegend = TypeShoppedList.VIEW,
+                    listLegend = TypeLegendList.VIEW,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(
@@ -399,7 +399,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый красный",
-                    listLegend = TypeShoppedList.PRIVATE,
+                    listLegend = TypeLegendList.PRIVATE,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(

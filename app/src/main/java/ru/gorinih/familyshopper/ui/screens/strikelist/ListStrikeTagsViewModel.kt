@@ -5,16 +5,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
+import ru.gorinih.familyshopper.domain.usecases.SaveList
 import ru.gorinih.familyshopper.ui.models.ActionTag
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
@@ -29,7 +33,7 @@ import ru.gorinih.familyshopper.ui.screens.strikelist.models.UiStrikeState
 class ListStrikeTagsViewModel(
     listUuid: String = "",
     private val database: DatabaseRepository,
-    private val sync: SynchronizeLists,
+    private val saveList: SaveList,
     private val pref: StorageRepository
 ) : ViewModel() {
 
@@ -42,16 +46,36 @@ class ListStrikeTagsViewModel(
         private set
 
     private var memoryList: ShoppedList? = null
+    private var updater: Deferred<Results>? = null
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             database.observeList(listId = listUuid).collect { listData ->
-                memoryList = listData
-                val ownerUuid = pref.getClientUUID()
-                val isEditable = when{
-                    listData.ownerUuid == ownerUuid -> true
-                    listData.listLegend == TypeShoppedList.ALL.listId -> true
+                if (memoryList == null) {
+                    memoryList = listData
+                    memoryList?.let {
+                        updater = async {
+                            try {
+                                saveList(it)
+                            } catch (_: Throwable) {
+                                return@async Results(isError = false, textError = "")
+                            }
+                        }
+                    }
+                } else {
+                    memoryList = listData
+                }
+                val ownerUuid = pref.getClientUUID() == listData.ownerUuid
+                val isEditable = when {
+                    ownerUuid -> true
+                    listData.listLegend == TypeLegendList.ALL.listId -> true
                     else -> false
+                }
+                val legend = TypeLegendList.entries.first { it.listId == listData.listLegend }
+                val type = when {
+                    ownerUuid -> TypeListTags.STRIKE
+                    legend in listOf(TypeLegendList.ALL, TypeLegendList.ADD) -> TypeListTags.STRIKE
+                    else -> TypeListTags.VIEW
                 }
                 val tagNames = listData.tagNames.map { it.toUiShoppingItem() }
                 val l = listData.listName.length
@@ -64,11 +88,16 @@ class ListStrikeTagsViewModel(
                         shoppedList.copy(
                             tagNames = tagNames,
                             isEditable = isEditable,
-                            listLegend = listData.listLegend,
+                            typeList = type,
+                            listLegend = legend,
                             listName = listName,
                         )
                 }
             }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            updater?.await()
+            updater = null
         }
     }
 
@@ -133,22 +162,35 @@ class ListStrikeTagsViewModel(
     fun updateList() {
         shoppedList = shoppedList.copy(loading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            shoppedList = try {
-                val result = sync().toWarningState()
-                if (result.isWarning) shoppedList.copy(warning = result, loading = false)
-                else shoppedList.copy(loading = false)
-            } catch (ex: Throwable) {
-                shoppedList.copy(warning = WarningState(isWarning = true, textWarning = ex.localizedMessage ?: ""), loading = false)
+            memoryList =
+                memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
+            memoryList?.let {
+                shoppedList = try {
+                    val result = saveList(it).toWarningState()
+                    if (result.isWarning) shoppedList.copy(warning = result, loading = false)
+                    else {
+                        shoppedList.copy(loading = false)
+                    }
+                } catch (ex: Throwable) {
+                    shoppedList.copy(
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = ex.localizedMessage ?: ""
+                        ), loading = false
+                    )
+                }
             }
         }
     }
 
     fun saveChanged() {
         viewModelScope.launch(NonCancellable + Dispatchers.IO) {
-            memoryList = memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
+            memoryList =
+                memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
             memoryList?.let {
                 database.updateList(it)
             }
         }
     }
+
 }

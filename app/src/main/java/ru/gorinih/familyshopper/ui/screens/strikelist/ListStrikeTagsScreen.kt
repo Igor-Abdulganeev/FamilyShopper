@@ -31,6 +31,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.models.ActionTag
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
 import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
 import ru.gorinih.familyshopper.ui.theme.ListDarkRed
@@ -74,29 +75,30 @@ fun ListStrikeTagsScreen(
             navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }
+
     val brush =
         Brush.linearGradient(
             colors =  if(isSystemInDarkTheme()) {
                 when (state.listLegend) {
-                    1 -> listOf(
+                    TypeLegendList.ALL -> listOf(
                         ListDarkGreen,
                         MaterialTheme.colorScheme.onSecondary,
                         ListDarkGreen
                     )
 
-                    2 -> listOf(
+                    TypeLegendList.ADD -> listOf(
                         ListDarkBlue,
                         MaterialTheme.colorScheme.onSecondary,
                         ListDarkBlue
                     )
 
-                    3 -> listOf(
+                    TypeLegendList.VIEW -> listOf(
                         ListDarkYellow,
                         MaterialTheme.colorScheme.onSecondary,
                         ListDarkYellow
                     )
 
-                    else -> listOf(
+                    TypeLegendList.PRIVATE -> listOf(
                         ListDarkRed,
                         MaterialTheme.colorScheme.onSecondary,
                         ListDarkRed
@@ -104,25 +106,25 @@ fun ListStrikeTagsScreen(
                 }
             } else {
                 when (state.listLegend) {
-                    1 -> listOf(
+                    TypeLegendList.ALL -> listOf(
                         ListLightGreen,
                         MaterialTheme.colorScheme.onSecondary,
                         ListLightGreen
                     )
 
-                    2 -> listOf(
+                    TypeLegendList.ADD -> listOf(
                         ListLightBlue,
                         MaterialTheme.colorScheme.onSecondary,
                         ListLightBlue
                     )
 
-                    3 -> listOf(
+                    TypeLegendList.VIEW -> listOf(
                         ListLightYellow,
                         MaterialTheme.colorScheme.onSecondary,
                         ListLightYellow
                     )
 
-                    else -> listOf(
+                    TypeLegendList.PRIVATE -> listOf(
                         ListLightRed,
                         MaterialTheme.colorScheme.onSecondary,
                         ListLightRed
@@ -133,38 +135,44 @@ fun ListStrikeTagsScreen(
 
     val colors = if(isSystemInDarkTheme()) {
         when(state.listLegend) {
-            1 -> listOf(
+            TypeLegendList.ALL -> listOf(
                 ListDarkGreen,
                 MaterialTheme.colorScheme.surface
             )
-            2 -> listOf(
+
+            TypeLegendList.ADD -> listOf(
                 ListDarkBlue,
                 MaterialTheme.colorScheme.primaryContainer
             )
-            3 -> listOf(
+
+            TypeLegendList.VIEW -> listOf(
                 ListDarkYellow,
                 MaterialTheme.colorScheme.surface
             )
-            else -> listOf(
+
+            TypeLegendList.PRIVATE -> listOf(
                 ListDarkRed,
                 MaterialTheme.colorScheme.surface
             )
         }
     } else {
         when(state.listLegend) {
-            1 -> listOf(
+            TypeLegendList.ALL -> listOf(
                 ListLightGreen,
                 MaterialTheme.colorScheme.onSecondary
             )
-            2 -> listOf(
+
+            TypeLegendList.ADD -> listOf(
                 ListLightBlue,
                 MaterialTheme.colorScheme.onSecondary
             )
-            3 -> listOf(
+
+            TypeLegendList.VIEW -> listOf(
                 ListLightYellow,
                 MaterialTheme.colorScheme.onSecondary
             )
-            else -> listOf(
+
+            TypeLegendList.PRIVATE -> listOf(
                 ListLightRed,
                 MaterialTheme.colorScheme.onSecondary
             )
@@ -188,13 +196,22 @@ fun ListStrikeTagsScreen(
                 ) {
                     Icon(Icons.Default.EditNote, contentDescription = null)
                 }
-            } else Spacer(Modifier.width(48.dp))
+            } else IconButton(
+                enabled = false,
+                onClick = { }
+            ) {
+                Spacer(Modifier.width(48.dp))
+            }
             Text(text = state.listName)
+            if (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
+                || state.isEditable
+            ) {
                 IconButton(
                     onClick = { viewModel.updateList() }
                 ) {
                     Icon(Icons.Default.Repeat, contentDescription = null)
                 }
+            } else Spacer(Modifier.width(48.dp))
         }
         Column(
             modifier = Modifier
@@ -222,8 +239,7 @@ fun ListStrikeTagsScreen(
             ) {
                 TagsList(
                     list = state.tagNames,
-                    isDeleteTag = false,
-                    //  modifier = Modifier.weight(1f),
+                    typeList = state.typeList,
                     onClick = { name ->
                         viewModel.updateTag(name, ActionTag.STRIKE)
                     },

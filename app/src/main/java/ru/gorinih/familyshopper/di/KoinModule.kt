@@ -127,5 +127,12 @@ fun koinModule(): Module = module {
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
     viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
     viewModel { ListEntityVewModel(database = get(), sync=get()) }
-    viewModel { (listId: String) -> ListStrikeTagsViewModel(listUuid = listId, database = get(), sync = get(), pref = get()) }
+    viewModel { (listId: String) ->
+        ListStrikeTagsViewModel(
+            listUuid = listId,
+            database = get(),
+            saveList = get(),
+            pref = get()
+        )
+    }
 }

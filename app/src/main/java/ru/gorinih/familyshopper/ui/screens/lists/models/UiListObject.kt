@@ -3,7 +3,7 @@ package ru.gorinih.familyshopper.ui.screens.lists.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import ru.gorinih.familyshopper.domain.models.ShoppedList
-import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -17,7 +17,7 @@ data class UiListObject(
     val listId: String,
     val listVersion: Int,
     val listName: String,
-    val listLegend: TypeShoppedList,
+    val listLegend: TypeLegendList,
     val listOwner: String,
     val listTo: List<UiListUsers> = emptyList(),
     val listDatetime: String,
@@ -31,7 +31,7 @@ fun ShoppedList.toUiListObject() =
         listId = this.listId,
         listVersion = this.listVersion,
         listName = this.listName,
-        listLegend = TypeShoppedList.entries.first { it.listId == this.listLegend },
+        listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
         listOwner = this.ownerUuid,
         listTo = this.usersUuid.map { it.toUiListUsers() },
         listDatetime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")

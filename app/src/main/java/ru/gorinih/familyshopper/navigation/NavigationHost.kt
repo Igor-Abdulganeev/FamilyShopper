@@ -68,7 +68,7 @@ fun NavigationHost(
 
         composable<NavigationKey.EditListScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()
-            EditListScreen(args.listUuid, router = { popupBackStack() })
+            EditListScreen(args.listUuid, onBack = { popupBackStack() })
         }
 
         composable<NavigationKey.ListEntityScreen> {

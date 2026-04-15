@@ -34,7 +34,7 @@ class ListEntityVewModel(
                 database.takeLists(),
                 database.takeUsers()
             ) { list, users ->
-                val userMap = users.associateBy { it.userName }
+                val userMap = users.associateBy { it.userUuid }
                 list.map { entity ->
                     val users = entity.usersUuid.mapNotNull { uuid -> userMap[uuid.userUuid] }
                         .map { it.toUiListUsers() }
