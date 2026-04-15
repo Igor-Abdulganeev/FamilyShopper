@@ -13,4 +13,6 @@ data class SettingsState(
     val isFirstTime: Boolean, // первый запуск или нет
     val userName: String, // имя пользователя, по желанию
     val userNameSaved: String, // старое имя, будем сохранять если отличия есть
+    val rainbow: Boolean, // анимированный или нет фон
+    val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
 ): Parcelable

@@ -17,12 +17,13 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun AnimatedAgsl(
     modifier: Modifier = Modifier,
+    isAnimate: Boolean = true,
     brush: Brush = Brush.linearGradient(),
     startedColor: Color = MaterialTheme.colorScheme.primaryContainer,
     endedColor: Color = MaterialTheme.colorScheme.secondary,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isAnimate) {
         AnimatedGradientAGSL(
             modifier = modifier,
             content = content,

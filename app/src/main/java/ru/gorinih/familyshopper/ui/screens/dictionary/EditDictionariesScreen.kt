@@ -81,7 +81,7 @@ fun EditDictionariesScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
 
-            ) {
+                ) {
                 Spacer(Modifier.width(48.dp))
                 Text(text = stringResource(R.string.label_sync_header))
                 IconButton(
@@ -115,7 +115,7 @@ fun EditDictionariesScreen(
                 addNewTag()
             }
         )
-        when(state.list.count()) {
+        when (state.list.count()) {
             0 -> EmptyAlphabet(modifier)
             else -> AlphabetTabs(
                 alphabet = state.list,
@@ -130,9 +130,13 @@ fun EditDictionariesScreen(
         state.isLoading -> {
             ProgressLoadingOverlay()
         }
-        state.error != null -> {
-            ErrorDialog(state.error ?: "") {
-                viewModel.errorDismiss()
+
+        state.warning.isWarning -> {
+            ErrorDialog(
+                errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
+                else state.warning.textWarning
+            ) {
+                viewModel.onDismiss()
             }
         }
     }

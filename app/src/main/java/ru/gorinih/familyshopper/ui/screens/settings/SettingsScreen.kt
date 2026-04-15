@@ -1,14 +1,24 @@
 package ru.gorinih.familyshopper.ui.screens.settings
 
 import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.TextAutoSizeDefaults
 import androidx.compose.foundation.verticalScroll
@@ -18,9 +28,11 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -29,17 +41,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 
 /**
@@ -257,6 +278,103 @@ fun SettingsScreen(
             },
             label = stringResource(R.string.label_user_name),
         )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.inverseSurface
+                    )
+            ) {
+                Checkbox(
+                    checked = state.rainbow,
+                    onCheckedChange = {
+                        viewModel.updateBackground()
+                    },
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                Text(
+                    "фон списка динамический (выбрано) или статический (не выбрано).",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .height(200.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    1.dp,
+                    color = MaterialTheme.colorScheme.inverseSurface,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        ) {
+            itemsIndexed((1..4).toList()) { index, item ->
+                if (index == 0) {
+                    Text(
+                        "тип создаваемого списка по умолчанию",
+                        //modifier = Modifier,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                        .clickable(
+                            onClick = {
+                                viewModel.updateTypeList(item)
+                            }
+                        )
+                ) {
+                    val label = when (item) {
+                        1 -> R.string.label_full_icon_all
+                        2 -> R.string.label_full_icon_add
+                        3 -> R.string.label_full_icon_view
+                        else -> R.string.label_full_icon_private
+                    }
+                    Image(
+                        painter = GlassCircleImageHolder.getImage(item),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clip(CircleShape)
+                            .size(16.dp),
+                        contentScale = ContentScale.Inside,
+                        colorFilter = when {
+                            state.defaultTypeList == index + 1 -> null
+
+                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
+                        }
+                    )
+                    Text(
+                        text = stringResource(label), modifier = Modifier
+                            .padding(start = 8.dp),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 12.sp
+                        )
+                    )
+                }
+            }
+        }
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()

@@ -217,7 +217,8 @@ fun ListStrikeTagsScreen(
                 modifier = Modifier.weight(1f),
                 brush = brush,
                 startedColor = colors.first(),
-                endedColor = colors.last()
+                endedColor = colors.last(),
+                isAnimate = state.background
             ) {
                 TagsList(
                     list = state.tagNames,
@@ -249,7 +250,7 @@ fun ListStrikeTagsScreen(
             0 -> state.warning.textWarning
             else -> stringResource(state.warning.resourceWarning)
         }
-    ) { viewModel.dismissWarning() }
+    ) { viewModel.onDismiss() }
 
 }
 

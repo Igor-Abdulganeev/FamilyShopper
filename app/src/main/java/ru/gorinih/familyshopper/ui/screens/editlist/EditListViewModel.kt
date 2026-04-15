@@ -19,6 +19,8 @@ import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
 import ru.gorinih.familyshopper.domain.usecases.SaveList
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedList
@@ -46,6 +48,7 @@ class EditListViewModel(
             date = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(System.currentTimeMillis())),
+            listLegend = TypeShoppedList.entries.first { it.listId == pref.getTypeList() }
         )
     )
         private set
@@ -54,7 +57,12 @@ class EditListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             database.takeDictionaries()
                 .catch { throwable ->
-                    shoppedList = shoppedList.copy(error = throwable.localizedMessage)
+                    shoppedList = shoppedList.copy(
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = throwable.localizedMessage ?: "неизвестная ошибка"
+                        )
+                    )
                 }
                 .onEach { list ->
                     shoppedList = shoppedList.copy(listAllTags = list.map { it.tagName })
@@ -82,12 +90,12 @@ class EditListViewModel(
                             listUuid = this.listId,
                             ownerUuid = this.ownerUuid,
                             listVersion = this.listVersion,
-                            listLegend = this.listLegend,
+                            listLegend = TypeShoppedList.entries.first { it.listId == this.listLegend },
                             tagNames = this.tagNames.map { it.toUiShoppingItem() },
                             usersUuid = this.usersUuid.map { it.userUuid },
                             loading = false,
                             isAdd = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 3), // owner другой и listLegend >2
-                            isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 2),
+                            isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < TypeShoppedList.ADD.listId),
                             userName = this.userName,
                             allUsersUuid = allUsers
                         )
@@ -101,7 +109,7 @@ class EditListViewModel(
                                 listUuid = listId,
                                 ownerUuid = ownerUuid,
                                 listVersion = listVersion,
-                                listLegend = listLegend,
+                                listLegend = TypeShoppedList.entries.first { it.listId == this.listLegend },
                                 tagNames = tagNames.map { it.toUiShoppingItem() },
                                 usersUuid = usersUuid.map { it.userUuid },
                                 loading = false,
@@ -116,7 +124,6 @@ class EditListViewModel(
                 shoppedList = shoppedList.copy(
                     ownerUuid = pref.getClientUUID(),
                     listUuid = listUuid,
-                    listLegend = 1,
                     loading = false,
                 )
             }
@@ -140,7 +147,7 @@ class EditListViewModel(
     }
 
     fun updateLegend(type: TypeShoppedList) {
-        shoppedList = shoppedList.copy(listLegend = type.listId)
+        shoppedList = shoppedList.copy(listLegend = type)
     }
 
     fun updateListName(listName: String) {
@@ -210,22 +217,28 @@ class EditListViewModel(
         shoppedList = shoppedList.copy(loading = true, dateTime = startedTime)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = saveList(shoppedList.toShoppedList())
-                if (!result.isError) {
+                val result = saveList(shoppedList.toShoppedList()).toWarningState()
+                if (!result.isWarning) {
                     val delta = 1000L - (System.currentTimeMillis() - startedTime)
                     if (delta > 0) delay(delta) // красотульку добавим, мельтешенье уберем
                     shoppedList = shoppedList.copy(loading = false, saved = true)
                 } else {
-                    throw IllegalArgumentException(result.textError)
+                    throw IllegalArgumentException(result.textWarning)
                 }
             } catch (ex: Throwable) {
-                shoppedList = shoppedList.copy(loading = false, error = ex.localizedMessage)
+                shoppedList = shoppedList.copy(
+                    loading = false,
+                    warning = WarningState(
+                        isWarning = true,
+                        textWarning = ex.localizedMessage ?: "неизвестная ошибка"
+                    )
+                )
             }
         }
     }
 
-    fun errorDismiss() {
-        shoppedList = shoppedList.copy(error = null)
+    fun onDismiss() {
+        shoppedList = shoppedList.copy(warning = WarningState())
     }
 
     fun showDictionaries() {

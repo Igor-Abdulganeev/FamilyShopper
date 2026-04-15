@@ -10,7 +10,6 @@ import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesScreen
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListScreen
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityScreen
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsScreen
-import ru.gorinih.familyshopper.ui.screens.started.StartedScreen
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsScreen
 
 /**
@@ -43,7 +42,7 @@ fun NavigationHost(
                 navigationActions = navigationActions,
                 backPressed = { popupBackStack() },
                 firstTimeBackPressed = {
-                    navigationController.navigate(NavigationKey.StartedScreen) {
+                    navigationController.navigate(NavigationKey.ListEntityScreen) {
                         popUpTo(NavigationKey.SettingsScreen) {
                             inclusive = true
                         }
@@ -55,15 +54,17 @@ fun NavigationHost(
             EditDictionariesScreen()
         }
 
-        composable<NavigationKey.StartedScreen> {
-            StartedScreen(
-                router = { key ->
-                    navigationController.navigate(key)
-                },
-                backClick = { popupBackStack() },
-                navigationActions = navigationActions
-            )
-        }
+        /*
+                composable<NavigationKey.StartedScreen> {
+                    StartedScreen(
+                        router = { key ->
+                            navigationController.navigate(key)
+                        },
+                        backClick = { popupBackStack() },
+                        navigationActions = navigationActions
+                    )
+                }
+        */
 
         composable<NavigationKey.EditListScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()

@@ -14,4 +14,5 @@ data class UiStrikeState(
     val isEditable: Boolean = false,
     val listLegend: Int = 0,
     val listName: String = "",
+    val background: Boolean = false,
 )

@@ -16,10 +16,15 @@
     <string name="label_icon_add">только отметки</string>
     <string name="label_icon_view">только чтение</string>
     <string name="label_icon_private">частный</string>
+    <string name="label_full_icon_all">список будет доступен всем пользователям хранилища для любых действий с ним.</string>
+    <string name="label_full_icon_add">другие пользователи смогут только отметить записи в списке, редактирование, добавление или удаление запрещены</string>
+    <string name="label_full_icon_view">другие пользователи могут только причесть список, любые изменения в нем запрещены</string>
+    <string name="label_full_icon_private">данный список недоступен другим пользователям и виден только автору</string>
     <string name="label_empty_list_name">Список без названия</string>
     <string name="warning_list_not_found_text">Возникли проблемы с данным списком, он не обнаружен</string>
     <string name="help_user_name_property">Ввведите отображаемое имя, что бы другие пользователи могли видеть, кто создал список. Так же с именем будет удобней назначать списки кому-либо.</string>
     <string name="label_user_name">Имя пользователя</string>
     <string name="label_owner_name">Автор: </string>
     <string name="label_member_name">Участники: </string>
+    <string name="toolbar_main_header">Семейные покупки</string>
 </resources>

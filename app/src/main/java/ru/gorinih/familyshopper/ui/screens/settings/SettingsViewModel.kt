@@ -56,6 +56,16 @@ class SettingsViewModel(
         stateSettings = stateSettings.copy(userName = name)
     }
 
+    fun updateBackground() {
+        stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
+        pref.setBackgroundState(stateSettings.rainbow)
+    }
+
+    fun updateTypeList(type: Int) {
+        stateSettings = stateSettings.copy(defaultTypeList = type)
+        pref.setTypeList(type)
+    }
+
     fun saveUserName() {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             if (stateSettings.userName != stateSettings.userNameSaved) {
@@ -121,7 +131,9 @@ class SettingsViewModel(
             groupUUID = pref.getGroupUUID(),
             isFirstTime = !pref.getStartedKey(),
             userName = pref.getUserName(),
-            userNameSaved = pref.getUserName()
+            userNameSaved = pref.getUserName(),
+            rainbow = pref.getBackgroundState(),
+            defaultTypeList = pref.getTypeList()
         ).apply {
             pref.setStartedKey()
         }

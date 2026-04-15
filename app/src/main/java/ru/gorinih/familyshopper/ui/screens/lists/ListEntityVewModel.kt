@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
+import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
@@ -47,18 +49,23 @@ class ListEntityVewModel(
     }
 
     fun onDismiss() {
-        listsState = listsState.copy(error = null)
+        listsState = listsState.copy(warning = WarningState())
     }
 
     fun updateList() {
         listsState = listsState.copy(loading = true)
         viewModelScope.launch(Dispatchers.IO) {
             listsState = try {
-                val result = sync()
-                if (result.isError) listsState.copy(error = result.textError, loading = false)
+                val result = sync().toWarningState()
+                if (result.isWarning) listsState.copy(warning = result, loading = false)
                 else listsState.copy(loading = false)
             } catch (ex: Throwable) {
-                listsState.copy(error = ex.localizedMessage, loading = false)
+                listsState.copy(
+                    warning = WarningState(
+                        isWarning = true,
+                        textWarning = ex.localizedMessage ?: "неизвестная ошибка"
+                    ), loading = false
+                )
             }
         }
     }

@@ -1,5 +1,7 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary.models
 
+import ru.gorinih.familyshopper.ui.models.WarningState
+
 /**
  * Created by Igor Abdulganeev on 06.04.2026
  */
@@ -7,6 +9,6 @@ package ru.gorinih.familyshopper.ui.screens.dictionary.models
 data class EditDictionariesState (
     val canSync: Boolean = false,
     val list: List<UiDictionary> = emptyList(),
-    val error: String? = null,
+    val warning: WarningState = WarningState(),
     val isLoading: Boolean = true
     )

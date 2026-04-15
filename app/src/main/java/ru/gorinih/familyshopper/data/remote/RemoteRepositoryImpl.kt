@@ -84,7 +84,10 @@ class RemoteRepositoryImpl(
     override suspend fun updateListWithVersion(updates: List<ShoppedList>) {
         val groupId = pref.getGroupUUID()
         if (groupId.isBlank()) return
-        val maps = updates.associate { it.listId to it.toUpdateRemote() }
+        val maps = mutableMapOf<String, Any?>()
+        updates.forEach {
+            maps.putAll(it.toUpdateRemote())
+        }
         remoteApi.updateSharedData(
             groupId = groupId,
             updates = maps
@@ -140,7 +143,7 @@ fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any?> = mapOf(
     ) else null
 )
 
-fun ShoppedList.toUpdateRemote(): Map<String, Any?> = mapOf(
+fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
     "$PATH_CURRENT_LISTS_VERSIONS${this.listId}" to ListVersionInfo(
         listVersion = this.listVersion,
         listLegend = this.listLegend,

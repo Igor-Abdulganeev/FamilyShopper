@@ -7,5 +7,4 @@ package ru.gorinih.familyshopper.ui.screens.dictionary.models
 data class UiDictionary(
     val tagId: String,
     val tagNames: List<UiDictionaryTag>,
-
-    )
+)

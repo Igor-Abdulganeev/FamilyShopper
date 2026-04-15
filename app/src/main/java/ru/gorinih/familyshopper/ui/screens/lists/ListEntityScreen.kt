@@ -49,6 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.models.TypeShoppedList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
@@ -117,7 +118,7 @@ fun ListEntityScreen(
         }
         LazyColumn(state = stateLazy) {
             items(state.lists, key = { item -> item.listId }) { item ->
-                val painter = GlassCircleImageHolder.getImage(item.listLegend)
+                val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
                 CardListItem(item, painter) {
                     router(item.listId)
                 }
@@ -132,8 +133,11 @@ fun ListEntityScreen(
         ProgressLoadingOverlay()
     }
 
-    if (state.error != null) {
-        ErrorDialog(errorText = state.error) {
+    if (state.warning.isWarning) {
+        ErrorDialog(
+            errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
+            else state.warning.textWarning
+        ) {
             viewModel.onDismiss()
         }
     }
@@ -164,44 +168,44 @@ fun CardListItem(
         val brush = Brush.horizontalGradient(
             colors = if (isDark) {
                 when (item.listLegend) {
-                    1 -> listOf(
+                    TypeShoppedList.ALL -> listOf(
                         ListDarkGreen,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    2 -> listOf(
+                    TypeShoppedList.ADD -> listOf(
                         ListDarkBlue,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    3 -> listOf(
+                    TypeShoppedList.VIEW -> listOf(
                         ListDarkYellow,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    else -> listOf(
+                    TypeShoppedList.PRIVATE -> listOf(
                         ListDarkRed,
                         MaterialTheme.colorScheme.primary,
                     )
                 }
             } else {
                 when (item.listLegend) {
-                    1 -> listOf(
+                    TypeShoppedList.ALL -> listOf(
                         ListLightGreen,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    2 -> listOf(
+                    TypeShoppedList.ADD -> listOf(
                         ListLightBlue,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    3 -> listOf(
+                    TypeShoppedList.VIEW -> listOf(
                         ListLightYellow,
                         MaterialTheme.colorScheme.primary,
                     )
 
-                    else -> listOf(
+                    TypeShoppedList.PRIVATE -> listOf(
                         ListLightRed,
                         MaterialTheme.colorScheme.primary,
                     )
@@ -332,7 +336,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый зеленый",
-                    listLegend = 1,
+                    listLegend = TypeShoppedList.ALL,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(
@@ -358,7 +362,7 @@ fun PreviewMat() {
                     listId = "sdgsfggsd",
                     listVersion = 1,
                     listName = "Тестовый синий",
-                    listLegend = 2,
+                    listLegend = TypeShoppedList.ADD,
                     listOwner = "asdas0,",
                     listTo = emptyList(),
                     listDatetime = "10.04.2026 12:09",
@@ -373,7 +377,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый желтый",
-                    listLegend = 3,
+                    listLegend = TypeShoppedList.VIEW,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(
@@ -395,7 +399,7 @@ fun PreviewMat() {
                     listId = "sdgsgsd",
                     listVersion = 1,
                     listName = "Тестовый красный",
-                    listLegend = 4,
+                    listLegend = TypeShoppedList.PRIVATE,
                     listOwner = "asdas0,",
                     listTo = listOf(
                         UiListUsers(

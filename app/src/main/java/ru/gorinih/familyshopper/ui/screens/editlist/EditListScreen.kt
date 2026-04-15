@@ -133,31 +133,26 @@ fun EditListScreen(
                         modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        if (state.listLegend != 1) viewModel.updateLegend(
-                                            TypeShoppedList.ALL
-                                        )
+                                        viewModel.updateLegend(TypeShoppedList.ALL)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.valueOf(
-                                    TypeShoppedList.ALL.name
-                                ).listId -> null
-
+                                state.listLegend == TypeShoppedList.ALL -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_all),
-                            color = if (state.listLegend == 1) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+                            color = if (state.listLegend == TypeShoppedList.ALL) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
                     }
@@ -166,31 +161,27 @@ fun EditListScreen(
                         modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        if (state.listLegend != 2) viewModel.updateLegend(
-                                            TypeShoppedList.ADD
-                                        )
+                                        viewModel.updateLegend(TypeShoppedList.ADD)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.valueOf(
-                                    TypeShoppedList.ADD.name
-                                ).listId -> null
-
+                                state.listLegend == TypeShoppedList.ADD -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_add),
-                            color = if (state.listLegend == 2) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+                            color = if (state.listLegend == TypeShoppedList.ADD) MaterialTheme.colorScheme.secondary
+                            else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
                     }
@@ -199,31 +190,27 @@ fun EditListScreen(
                         modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(bottom = 2.dp)
                                 .clip(CircleShape)
                                 .clickable(
                                     onClick = {
-                                        if (state.listLegend != 3) viewModel.updateLegend(
-                                            TypeShoppedList.VIEW
-                                        )
+                                        viewModel.updateLegend(TypeShoppedList.VIEW)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.valueOf(
-                                    TypeShoppedList.VIEW.name
-                                ).listId -> null
-
+                                state.listLegend == TypeShoppedList.VIEW -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_view),
-                            color = if (state.listLegend == 3) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+                            color = if (state.listLegend == TypeShoppedList.VIEW) MaterialTheme.colorScheme.secondary
+                            else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
                     }
@@ -232,31 +219,27 @@ fun EditListScreen(
                         modifier = Modifier.padding(end = 4.dp, top = 4.dp)
                     ) {
                         Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend),
+                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .padding(bottom = 2.dp)
                                 .clickable(
                                     onClick = {
-                                        if (state.listLegend != 4) viewModel.updateLegend(
-                                            TypeShoppedList.PRIVATE
-                                        )
+                                        viewModel.updateLegend(TypeShoppedList.PRIVATE)
                                     }
                                 )
                                 .size(iconSize),
                             contentScale = ContentScale.Inside,
                             colorFilter = when {
-                                state.listLegend == TypeShoppedList.valueOf(
-                                    TypeShoppedList.PRIVATE.name
-                                ).listId -> null
-
+                                state.listLegend == TypeShoppedList.PRIVATE -> null
                                 else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                             }
                         )
                         Text(
                             text = stringResource(R.string.label_icon_private),
-                            color = if (state.listLegend == 4) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+                            color = if (state.listLegend == TypeShoppedList.PRIVATE) MaterialTheme.colorScheme.secondary
+                            else MaterialTheme.colorScheme.onSurface,
                             fontSize = iconLabelSize
                         )
                     }
@@ -272,7 +255,7 @@ fun EditListScreen(
                     keyboardManager.clearFocus()
                 },
                 trailingIcon = {
-                    if (state.allUsersUuid.isNotEmpty()) {
+                    if (state.allUsersUuid.isNotEmpty() && state.listLegend != TypeShoppedList.PRIVATE) {
                         IconButton(
                             onClick = {
                                 viewModel.showUsersSelect()
@@ -448,94 +431,74 @@ fun EditListScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    if (state.listLegend != 1) viewModel.updateLegend(
-                                        TypeShoppedList.ALL
-                                    )
+                                    viewModel.updateLegend(TypeShoppedList.ALL)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.valueOf(
-                                TypeShoppedList.ALL.name
-                            ).listId -> null
-
+                            state.listLegend == TypeShoppedList.ALL -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
                     Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    if (state.listLegend != 2) viewModel.updateLegend(
-                                        TypeShoppedList.ADD
-                                    )
+                                    viewModel.updateLegend(TypeShoppedList.ADD)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.valueOf(
-                                TypeShoppedList.ADD.name
-                            ).listId -> null
-
+                            state.listLegend == TypeShoppedList.ADD -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
                     Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
                             .clip(CircleShape)
                             .clickable(
                                 onClick = {
-                                    if (state.listLegend != 3) viewModel.updateLegend(
-                                        TypeShoppedList.VIEW
-                                    )
+                                    viewModel.updateLegend(TypeShoppedList.VIEW)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.valueOf(
-                                TypeShoppedList.VIEW.name
-                            ).listId -> null
-
+                            state.listLegend == TypeShoppedList.VIEW -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
                     Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend),
+                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
                         contentDescription = null,
                         modifier = Modifier
                             .clip(CircleShape)
                             .padding(bottom = 2.dp)
                             .clickable(
                                 onClick = {
-                                    if (state.listLegend != 4) viewModel.updateLegend(
-                                        TypeShoppedList.PRIVATE
-                                    )
+                                    viewModel.updateLegend(TypeShoppedList.PRIVATE)
                                 }
                             )
                             .size(iconSize),
                         contentScale = ContentScale.Inside,
                         colorFilter = when {
-                            state.listLegend == TypeShoppedList.valueOf(
-                                TypeShoppedList.PRIVATE.name
-                            ).listId -> null
-
+                            state.listLegend == TypeShoppedList.PRIVATE -> null
                             else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
                         }
                     )
@@ -664,10 +627,14 @@ fun EditListScreen(
     ) {
         ProgressLoadingOverlay()
     }
-    if (state.error != null)
-        ErrorDialog(state.error) {
-            viewModel.errorDismiss()
+    if (state.warning.isWarning) {
+        ErrorDialog(
+            errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
+            else state.warning.textWarning
+        ) {
+            viewModel.onDismiss()
         }
+    }
     if (state.saved) router()
 
 }

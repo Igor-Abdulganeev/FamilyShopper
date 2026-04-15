@@ -1,5 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.started
-
+/*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +15,7 @@ import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
 import ru.gorinih.familyshopper.ui.views.shadow
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+
 
 /**
  * Created by Igor Abdulganeev on 06.04.2026
@@ -128,3 +129,5 @@ fun PreviewButtons() {
         }
     }
 }
+
+ */

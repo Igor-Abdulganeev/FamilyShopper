@@ -20,4 +20,12 @@ interface StorageRepository {
     fun getUserName(): String
 
     fun setUserName(name: String)
+
+    fun getBackgroundState(): Boolean
+
+    fun setBackgroundState(rainbow: Boolean)
+
+    fun getTypeList(): Int
+
+    fun setTypeList(type: Int)
 }

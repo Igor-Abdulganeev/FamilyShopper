@@ -46,11 +46,29 @@ class StorageSharedPreference(
         putString(USER_NAME, name)
     }
 
+    override fun getBackgroundState(): Boolean = preference.getBoolean(BACKGROUND_STATE, true)
+
+    override fun setBackgroundState(rainbow: Boolean) {
+        preference.edit {
+            putBoolean(BACKGROUND_STATE, rainbow)
+        }
+    }
+
+    override fun getTypeList(): Int = preference.getInt(DEFAULT_LIST_STATE, 1)
+
+    override fun setTypeList(type: Int) {
+        preference.edit {
+            putInt(DEFAULT_LIST_STATE, type)
+        }
+    }
+
     companion object {
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
         private const val APP_FIRST_TIME = "family_shopper_is_first_time"
         private const val USER_NAME = "family_shopper_user_name"
+        private const val BACKGROUND_STATE = "family_shopper_background_state"
+        private const val DEFAULT_LIST_STATE = "family_shopper_default_list_state"
 
         private const val SETTING_FILE_NAME = "family_settings"
     }

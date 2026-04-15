@@ -15,6 +15,7 @@ import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
+import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.EditDictionariesState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.toUiTag
@@ -30,7 +31,14 @@ class EditDictionariesViewModel(
 ) : ViewModel() {
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        dictionaryState.update { it.copy(error = throwable.localizedMessage ?: "неизвестная ошибка") }
+        dictionaryState.update {
+            it.copy(
+                warning = WarningState(
+                    isWarning = true,
+                    textWarning = throwable.localizedMessage ?: "неизвестная ошибка"
+                )
+            )
+        }
     }
 
     var dictionaryState = MutableStateFlow(
@@ -63,10 +71,23 @@ class EditDictionariesViewModel(
                         )
                     }
             }.catch { error ->
-                dictionaryState.update { it.copy(error = error.localizedMessage ?: "неизвестная ошибка", isLoading = false) }
+                dictionaryState.update {
+                    it.copy(
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = error.localizedMessage ?: "неизвестная ошибка"
+                        ), isLoading = false
+                    )
+                }
             }.onEach { list ->
 
-                dictionaryState.update { it.copy(error = null, list = list, isLoading = false) }
+                dictionaryState.update {
+                    it.copy(
+                        warning = WarningState(),
+                        list = list,
+                        isLoading = false
+                    )
+                }
             }.launchIn(viewModelScope)
     }
 
@@ -95,15 +116,20 @@ class EditDictionariesViewModel(
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             dictionaryState.update { it.copy(isLoading = true) }
             syncRemote().apply {
-                when{// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
+                when {// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
                     !this.isError -> dictionaryState.update { it.copy(isLoading = false) }
-                    this.isError -> dictionaryState.update { it.copy(isLoading = false, error = this.textError) }
+                    this.isError -> dictionaryState.update {
+                        it.copy(
+                            isLoading = false,
+                            warning = WarningState(isWarning = true, textWarning = this.textError)
+                        )
+                    }
                 }
             }
         }
     }
 
-    fun errorDismiss() {
-        dictionaryState.update { it.copy(error = null) }
+    fun onDismiss() {
+        dictionaryState.update { it.copy(warning = WarningState()) }
     }
 }

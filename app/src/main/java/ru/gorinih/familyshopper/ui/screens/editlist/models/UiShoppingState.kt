@@ -3,6 +3,8 @@ package ru.gorinih.familyshopper.ui.screens.editlist.models
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
+import ru.gorinih.familyshopper.ui.models.TypeShoppedList
+import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
 import java.util.UUID
 import kotlin.String
@@ -16,7 +18,7 @@ data class UiShoppingState(
     val listUuid: String = "", // идентификатор списка
     val ownerUuid: String = "", // идентификатор создателя (client)
     val listVersion: Int = 0, // версия списка
-    val listLegend: Int = 0, // тип списка из TypeShoppedList
+    val listLegend: TypeShoppedList = TypeShoppedList.ALL, // тип списка из TypeShoppedList
     val tagNames: List<UiShoppingItem> = emptyList(), // таги товаров с пометкой то отмечено
     val usersUuid: List<String> = emptyList(), // это список пользователей которым назначен список
     val dateTime: Long = 0L, // дата создания/обновления списка
@@ -28,9 +30,9 @@ data class UiShoppingState(
     val listAllTags: List<String> = emptyList(), //список всех тэгов для выбора, пока просто без заголовочных букв
     val saved: Boolean = false, //лист сохранен нужно вернуться на предыдущий экран
     val loading: Boolean = false, //надо показать загрузку
-    val error: String? = null, // показ ошибки
-    val isAdd: Boolean = true, // можно ли добавлять - нет если owner другой и listLegend >2
-    val isEdit: Boolean = true, // можно ли редактировать - нет если owner другой и listLegend >1
+    val warning: WarningState = WarningState(), // показ ошибки
+    val isAdd: Boolean = true, // можно ли добавлять - нет если owner другой и listLegend >2 TODO вероятно устарел проверить
+    val isEdit: Boolean = true, // можно ли редактировать - нет если owner другой и listLegend >1 TODO и этот, в редактирование чужого уже не попасть, только в пометках надо это внести
     val usersSelect: Boolean = false, // если будут пользователи еще, то показываем или нет панель с их выбором
     val allUsersUuid: List<UiListUsers> = emptyList(), // список всех пользователей
 )
@@ -41,7 +43,7 @@ fun UiShoppingState.toShoppedList() =
         listName = this.listName,
         ownerUuid = this.ownerUuid,
         listVersion = this.listVersion,
-        listLegend = this.listLegend,
+        listLegend = this.listLegend.listId,
         tagNames = this.tagNames.map { it.toShoppedItem() },
         usersUuid = this.usersUuid.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.dateTime,

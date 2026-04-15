@@ -14,7 +14,9 @@ import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.ui.models.ActionTag
+import ru.gorinih.familyshopper.ui.models.TypeShoppedList
 import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
@@ -33,7 +35,9 @@ class ListStrikeTagsViewModel(
 
 
     var shoppedList by mutableStateOf(
-        UiStrikeState()
+        UiStrikeState(
+            background = pref.getBackgroundState()
+        )
     )
         private set
 
@@ -46,7 +50,7 @@ class ListStrikeTagsViewModel(
                 val ownerUuid = pref.getClientUUID()
                 val isEditable = when{
                     listData.ownerUuid == ownerUuid -> true
-                    listData.listLegend == 1 -> true
+                    listData.listLegend == TypeShoppedList.ALL.listId -> true
                     else -> false
                 }
                 val tagNames = listData.tagNames.map { it.toUiShoppingItem() }
@@ -61,7 +65,7 @@ class ListStrikeTagsViewModel(
                             tagNames = tagNames,
                             isEditable = isEditable,
                             listLegend = listData.listLegend,
-                            listName = listName
+                            listName = listName,
                         )
                 }
             }
@@ -122,7 +126,7 @@ class ListStrikeTagsViewModel(
         }
     }
 
-    fun dismissWarning() {
+    fun onDismiss() {
         shoppedList = shoppedList.copy(warning = WarningState())
     }
 
@@ -130,8 +134,8 @@ class ListStrikeTagsViewModel(
         shoppedList = shoppedList.copy(loading = true)
         viewModelScope.launch(Dispatchers.IO) {
             shoppedList = try {
-                val result = sync()
-                if (result.isError) shoppedList.copy(warning = WarningState(isWarning = true, textWarning = result.textError), loading = false)
+                val result = sync().toWarningState()
+                if (result.isWarning) shoppedList.copy(warning = result, loading = false)
                 else shoppedList.copy(loading = false)
             } catch (ex: Throwable) {
                 shoppedList.copy(warning = WarningState(isWarning = true, textWarning = ex.localizedMessage ?: ""), loading = false)

@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.koinInject
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
             FamilyShopperTheme {
                 val navController = rememberNavController()
                 var navigationActions by remember { mutableStateOf(NavigationActions(onNavigationClick = { navController.popBackStack()})) }
+                val backStackEntry by navController.currentBackStackEntryAsState()
                 val pref: StorageRepository = koinInject()
                 val startedKey: NavigationKey = when (pref.getStartedKey()) {
                     true -> NavigationKey.ListEntityScreen
@@ -52,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text("Семейные покупки") },
+                            title = { Text(stringResource(R.string.toolbar_main_header)) },
                             navigationIcon = {
                                 IconButton(
                                     onClick = {
@@ -70,18 +73,24 @@ class MainActivity : ComponentActivity() {
                                     horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    IconButton(
-                                        onClick = {
-                                            val destination =
-                                                navController.currentDestination?.route?.contains("DictionariesScreen")
-                                                    ?: false
-                                            if (!destination) navController.navigate(NavigationKey.DictionariesScreen)
+                                    if (backStackEntry?.destination?.route?.contains("SettingsScreen") != true) {
+                                        IconButton(
+                                            onClick = {
+                                                val destination =
+                                                    navController.currentDestination?.route?.contains(
+                                                        "DictionariesScreen"
+                                                    )
+                                                        ?: false
+                                                if (!destination) navController.navigate(
+                                                    NavigationKey.DictionariesScreen
+                                                )
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.Notes,
+                                                contentDescription = null
+                                            )
                                         }
-                                    ) {
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.Notes,
-                                            contentDescription = null
-                                        )
                                     }
                                     IconButton(
                                         onClick = {
