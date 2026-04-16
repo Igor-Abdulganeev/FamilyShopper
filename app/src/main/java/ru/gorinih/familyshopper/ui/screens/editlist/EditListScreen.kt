@@ -420,7 +420,7 @@ fun EditListScreen(
                     viewModel.saveList()
                 }
             ) {
-                Text("Сохранить")
+                Text(stringResource(R.string.button_save_text))
             }
         }
 

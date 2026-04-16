@@ -108,21 +108,30 @@ class SettingsViewModel(
     }
 
     fun onShareGroupUuid() {
-        viewModelScope.launch(Dispatchers.Main.immediate) {
-            try {
-                _shareData.send(stateSettings.groupUUID)
-            } catch (_: Throwable) {
+        if (!stateSettings.isSharing) {
+            stateSettings = stateSettings.copy(isSharing = true)
+            viewModelScope.launch(Dispatchers.Main.immediate) {
+                try {
+                    _shareData.send(stateSettings.groupUUID)
+                } catch (_: Throwable) {
+                }
             }
         }
     }
 
     fun onShareClientUuid() {
-        viewModelScope.launch(Dispatchers.Main.immediate) {
-            try {
-                _shareData.send(stateSettings.clientUUID)
-            } catch (_: Throwable) {
+        if (!stateSettings.isSharing) {
+            viewModelScope.launch(Dispatchers.Main.immediate) {
+                try {
+                    _shareData.send(stateSettings.clientUUID)
+                } catch (_: Throwable) {
+                }
             }
         }
+    }
+
+    fun shareDone() {
+        stateSettings = stateSettings.copy(isSharing = false)
     }
 
     private fun getStartedKeys(): SettingsState =

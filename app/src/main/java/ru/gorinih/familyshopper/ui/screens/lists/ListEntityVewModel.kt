@@ -66,31 +66,35 @@ class ListEntityVewModel(
     }
 
     fun updateList() {
-        listsState = listsState.copy(loading = true)
-        viewModelScope.launch(Dispatchers.IO) {
-            listsState = try {
-                val result = sync().toWarningState()
-                if (result.isWarning) listsState.copy(warning = result, loading = false)
-                else listsState.copy(loading = false)
-            } catch (ex: Throwable) {
-                listsState.copy(
-                    warning = WarningState(
-                        isWarning = true,
-                        textWarning = ex.localizedMessage ?: "неизвестная ошибка"
-                    ), loading = false
-                )
+        if (!listsState.loading) {
+            listsState = listsState.copy(loading = true)
+            viewModelScope.launch(Dispatchers.IO) {
+                listsState = try {
+                    val result = sync().toWarningState()
+                    if (result.isWarning) listsState.copy(warning = result, loading = false)
+                    else listsState.copy(loading = false)
+                } catch (ex: Throwable) {
+                    listsState.copy(
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = ex.localizedMessage ?: "неизвестная ошибка"
+                        ), loading = false
+                    )
+                }
             }
         }
     }
 
     fun startDeleteList(listId: String) {
-        listsState = listsState.copy(
-            deleting = DeletingState(
-                isDelete = true,
-                deletedId = listId,
-                queryText = R.string.text_delete_list,
-            ),
-        )
+        if (!listsState.deleting.isDelete) {
+            listsState = listsState.copy(
+                deleting = DeletingState(
+                    isDelete = true,
+                    deletedId = listId,
+                    queryText = R.string.text_delete_list,
+                ),
+            )
+        }
     }
 
     fun stopDeleteList() {

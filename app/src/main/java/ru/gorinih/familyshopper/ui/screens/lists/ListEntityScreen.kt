@@ -38,7 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -96,6 +100,8 @@ fun ListEntityScreen(
 
     val state = viewModel.listsState
     val stateLazy = rememberLazyListState()
+    var lastClickTime by remember { mutableLongStateOf(0L) }
+    var isClicked by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         navigationActions(NavigationActions(onNavigationClick = { backClick() }))
@@ -114,7 +120,11 @@ fun ListEntityScreen(
             horizontalArrangement = Arrangement.End
         ) {
             IconButton(
-                onClick = { addList() }
+                enabled = !isClicked,
+                onClick = {
+                    isClicked = true
+                    addList()
+                }
             ) {
                 Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
             }
@@ -139,14 +149,23 @@ fun ListEntityScreen(
                     item = item,
                     painter = painter,
                     onClick = {
-                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500L) {
+                            lastClickTime = currentTime
+                            router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                        }
                     },
                     onDelete = {
                         viewModel.startDeleteList(item.listId)
                     },
                     onEdit = {
-                        router(NavigationKey.EditListScreen(listUuid = item.listId))
-                    })
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500L) {
+                            lastClickTime = currentTime
+                            router(NavigationKey.EditListScreen(listUuid = item.listId))
+                        }
+                    }
+                )
             }
         }
     }

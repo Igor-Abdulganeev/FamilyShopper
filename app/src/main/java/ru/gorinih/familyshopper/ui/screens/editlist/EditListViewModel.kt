@@ -215,26 +215,28 @@ class EditListViewModel(
     }
 
     fun saveList() {
-        val startedTime = System.currentTimeMillis()
-        shoppedList = shoppedList.copy(loading = true, dateTime = startedTime)
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val result = saveList(shoppedList.toShoppedList()).toWarningState()
-                if (!result.isWarning) {
-                    shoppedList = shoppedList.copy(loading = false, saved = true)
-                } else {
-                    throw IllegalArgumentException(result.textWarning)
-                }
-            } catch (_: IOException) {
-                shoppedList = shoppedList.copy(error = true, loading = false)
-            } catch (ex: Throwable) {
-                shoppedList = shoppedList.copy(
-                    loading = false,
-                    warning = WarningState(
-                        isWarning = true,
-                        textWarning = ex.localizedMessage ?: "неизвестная ошибка"
+        if (!shoppedList.loading) {
+            val startedTime = System.currentTimeMillis()
+            shoppedList = shoppedList.copy(loading = true, dateTime = startedTime)
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val result = saveList(shoppedList.toShoppedList()).toWarningState()
+                    if (!result.isWarning) {
+                        shoppedList = shoppedList.copy(loading = false, saved = true)
+                    } else {
+                        throw IllegalArgumentException(result.textWarning)
+                    }
+                } catch (_: IOException) {
+                    shoppedList = shoppedList.copy(error = true, loading = false)
+                } catch (ex: Throwable) {
+                    shoppedList = shoppedList.copy(
+                        loading = false,
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = ex.localizedMessage ?: "неизвестная ошибка"
+                        )
                     )
-                )
+                }
             }
         }
     }

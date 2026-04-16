@@ -15,4 +15,5 @@ data class SettingsState(
     val userNameSaved: String, // старое имя, будем сохранять если отличия есть
     val rainbow: Boolean, // анимированный или нет фон
     val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
+    val isSharing: Boolean = false, //шаринг данных запущен
 ): Parcelable

@@ -160,24 +160,26 @@ class ListStrikeTagsViewModel(
     }
 
     fun updateList() {
-        shoppedList = shoppedList.copy(loading = true)
-        viewModelScope.launch(Dispatchers.IO) {
-            memoryList =
-                memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
-            memoryList?.let {
-                shoppedList = try {
-                    val result = saveList(it).toWarningState()
-                    if (result.isWarning) shoppedList.copy(warning = result, loading = false)
-                    else {
-                        shoppedList.copy(loading = false)
+        if (!shoppedList.loading) {
+            shoppedList = shoppedList.copy(loading = true)
+            viewModelScope.launch(Dispatchers.IO) {
+                memoryList =
+                    memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
+                memoryList?.let {
+                    shoppedList = try {
+                        val result = saveList(it).toWarningState()
+                        if (result.isWarning) shoppedList.copy(warning = result, loading = false)
+                        else {
+                            shoppedList.copy(loading = false)
+                        }
+                    } catch (ex: Throwable) {
+                        shoppedList.copy(
+                            warning = WarningState(
+                                isWarning = true,
+                                textWarning = ex.localizedMessage ?: ""
+                            ), loading = false
+                        )
                     }
-                } catch (ex: Throwable) {
-                    shoppedList.copy(
-                        warning = WarningState(
-                            isWarning = true,
-                            textWarning = ex.localizedMessage ?: ""
-                        ), loading = false
-                    )
                 }
             }
         }
