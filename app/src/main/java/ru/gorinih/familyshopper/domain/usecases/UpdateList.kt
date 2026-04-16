@@ -11,16 +11,15 @@ import ru.gorinih.familyshopper.domain.models.toDictionaryLocalTag
  * Created by Igor Abdulganeev on 09.04.2026
  */
 
-interface SaveList {
+interface UpdateList {
     suspend operator fun invoke(data: ShoppedList): Results
 }
 
-class SaveListImpl(
+class UpdateListImpl(
     private val database: DatabaseRepository,
     private val remote: RemoteRepository,
-) : SaveList {
+) : UpdateList {
     override suspend fun invoke(data: ShoppedList): Results {
-        //   try {
         // 1 подготовить данные для заливки в локальную БД и на сервер
         //  надо получить с сервера версии, найти нашу если есть, если нет то 0, и увеличить на 1
         val remoteLists = remote.getListsVersions()
@@ -46,7 +45,6 @@ class SaveListImpl(
                 val saveData = remote.getCurrentListById(data.listId)
                 Log.i("GINES", "true remote getCurrentListById=$saveData")
                 saveData?.let {
-
                     database.updateList(it)
                 }
             }
@@ -61,9 +59,6 @@ class SaveListImpl(
             }
         }
         return Results(isError = false)
-        //    } catch (ex: Throwable) {
-        //        Results(isError = true, textError = ex.localizedMessage ?: "unknown error")
-        //   }
     }
 
 }

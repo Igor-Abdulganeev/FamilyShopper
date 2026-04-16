@@ -28,8 +28,8 @@ import ru.gorinih.familyshopper.domain.usecases.DeleteList
 import ru.gorinih.familyshopper.domain.usecases.DeleteListImpl
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListImpl
-import ru.gorinih.familyshopper.domain.usecases.SaveList
-import ru.gorinih.familyshopper.domain.usecases.SaveListImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateList
+import ru.gorinih.familyshopper.domain.usecases.UpdateListImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
@@ -112,7 +112,7 @@ fun koinModule(): Module = module {
             database = get()
         )
     }
-    factory<SaveList> { SaveListImpl(database = get(), remote = get()) }
+    factory<UpdateList> { UpdateListImpl(database = get(), remote = get()) }
     factory<SynchronizeLists> {
         SynchronizeListsImpl(
             database = get(),
@@ -134,7 +134,7 @@ fun koinModule(): Module = module {
         ListStrikeTagsViewModel(
             listUuid = listId,
             database = get(),
-            saveList = get(),
+            updateList = get(),
             pref = get()
         )
     }

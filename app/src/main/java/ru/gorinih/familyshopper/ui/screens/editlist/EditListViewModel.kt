@@ -16,7 +16,7 @@ import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.getNewerOrNull
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
-import ru.gorinih.familyshopper.domain.usecases.SaveList
+import ru.gorinih.familyshopper.domain.usecases.UpdateList
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
@@ -38,7 +38,7 @@ class EditListViewModel(
     private val listUuid: String = "",
     pref: StorageRepository,
     private val database: DatabaseRepository,
-    private val saveList: SaveList,
+    private val saveList: UpdateList,
     private val updateList: GetAndUpdateList,
 ) : ViewModel() {
 

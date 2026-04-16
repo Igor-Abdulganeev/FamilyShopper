@@ -64,7 +64,7 @@ fun ListStrikeTagsScreen(
     )
 ) {
     val handleExit = {
-        viewModel.saveChanged()
+        viewModel.updateIfChanged()
         backPressed()
     }
 
@@ -84,7 +84,7 @@ fun ListStrikeTagsScreen(
 
     val brush =
         Brush.linearGradient(
-            colors =  if(isSystemInDarkTheme()) {
+            colors = if (isSystemInDarkTheme()) {
                 when (state.listLegend) {
                     TypeLegendList.ALL -> listOf(
                         ListDarkGreen,
@@ -137,10 +137,10 @@ fun ListStrikeTagsScreen(
                     )
                 }
             }
-    )
+        )
 
-    val colors = if(isSystemInDarkTheme()) {
-        when(state.listLegend) {
+    val colors = if (isSystemInDarkTheme()) {
+        when (state.listLegend) {
             TypeLegendList.ALL -> listOf(
                 ListDarkGreen,
                 MaterialTheme.colorScheme.surface
@@ -162,7 +162,7 @@ fun ListStrikeTagsScreen(
             )
         }
     } else {
-        when(state.listLegend) {
+        when (state.listLegend) {
             TypeLegendList.ALL -> listOf(
                 ListLightGreen,
                 MaterialTheme.colorScheme.onSecondary
