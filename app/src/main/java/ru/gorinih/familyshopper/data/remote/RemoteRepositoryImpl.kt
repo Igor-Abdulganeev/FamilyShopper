@@ -11,6 +11,7 @@ import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
+import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
@@ -79,7 +80,7 @@ class RemoteRepositoryImpl(
         if (groupId.isBlank()) return emptyMap()
         val result = remoteApi.getListsVersions(groupId = groupId)
         return result.body()?.mapValues { it.value.toListRemoteInfo() } ?: emptyMap()
-     }
+    }
 
     override suspend fun updateListWithVersion(updates: List<ShoppedList>) {
         val groupId = pref.getGroupUUID()
@@ -112,7 +113,7 @@ class RemoteRepositoryImpl(
         val groupId = pref.getGroupUUID()
         if (groupId.isBlank()) return null
         val result = remoteApi.getCurrentListById(groupId = groupId, listId = listId)
-        return  result.body()?.toShoppedList()
+        return result.body()?.toShoppedList()
     }
 
     override suspend fun setUserName() {
@@ -128,7 +129,26 @@ class RemoteRepositoryImpl(
         val result = remoteApi.getAllCurrentUsers(groupId = groupId)
         return result.body() ?: emptyMap()
     }
+
+    override suspend fun deleteListWithVersion(listId: String): Results {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return Results(
+            isError = true,
+            textError = "Id хранилища не установлен."
+        )
+        val maps = listId.toDeleteRemote()
+        remoteApi.updateSharedData(
+            groupId = groupId,
+            updates = maps
+        )
+        return Results(isError = false)
+    }
 }
+
+fun String.toDeleteRemote(): Map<String, Any?> = mapOf(
+    "$PATH_CURRENT_LISTS_VERSIONS${this}" to null,
+    "$PATH_CURRENT_LISTS${this}" to null
+)
 
 fun String.toUpdateRemote(name: String): Map<String, String> = mapOf(
     "$PATH_USERS${this}" to name

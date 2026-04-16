@@ -24,6 +24,8 @@ import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.usecases.DeleteList
+import ru.gorinih.familyshopper.domain.usecases.DeleteListImpl
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListImpl
 import ru.gorinih.familyshopper.domain.usecases.SaveList
@@ -120,13 +122,14 @@ fun koinModule(): Module = module {
     }
     factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
     factory<UpdateUsers> { UpdateUsersImpl(remote = get(), database = get()) }
+    factory<DeleteList> { DeleteListImpl(database = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
 
     viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
     viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
     viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
-    viewModel { ListEntityVewModel(database = get(), sync=get()) }
+    viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
     viewModel { (listId: String) ->
         ListStrikeTagsViewModel(
             listUuid = listId,

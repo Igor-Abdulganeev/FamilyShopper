@@ -2,10 +2,16 @@ package ru.gorinih.familyshopper.ui.screens.lists
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,6 +29,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,6 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -43,11 +55,13 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.navigation.NavigationKey
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
@@ -64,6 +78,8 @@ import ru.gorinih.familyshopper.ui.theme.ListLightYellow
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.QueryDialog
+import kotlin.math.roundToInt
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -71,7 +87,7 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 
 @Composable
 fun ListEntityScreen(
-    router: (String) -> Unit,
+    router: (NavigationKey) -> Unit,
     addList: () -> Unit,
     backClick: () -> Unit,
     navigationActions: (NavigationActions) -> Unit,
@@ -119,9 +135,18 @@ fun ListEntityScreen(
         LazyColumn(state = stateLazy) {
             items(state.lists, key = { item -> item.listId }) { item ->
                 val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
-                CardListItem(item, painter) {
-                    router(item.listId)
-                }
+                CardListItem(
+                    item = item,
+                    painter = painter,
+                    onClick = {
+                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                    },
+                    onDelete = {
+                        viewModel.startDeleteList(item.listId)
+                    },
+                    onEdit = {
+                        router(NavigationKey.EditListScreen(listUuid = item.listId))
+                    })
             }
         }
     }
@@ -141,6 +166,17 @@ fun ListEntityScreen(
             viewModel.onDismiss()
         }
     }
+
+    if (state.deleting.isDelete) {
+        QueryDialog(
+            question = stringResource(
+                state.deleting.queryText,
+                state.lists.first { it.listId == state.deleting.deletedId }.listName
+            ),
+            onDone = { viewModel.deleteList(state.deleting.deletedId) },
+            onCancel = { viewModel.stopDeleteList() }
+        )
+    }
 }
 
 @Composable
@@ -148,15 +184,73 @@ fun CardListItem(
     item: UiListObject,
     painter: Painter? = null,
     onClick: () -> Unit,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     val title = item.listName.takeIf { it.isNotBlank() }
         ?: stringResource(R.string.label_empty_list_name)
     val isDark = isSystemInDarkTheme()
-    Column(
+    val density = LocalDensity.current
+
+    val widthSwipe = with(density) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    } * 0.2f // сдвинем на размер...
+    val anchors = DraggableAnchors {
+        SwipedAnchor.START at -widthSwipe
+        SwipedAnchor.MEDIAN at 0f
+        SwipedAnchor.END at widthSwipe
+    }
+    val stateSwipe = remember {
+        AnchoredDraggableState(
+            initialValue = SwipedAnchor.MEDIAN,
+            anchors = anchors
+        )
+    }
+    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+        state = stateSwipe,
+        positionalThreshold = { distance -> distance * 0.5f },
+        animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+    )
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+            .fillMaxSize()
     ) {
+        Row(
+            Modifier
+                .matchParentSize()
+                .padding(horizontal = 32.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = { onDelete() },
+                enabled = item.isDelete
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null)
+            }
+            IconButton(
+                onClick = { onEdit() },
+                enabled = item.isEdit
+            ) {
+                Icon(Icons.Default.Edit, contentDescription = null)
+            }
+
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+                .offset { IntOffset(stateSwipe.requireOffset().roundToInt(), 0) }
+                .anchoredDraggable(
+                    state = stateSwipe,
+                    reverseDirection = false,
+                    orientation = Orientation.Horizontal,
+                    flingBehavior = flingBehavior,
+                    interactionSource = null,
+                    overscrollEffect = null,
+                )
+        ) {
 /*
         val tintBackground = when(item.listLegend) {
             1 -> Color.Green
@@ -165,161 +259,162 @@ fun CardListItem(
             else -> Color.Red
         }.run { copy(alpha = 0.1f) }
 */
-        val brush = Brush.horizontalGradient(
-            colors = if (isDark) {
-                when (item.listLegend) {
-                    TypeLegendList.ALL -> listOf(
-                        ListDarkGreen,
-                        MaterialTheme.colorScheme.primary,
-                    )
+            val brush = Brush.horizontalGradient(
+                colors = if (isDark) {
+                    when (item.listLegend) {
+                        TypeLegendList.ALL -> listOf(
+                            ListDarkGreen,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.ADD -> listOf(
-                        ListDarkBlue,
-                        MaterialTheme.colorScheme.primary,
-                    )
+                        TypeLegendList.ADD -> listOf(
+                            ListDarkBlue,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.VIEW -> listOf(
-                        ListDarkYellow,
-                        MaterialTheme.colorScheme.primary,
-                    )
+                        TypeLegendList.VIEW -> listOf(
+                            ListDarkYellow,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.PRIVATE -> listOf(
-                        ListDarkRed,
-                        MaterialTheme.colorScheme.primary,
-                    )
-                }
-            } else {
-                when (item.listLegend) {
-                    TypeLegendList.ALL -> listOf(
-                        ListLightGreen,
-                        MaterialTheme.colorScheme.primary,
-                    )
+                        TypeLegendList.PRIVATE -> listOf(
+                            ListDarkRed,
+                            MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                } else {
+                    when (item.listLegend) {
+                        TypeLegendList.ALL -> listOf(
+                            ListLightGreen,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.ADD -> listOf(
-                        ListLightBlue,
-                        MaterialTheme.colorScheme.primary,
-                    )
+                        TypeLegendList.ADD -> listOf(
+                            ListLightBlue,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.VIEW -> listOf(
-                        ListLightYellow,
-                        MaterialTheme.colorScheme.primary,
-                    )
+                        TypeLegendList.VIEW -> listOf(
+                            ListLightYellow,
+                            MaterialTheme.colorScheme.primary,
+                        )
 
-                    TypeLegendList.PRIVATE -> listOf(
-                        ListLightRed,
-                        MaterialTheme.colorScheme.primary,
-                    )
-                }
-            },
-            startX = 0.0f,
-            endX = 550f
-        )
+                        TypeLegendList.PRIVATE -> listOf(
+                            ListLightRed,
+                            MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                },
+                startX = 0.0f,
+                endX = 550f
+            )
 
-        MaterialGroupBox(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 16.dp),
-            onClick = { onClick() },
-            color = MaterialTheme.colorScheme.primary, //tintBackground
-            brush = brush
-        ) {
-            Column {
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    Text(
-                        text = title,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            drawStyle = Stroke(
-                                width = 4f,
-                                join = StrokeJoin.Round
-                            )
-                        ),
-                        color = if (isDark) Color.Black else Color.White
-                    )
-                    Text(
-                        text = title,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                if (item.userName.isNotBlank()) {
-                    Row(
+            MaterialGroupBox(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp, bottom = 16.dp),
+                onClick = { onClick() },
+                color = MaterialTheme.colorScheme.primary, //tintBackground
+                brush = brush
+            ) {
+                Column {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        contentAlignment = Alignment.TopStart
                     ) {
                         Text(
-                            text = stringResource(R.string.label_owner_name),
-                            modifier = Modifier.padding(start = 48.dp),
-                            fontSize = 12.sp
+                            text = title,
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                drawStyle = Stroke(
+                                    width = 4f,
+                                    join = StrokeJoin.Round
+                                )
+                            ),
+                            color = if (isDark) Color.Black else Color.White
                         )
                         Text(
-                            text = item.userName,
-                            modifier = Modifier.padding(start = 4.dp),
-                            fontStyle = FontStyle.Italic,
+                            text = title,
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+
+                    if (item.userName.isNotBlank()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.label_owner_name),
+                                modifier = Modifier.padding(start = 48.dp),
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = item.userName,
+                                modifier = Modifier.padding(start = 4.dp),
+                                fontStyle = FontStyle.Italic,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                    if (item.listTo.any { it.userName.isNotBlank() }) {
+                        Text(
+                            text = stringResource(R.string.label_member_name),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 48.dp),
+                            style = TextStyle(
+                                textDecoration = TextDecoration.Underline,
+                                fontSize = 12.sp
+                            ),
+                            textAlign = TextAlign.End
+                        )
+                        val stringBuilder = StringBuilder()
+                        for (name in item.listTo) {
+                            stringBuilder.append("")
+                            if (name.userName.isNotBlank()) stringBuilder.append(name.userName)
+                        }
+                        Text(
+                            text = stringBuilder.toString(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 48.dp),
+                            textAlign = TextAlign.End,
                             fontSize = 16.sp
                         )
                     }
-                }
-                if (item.listTo.any { it.userName.isNotBlank() }) {
-                    Text(
-                        text = stringResource(R.string.label_member_name),
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 48.dp),
-                        style = TextStyle(
-                            textDecoration = TextDecoration.Underline,
-                            fontSize = 12.sp
-                        ),
-                        textAlign = TextAlign.End
-                    )
-                    val stringBuilder = StringBuilder()
-                    for (name in item.listTo) {
-                        stringBuilder.append("")
-                        if (name.userName.isNotBlank()) stringBuilder.append(name.userName)
+                            .padding(horizontal = 2.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        if (painter != null) {
+                            Image(painter, contentDescription = null, Modifier.size(20.dp))
+                        }
+                        Text(
+                            text = "${item.countTags} / ${item.countStrikes}",
+                            modifier = Modifier.padding(start = 32.dp)
+                        )
+                        Text(
+                            text = item.listDatetime,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                baselineShift = BaselineShift.Subscript
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            textAlign = TextAlign.End
+                        )
                     }
-                    Text(
-                        text = stringBuilder.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 48.dp),
-                        textAlign = TextAlign.End,
-                        fontSize = 16.sp
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 2.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    if (painter != null) {
-                        Image(painter, contentDescription = null, Modifier.size(20.dp))
-                    }
-                    Text(
-                        text = "${item.countTags} / ${item.countStrikes}",
-                        modifier = Modifier.padding(start = 32.dp)
-                    )
-                    Text(
-                        text = item.listDatetime,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            baselineShift = BaselineShift.Subscript
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        textAlign = TextAlign.End
-                    )
                 }
             }
         }
@@ -355,8 +450,11 @@ fun PreviewMat() {
                     countStrikes = 2,
                     userName = "Иван"
                 ),
-                GlassCircleImageHolder.getImage(1)
-            ) {}
+                GlassCircleImageHolder.getImage(1),
+                onClick = {},
+                onDelete = {},
+                onEdit = {}
+            )
             CardListItem(
                 UiListObject(
                     listId = "sdgsfggsd",
@@ -370,8 +468,11 @@ fun PreviewMat() {
                     countStrikes = 0,
                     userName = "Марья"
                 ),
-                GlassCircleImageHolder.getImage(2)
-            ) {}
+                GlassCircleImageHolder.getImage(2),
+                onClick = {},
+                onDelete = {},
+                onEdit = {}
+            )
             CardListItem(
                 UiListObject(
                     listId = "sdgsgsd",
@@ -391,9 +492,11 @@ fun PreviewMat() {
                     countStrikes = 4,
                     userName = "Олег"
                 ),
-                GlassCircleImageHolder.getImage(3)
-
-            ) {}
+                GlassCircleImageHolder.getImage(3),
+                onClick = {},
+                onDelete = {},
+                onEdit = {}
+            )
             CardListItem(
                 UiListObject(
                     listId = "sdgsgsd",
@@ -413,9 +516,17 @@ fun PreviewMat() {
                     countStrikes = 0,
                     userName = "Игорь"
                 ),
-                GlassCircleImageHolder.getImage(4)
-
-            ) {}
+                GlassCircleImageHolder.getImage(4),
+                onClick = {},
+                onDelete = {},
+                onEdit = {}
+            )
         }
     }
+}
+
+enum class SwipedAnchor {
+    START,
+    MEDIAN,
+    END
 }

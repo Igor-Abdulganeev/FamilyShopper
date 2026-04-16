@@ -27,15 +27,24 @@ class SynchronizeListsImpl(
     override suspend fun invoke(): Results =
         try {
             val userUuid = pref.getClientUUID()
-            // 1) получить версии списков с сервера
+            // получить версии списков с сервера
             val remoteListsInfo: Map<String, ListRemoteInfo> = remote.getListsVersions()
 
             Log.d("GINES", "remoteList=$remoteListsInfo")
-            // 2) получить локальные списки
-            val localListInfo: Map<String, ShoppedList> = database.takeListsWithVersions()
+            // получить локальные списки
+            val localListInfo: MutableMap<String, ShoppedList> =
+                database.takeListsWithVersions().toMutableMap()
             Log.d("GINES", "localListInfo=$localListInfo")
 
-            // 3) сверить и получить 2 списка 1- тех что на сервере есть новее 2- тех что на докале есть новее
+            // если у нас есть чужие но их нет на сервере - они удалены и у нас тоже надо удалить, получим их список и удалим до дальнейших шагов
+            val deletedListKeys: Set<String> =
+                localListInfo.filter { list -> !remoteListsInfo.containsKey(list.key) }.keys
+            Log.d("GINES", "deletedListKeys=$deletedListKeys")
+            for (deleteId in deletedListKeys) {
+                localListInfo.remove(deleteId)
+                database.deleteList(listId = deleteId)
+            }
+            // сверить и получить 2 списка 1- тех что на сервере есть новее 2- тех что на докале есть новее
             // исключить из них чужие приватные
             val needUpdateFromRemoteKeys: Set<String> = remoteListsInfo.filter { (key, ver) ->
                 ver.listVersion > (localListInfo[key]?.listVersion ?: 0) &&
@@ -89,17 +98,17 @@ class SynchronizeListsImpl(
                 if (list.listId in needUpdateFromRemoteKeys) database.updateList(list)
             }
             toLoad.forEach { database.updateList(it) }
-            //5) выкинуть их на сервер
+            // выкинуть их на сервер
             toUpLoad.addAll(needUpdateFromLocalKeys)
             val uploadList = mutableListOf<ShoppedList>()
-            for(listId in toUpLoad) {
-               val data = database.takeList(listId)
+            for (listId in toUpLoad) {
+                val data = database.takeList(listId)
                 uploadList.add(data)
             }
             Log.d("GINES", "uploadList=$uploadList")
 
             remote.updateListWithVersion(updates = uploadList)
-             Results(isError = false)
+            Results(isError = false)
         } catch (ex: Throwable) {
             Results(isError = true, textError = ex.localizedMessage ?: "unknown error")
         }

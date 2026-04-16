@@ -27,4 +27,8 @@
     <string name="label_owner_name">Автор: </string>
     <string name="label_member_name">Участники: </string>
     <string name="toolbar_main_header">Семейные покупки</string>
+    <string name="button_text_positive">Да</string>
+    <string name="button_text_negative">Отмена</string>
+    <string name="text_delete_list">Вы хотите удалить список: \n  %1$s</string>
+    <string name="warning_caption_text">Внимание!</string>
 </resources>

@@ -9,8 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.usecases.DeleteList
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
+import ru.gorinih.familyshopper.ui.models.DeletingState
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
@@ -24,11 +29,14 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 class ListEntityVewModel(
     private val database: DatabaseRepository,
     private val sync: SynchronizeLists,
+    private val delete: DeleteList,
+    pref: StorageRepository,
 ) : ViewModel() {
     var listsState by mutableStateOf(UiListsState())
         private set
 
     init {
+        val userUuid = pref.getClientUUID()
         viewModelScope.launch(Dispatchers.IO) {
             combine(
                 database.takeLists(),
@@ -38,7 +46,12 @@ class ListEntityVewModel(
                 list.map { entity ->
                     val users = entity.usersUuid.mapNotNull { uuid -> userMap[uuid.userUuid] }
                         .map { it.toUiListUsers() }
-                    entity.toUiListObject().copy(listTo = users)
+                    val isEdit =
+                        userUuid == entity.ownerUuid || entity.listLegend == TypeLegendList.ALL.listId
+                    val isDelete =
+                        userUuid == entity.ownerUuid
+                    entity.toUiListObject()
+                        .copy(listTo = users, isEdit = isEdit, isDelete = isDelete)
                 }
             }.collect { list ->
                 withContext(Dispatchers.Main.immediate) {
@@ -66,6 +79,37 @@ class ListEntityVewModel(
                         textWarning = ex.localizedMessage ?: "неизвестная ошибка"
                     ), loading = false
                 )
+            }
+        }
+    }
+
+    fun startDeleteList(listId: String) {
+        listsState = listsState.copy(
+            deleting = DeletingState(
+                isDelete = true,
+                deletedId = listId,
+                queryText = R.string.text_delete_list,
+            ),
+        )
+    }
+
+    fun stopDeleteList() {
+        listsState = listsState.copy(deleting = DeletingState())
+    }
+
+    fun deleteList(listId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = delete(listId = listId)
+            listsState = when (result.isError) {
+                true -> listsState.copy(
+                    deleting = DeletingState(),
+                    warning = WarningState(
+                        isWarning = true,
+                        textWarning = "Удаление выполнено локально, ${result.textError}"
+                    )
+                )
+
+                false -> listsState.copy(deleting = DeletingState())
             }
         }
     }

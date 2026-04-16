@@ -74,18 +74,6 @@ interface JsonApi {
         @Path("list_id") listId: String
     ): Response<ListObject?>
 
-    /*
-
-        // Удаление списка (Удаляет из двух веток сразу через PATCH со значениями null)
-        @PATCH("shared_data/{group_id}.json")
-        suspend fun deleteListWithVersion(
-            @Path("group_id") groupId: String,
-            @Body updates: Map<String, Any?> // В Body: {"current_lists/ID": null, "current_lists_versions/ID": null}
-        ): Response<Unit>
-
-
-     */
-
     // Получение всех пользователей
     @GET("shared_data/{group_id}/current_users.json")
     suspend fun getAllCurrentUsers(

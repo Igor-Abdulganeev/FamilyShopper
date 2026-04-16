@@ -73,8 +73,8 @@ fun NavigationHost(
 
         composable<NavigationKey.ListEntityScreen> {
             ListEntityScreen(
-                router = { listId ->
-                    navigationController.navigate(NavigationKey.ListStrikeTagsScreen(listUuid = listId))
+                router = { navigationKey ->
+                    navigationController.navigate(navigationKey)
                 },
                 backClick = { popupBackStack() },
                 navigationActions = navigationActions,

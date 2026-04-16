@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.domain
 
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
+import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
@@ -27,12 +28,9 @@ interface RemoteRepository {
     suspend fun getAllCurrentLists(): Map<String, ShoppedList>
 
     suspend fun getCurrentListById(listId: String): ShoppedList?
-    /*
 
+    suspend fun deleteListWithVersion(listId: String): Results
 
-
-         suspend fun deleteListWithVersion(groupId: String, updates: Map<String, Any?>): Response<UniUnit>
-     */
     suspend fun setUserName()
 
     suspend fun getUsersNames(): Map<String, String>

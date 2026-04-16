@@ -51,4 +51,6 @@ interface DatabaseRepository {
     suspend fun keepUser(user: ShoppedUsers)
 
     suspend fun deleteDictionaryVersion(tagId: String)
+
+    suspend fun deleteList(listId: String)
 }

@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.lists.models
 
+import ru.gorinih.familyshopper.ui.models.DeletingState
 import ru.gorinih.familyshopper.ui.models.WarningState
 
 /**
@@ -10,4 +11,5 @@ data class UiListsState(
     val lists: List<UiListObject> = emptyList(), // будет список с БД
     val warning: WarningState = WarningState(), // для обработки ошибок
     val loading: Boolean = false,
+    val deleting: DeletingState = DeletingState(), // удаление списка
 )

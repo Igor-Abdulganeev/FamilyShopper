@@ -43,6 +43,9 @@ interface ListsDao {
     @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
     fun flowList(listId: String): Flow<List<DbList>>
 
+    @Query("DELETE FROM lists_ver WHERE list_id=:listId")
+    suspend fun deleteList(listId: String)
+
     //endregion
 
 

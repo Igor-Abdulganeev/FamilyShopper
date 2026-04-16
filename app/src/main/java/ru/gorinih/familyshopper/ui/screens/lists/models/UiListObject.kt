@@ -23,7 +23,9 @@ data class UiListObject(
     val listDatetime: String,
     val countTags: Int,
     val countStrikes: Int,
-    val userName: String
+    val userName: String,
+    val isEdit: Boolean = false,
+    val isDelete: Boolean = false,
 ) : Parcelable
 
 fun ShoppedList.toUiListObject() =

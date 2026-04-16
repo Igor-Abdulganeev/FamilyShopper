@@ -206,4 +206,8 @@ class DatabaseRepositoryImpl(
     override suspend fun deleteDictionaryVersion(tagId: String) {
         dictionaryDao.deleteDictionaryVersion(tagId = tagId)
     }
+
+    override suspend fun deleteList(listId: String) {
+        listsDao.deleteList(listId = listId)
+    }
 }
