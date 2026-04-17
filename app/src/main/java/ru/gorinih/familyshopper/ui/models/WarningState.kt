@@ -10,10 +10,12 @@ data class WarningState(
     val isWarning: Boolean = false,
     val textWarning: String = "",
     val resourceWarning: Int = 0,
+    val complete: String = "",
 )
 
 fun Results.toWarningState() =
     WarningState(
         isWarning = this.isError,
-        textWarning = this.textError
+        textWarning = this.textError,
+        complete = this.textComplete,
     )

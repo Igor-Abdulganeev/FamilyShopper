@@ -24,7 +24,8 @@
     <string name="warning_list_not_found_text">Возникли проблемы с данным списком, он не обнаружен</string>
     <string name="help_user_name_property">Ввведите отображаемое имя, что бы другие пользователи могли видеть, кто создал список. Так же с именем будет удобней назначать списки кому-либо.</string>
     <string name="label_user_name">Имя пользователя</string>
-    <string name="label_owner_name">Автор: </string>
+    <string name="label_owner_name">Автор: %1$s</string>
+    <string name="label_other_names">Для: %1$s</string>
     <string name="label_member_name">Участники: </string>
     <string name="toolbar_main_header">Семейные покупки</string>
     <string name="button_text_positive">Да</string>
@@ -32,4 +33,12 @@
     <string name="text_delete_list">Вы хотите удалить список: \n  %1$s</string>
     <string name="warning_caption_text">Внимание!</string>
     <string name="button_save_text">Сохранить</string>
+    <string name="label_filter_chip_author_owner">Мои</string>
+    <string name="label_filter_chip_author_other">Чужие</string>
+    <string name="label_filter_chip_author_all">Все</string>
+    <string name="label_sort_chip_date">по дате</string>
+    <string name="label_sort_chip_type">по типу</string>
+    <string name="warning_text_not_changed">Изменений нет</string>
+    <string name="warning_text_changed">Обновлено - %1$s</string>
+    <string name="warning_text_deleted">Удалено - %1$s</string>
 </resources>

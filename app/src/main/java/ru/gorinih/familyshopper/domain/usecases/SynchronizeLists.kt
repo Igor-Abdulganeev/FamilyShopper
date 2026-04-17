@@ -1,9 +1,11 @@
 package ru.gorinih.familyshopper.domain.usecases
 
+import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -20,6 +22,7 @@ interface SynchronizeLists {
 }
 
 class SynchronizeListsImpl(
+    private val context: Context,
     private val database: DatabaseRepository,
     private val remote: RemoteRepository,
     private val pref: StorageRepository,
@@ -40,6 +43,7 @@ class SynchronizeListsImpl(
             val deletedListKeys: Set<String> =
                 localListInfo.filter { list -> !remoteListsInfo.containsKey(list.key) }.keys
             Log.d("GINES", "deletedListKeys=$deletedListKeys")
+            val countDeleted = deletedListKeys.count()
             for (deleteId in deletedListKeys) {
                 localListInfo.remove(deleteId)
                 database.deleteList(listId = deleteId)
@@ -53,6 +57,7 @@ class SynchronizeListsImpl(
             }.keys // те что старше на сервере
             Log.d("GINES", "neddUpdateFromREMOTE=$needUpdateFromRemoteKeys")
 
+
             val needUpdateFromLocalKeys: Set<String> = localListInfo.filter { (key, ver) ->
                 ver.listVersion > (remoteListsInfo[key]?.listVersion ?: 0)
             }.keys // те что старше на локале
@@ -62,7 +67,6 @@ class SynchronizeListsImpl(
                 ver.listVersion == (remoteListsInfo[key]?.listVersion ?: 0)
             }.keys // те что одинаковой версии и там и там, надо проверить если дата отличается то тогда что то делать если нет то норм
             Log.d("GINES", "RESEARCH=$needResearchKeys")
-
             // Получим полные ветки списков с сервера
             val remoteKeys: MutableSet<String> = needUpdateFromRemoteKeys.toMutableSet()
             remoteKeys.addAll(needResearchKeys)
@@ -88,6 +92,7 @@ class SynchronizeListsImpl(
                         && (localListInfo[it.listId]?.dateTime ?: 0) < it.dateTime
             }
             Log.d("GINES", "toLoad=$toLoad")
+            val countUpdated = needUpdateFromRemoteKeys.count() + toLoad.count()
 
             val toUpLoad = needResearchKeys.toMutableSet()
             toUpLoad.removeAll(toLoad.map { it.listId }.toSet())
@@ -108,7 +113,20 @@ class SynchronizeListsImpl(
             Log.d("GINES", "uploadList=$uploadList")
 
             remote.updateListWithVersion(updates = uploadList)
-            Results(isError = false)
+            val completeText = StringBuilder()
+            if (countUpdated != 0) completeText.append(
+                context.resources.getString(
+                    R.string.warning_text_changed,
+                    countUpdated
+                )
+            )
+            if (countDeleted != 0) completeText.append(
+                context.resources.getString(
+                    R.string.warning_text_deleted,
+                    countDeleted
+                )
+            )
+            Results(isError = false, textComplete = completeText.toString())
         } catch (ex: Throwable) {
             Results(isError = true, textError = ex.localizedMessage ?: "unknown error")
         }

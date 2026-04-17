@@ -6,5 +6,6 @@ package ru.gorinih.familyshopper.domain.models
 
 data class Results(
     val isError: Boolean,
-    val textError: String = ""
+    val textError: String = "",
+    val textComplete: String = ""
 )

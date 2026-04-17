@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.lists
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -7,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -17,13 +19,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
@@ -54,10 +56,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -66,6 +67,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
+import ru.gorinih.familyshopper.navigation.ScreenLayoutType
+import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
@@ -79,10 +82,12 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.views.ChipPanel
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.QueryDialog
+import ru.gorinih.familyshopper.ui.views.shadow
 import kotlin.math.roundToInt
 
 /**
@@ -102,69 +107,148 @@ fun ListEntityScreen(
     val stateLazy = rememberLazyListState()
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var isClicked by remember { mutableStateOf(false) }
+    val screen = rememberScreenConfiguration()
 
     LaunchedEffect(Unit) {
         navigationActions(NavigationActions(onNavigationClick = { backClick() }))
     }
 
+    LaunchedEffect(state.lists) {
+        if (state.lists.isNotEmpty()) stateLazy.animateScrollToItem(0)
+    }
+
     BackHandler(enabled = false) {}
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(
-                enabled = !isClicked,
-                onClick = {
-                    isClicked = true
-                    addList()
-                }
+    when (screen) {
+        ScreenLayoutType.SINGLE_PANE -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
             ) {
-                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Spacer(Modifier.width(48.dp))
-                Text(text = stringResource(R.string.label_lists_header))
-                IconButton(
-                    onClick = { viewModel.updateList() }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
                 ) {
-                    Icon(Icons.Default.Repeat, contentDescription = null)
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            addList()
+                        },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
+                    }
+                    ChipPanel(
+                        modifier = Modifier.weight(1f),
+                        startSelectedAuthorFilter = state.filterRule,
+                        sortDirection = state.sortDirection,
+                        sortType = state.sortType,
+                        onSelectAuthorFilter = { filterType -> viewModel.filter(filterType) },
+                        onSorted = { type, direction -> viewModel.sorter(type, direction) }
+                    )
+
+                    IconButton(
+                        onClick = { viewModel.updateList() },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    }
+                }
+
+                LazyColumn(state = stateLazy) {
+                    items(state.lists, key = { item -> item.listId }) { item ->
+                        val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                        CardListItem(
+                            item = item,
+                            painter = painter,
+                            onClick = {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastClickTime > 500L) {
+                                    lastClickTime = currentTime
+                                    router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                }
+                            },
+                            onDelete = {
+                                viewModel.startDeleteList(item.listId)
+                            },
+                            onEdit = {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastClickTime > 500L) {
+                                    lastClickTime = currentTime
+                                    router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
-        LazyColumn(state = stateLazy) {
-            items(state.lists, key = { item -> item.listId }) { item ->
-                val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
-                CardListItem(
-                    item = item,
-                    painter = painter,
-                    onClick = {
-                        val currentTime = System.currentTimeMillis()
-                        if (currentTime - lastClickTime > 500L) {
-                            lastClickTime = currentTime
-                            router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
-                        }
-                    },
-                    onDelete = {
-                        viewModel.startDeleteList(item.listId)
-                    },
-                    onEdit = {
-                        val currentTime = System.currentTimeMillis()
-                        if (currentTime - lastClickTime > 500L) {
-                            lastClickTime = currentTime
-                            router(NavigationKey.EditListScreen(listUuid = item.listId))
-                        }
+
+        ScreenLayoutType.TWO_PANE -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Column(modifier = Modifier.weight(0.1f)) {
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            addList()
+                        },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
                     }
+                    IconButton(
+                        onClick = { viewModel.updateList() },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    }
+
+                }
+
+                LazyColumn(state = stateLazy, modifier = Modifier.weight(1f)) {
+                    items(state.lists, key = { item -> item.listId }) { item ->
+                        val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                        CardListItem(
+                            item = item,
+                            painter = painter,
+                            onClick = {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastClickTime > 500L) {
+                                    lastClickTime = currentTime
+                                    router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                }
+                            },
+                            onDelete = {
+                                viewModel.startDeleteList(item.listId)
+                            },
+                            onEdit = {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastClickTime > 500L) {
+                                    lastClickTime = currentTime
+                                    router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                }
+                            }
+                        )
+                    }
+                }
+
+                ChipPanel(
+                    modifier = Modifier.weight(0.25f),
+                    startSelectedAuthorFilter = state.filterRule,
+                    sortDirection = state.sortDirection,
+                    sortType = state.sortType,
+                    onSelectAuthorFilter = { filterType -> viewModel.filter(filterType) },
+                    onSorted = { type, direction -> viewModel.sorter(type, direction) }
                 )
             }
         }
@@ -230,14 +314,17 @@ fun CardListItem(
         positionalThreshold = { distance -> distance * 0.5f },
         animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
     )
+    val progress =
+        (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .padding(vertical = 24.dp, horizontal = 16.dp)
     ) {
         Row(
             Modifier
                 .matchParentSize()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -259,7 +346,6 @@ fun CardListItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
                 .offset { IntOffset(stateSwipe.requireOffset().roundToInt(), 0) }
                 .anchoredDraggable(
                     state = stateSwipe,
@@ -269,58 +355,58 @@ fun CardListItem(
                     interactionSource = null,
                     overscrollEffect = null,
                 )
+                .shadow(
+                    borderRadius = 16.dp,
+                    shadowRadius = 8.dp,
+                    alphaShadowLight = 0.3f,
+                    offsetXLight = 0.dp,
+                    offsetYLight = 0.dp
+                )
         ) {
-/*
-        val tintBackground = when(item.listLegend) {
-            1 -> Color.Green
-            2 -> Color.Blue
-            3 -> Color.Yellow
-            else -> Color.Red
-        }.run { copy(alpha = 0.1f) }
-*/
+            val colorBrush = MaterialTheme.colorScheme.background
             val brush = Brush.horizontalGradient(
                 colors = if (isDark) {
                     when (item.listLegend) {
                         TypeLegendList.ALL -> listOf(
                             ListDarkGreen,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.ADD -> listOf(
                             ListDarkBlue,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.VIEW -> listOf(
                             ListDarkYellow,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.PRIVATE -> listOf(
                             ListDarkRed,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
                     }
                 } else {
                     when (item.listLegend) {
                         TypeLegendList.ALL -> listOf(
                             ListLightGreen,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.ADD -> listOf(
                             ListLightBlue,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.VIEW -> listOf(
                             ListLightYellow,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
 
                         TypeLegendList.PRIVATE -> listOf(
                             ListLightRed,
-                            MaterialTheme.colorScheme.primary,
+                            colorBrush,
                         )
                     }
                 },
@@ -329,122 +415,132 @@ fun CardListItem(
             )
 
             MaterialGroupBox(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 8.dp, bottom = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { onClick() },
                 color = MaterialTheme.colorScheme.primary, //tintBackground
-                brush = brush
+                brush = brush,
             ) {
                 Column {
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                        contentAlignment = Alignment.TopStart
-                    ) {
-                        Text(
-                            text = title,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                drawStyle = Stroke(
-                                    width = 4f,
-                                    join = StrokeJoin.Round
-                                )
-                            ),
-                            color = if (isDark) Color.Black else Color.White
-                        )
-                        Text(
-                            text = title,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-
-                    if (item.userName.isNotBlank()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                text = stringResource(R.string.label_owner_name),
-                                modifier = Modifier.padding(start = 48.dp),
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = item.userName,
-                                modifier = Modifier.padding(start = 4.dp),
-                                fontStyle = FontStyle.Italic,
-                                fontSize = 16.sp
-                            )
-                        }
-                    }
-                    if (item.listTo.any { it.userName.isNotBlank() }) {
-                        Text(
-                            text = stringResource(R.string.label_member_name),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 48.dp),
-                            style = TextStyle(
-                                textDecoration = TextDecoration.Underline,
-                                fontSize = 12.sp
-                            ),
-                            textAlign = TextAlign.End
-                        )
-                        val stringBuilder = StringBuilder()
-                        for (name in item.listTo) {
-                            stringBuilder.append("")
-                            if (name.userName.isNotBlank()) stringBuilder.append(name.userName)
-                        }
-                        Text(
-                            text = stringBuilder.toString(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 48.dp),
-                            textAlign = TextAlign.End,
-                            fontSize = 16.sp
-                        )
-                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 2.dp, vertical = 8.dp),
+                            .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceAround
+                        horizontalArrangement = Arrangement.Start
                     ) {
+                        // цветовая точка
                         if (painter != null) {
-                            Image(painter, contentDescription = null, Modifier.size(20.dp))
+                            Image(
+                                painter, contentDescription = null,
+                                Modifier
+                                    .size(20.dp)
+                                    .weight(0.2f)
+                            )
                         }
-                        Text(
-                            text = "${item.countTags} / ${item.countStrikes}",
-                            modifier = Modifier.padding(start = 32.dp)
-                        )
+                        //наименование
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 2.dp)
+                                .weight(1f),
+                            contentAlignment = Alignment.TopStart
+                        ) {
+                            Text(
+                                text = title,
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    drawStyle = Stroke(
+                                        width = 4f,
+                                        join = StrokeJoin.Round
+                                    )
+                                ),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onSecondary
+                            )
+                            Text(
+                                text = title,
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                ),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                        // время изменения
                         Text(
                             text = item.listDatetime,
                             style = TextStyle(
                                 fontSize = 12.sp,
                                 baselineShift = BaselineShift.Subscript
                             ),
+                            maxLines = 1,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp),
-                            textAlign = TextAlign.End
+                                .padding(end = 8.dp)
+                                .weight(0.4f),
+                            textAlign = TextAlign.End,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+
+                    // автор и назначеные
+                    val ownerName = if (item.userName.isNotBlank()) stringResource(
+                        R.string.label_owner_name,
+                        item.userName
+                    )
+                    else ""
+                    val otherNames = if (item.listTo.isNotEmpty()) stringResource(
+                        R.string.label_other_names,
+                        item.listTo.joinToString(", ") { it.userName })
+                    else ""
+                    val names = when {
+                        item.userName.isNotBlank() && item.listTo.isNotEmpty() -> "$ownerName      $otherNames"
+                        item.userName.isNotBlank() -> ownerName
+                        else -> otherNames
+                    }
+                    Text(
+                        text = names,
+                        modifier = Modifier.padding(start = 32.dp),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    if (progress != 0f) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .padding(horizontal = 32.dp),
+                            progress = { progress },
+                            color = MaterialTheme.colorScheme.tertiary,
+                            trackColor = MaterialTheme.colorScheme.primary,
+                            gapSize = 0.dp,
+                            strokeCap = StrokeCap.Butt,
+                            drawStopIndicator = {}
+                        )
+                    }
+                    Text(
+                        text = "${item.countStrikes} из ${item.countTags}  выполнено",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 32.dp)
+                    )
                 }
             }
         }
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showSystemUi = true, showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
 fun PreviewMat() {
     FamilyShopperTheme {
-        Column(Modifier.padding(top = 32.dp)) {
+        Column(
+            Modifier
+                .padding(top = 32.dp)
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
             CardListItem(
                 UiListObject(
                     listId = "sdgsgsd",
@@ -464,10 +560,11 @@ fun PreviewMat() {
                             isSelected = false
                         ),
                     ),
-                    listDatetime = "10.04.2026 12:09",
+                    listDatetime = "10.04.2026",
                     countTags = 10,
                     countStrikes = 2,
-                    userName = "Иван"
+                    userName = "Иван",
+                    listDatetimeValue = 0,
                 ),
                 GlassCircleImageHolder.getImage(1),
                 onClick = {},
@@ -484,8 +581,9 @@ fun PreviewMat() {
                     listTo = emptyList(),
                     listDatetime = "10.04.2026 12:09",
                     countTags = 5,
-                    countStrikes = 0,
-                    userName = "Марья"
+                    countStrikes = 3,
+                    userName = "",
+                    listDatetimeValue = 0
                 ),
                 GlassCircleImageHolder.getImage(2),
                 onClick = {},
@@ -509,7 +607,8 @@ fun PreviewMat() {
                     listDatetime = "10.04.2026 12:09",
                     countTags = 4,
                     countStrikes = 4,
-                    userName = "Олег"
+                    userName = "Олег",
+                    listDatetimeValue = 0
                 ),
                 GlassCircleImageHolder.getImage(3),
                 onClick = {},
@@ -520,7 +619,7 @@ fun PreviewMat() {
                 UiListObject(
                     listId = "sdgsgsd",
                     listVersion = 1,
-                    listName = "Тестовый красный",
+                    listName = "Тестовый красный бла бла бла опять красный урря",
                     listLegend = TypeLegendList.PRIVATE,
                     listOwner = "asdas0,",
                     listTo = listOf(
@@ -533,7 +632,8 @@ fun PreviewMat() {
                     listDatetime = "10.04.2026 12:09",
                     countTags = 0,
                     countStrikes = 0,
-                    userName = "Игорь"
+                    userName = "Игорь",
+                    listDatetimeValue = 0
                 ),
                 GlassCircleImageHolder.getImage(4),
                 onClick = {},

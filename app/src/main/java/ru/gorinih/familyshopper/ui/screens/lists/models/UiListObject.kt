@@ -4,9 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import ru.gorinih.familyshopper.ui.toShowDate
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -21,6 +19,7 @@ data class UiListObject(
     val listOwner: String,
     val listTo: List<UiListUsers> = emptyList(),
     val listDatetime: String,
+    val listDatetimeValue: Long,
     val countTags: Int,
     val countStrikes: Int,
     val userName: String,
@@ -36,9 +35,8 @@ fun ShoppedList.toUiListObject() =
         listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
         listOwner = this.ownerUuid,
         listTo = this.usersUuid.map { it.toUiListUsers() },
-        listDatetime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-            .withZone(ZoneId.systemDefault())
-            .format(Instant.ofEpochMilli(this.dateTime)),
+        listDatetime = this.dateTime.toShowDate(),
+        listDatetimeValue = this.dateTime,
         countTags = this.countTags,
         countStrikes = this.countStrikes,
         userName = this.userName

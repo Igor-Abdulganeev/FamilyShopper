@@ -18,9 +18,13 @@ import ru.gorinih.familyshopper.ui.models.DeletingState
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.models.toWarningState
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
+import ru.gorinih.familyshopper.ui.views.AuthorFilter
+import ru.gorinih.familyshopper.ui.views.SortDirection
+import ru.gorinih.familyshopper.ui.views.SortType
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -30,10 +34,12 @@ class ListEntityVewModel(
     private val database: DatabaseRepository,
     private val sync: SynchronizeLists,
     private val delete: DeleteList,
-    pref: StorageRepository,
+    private val pref: StorageRepository,
 ) : ViewModel() {
     var listsState by mutableStateOf(UiListsState())
         private set
+
+    private val keepLists = mutableListOf<UiListObject>()
 
     init {
         val userUuid = pref.getClientUUID()
@@ -54,6 +60,8 @@ class ListEntityVewModel(
                         .copy(listTo = users, isEdit = isEdit, isDelete = isDelete)
                 }
             }.collect { list ->
+                keepLists.clear()
+                keepLists.addAll(list)
                 withContext(Dispatchers.Main.immediate) {
                     listsState = listsState.copy(lists = list, loading = false)
                 }
@@ -71,8 +79,14 @@ class ListEntityVewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 listsState = try {
                     val result = sync().toWarningState()
-                    if (result.isWarning) listsState.copy(warning = result, loading = false)
-                    else listsState.copy(loading = false)
+                    when {
+                        result.isWarning || result.complete.isNotBlank() -> listsState.copy(
+                            warning = result,
+                            loading = false
+                        )
+
+                        else -> listsState.copy(loading = false)
+                    }
                 } catch (ex: Throwable) {
                     listsState.copy(
                         warning = WarningState(
@@ -113,8 +127,70 @@ class ListEntityVewModel(
                     )
                 )
 
-                false -> listsState.copy(deleting = DeletingState())
+                false -> {
+                    val list = keepLists.filterNot { it.listId == listId }
+                    keepLists.clear()
+                    keepLists.addAll(list)
+                    listsState.copy(deleting = DeletingState())
+                }
             }
         }
+    }
+
+    fun sorter(sortType: SortType, sortDirection: SortDirection) {
+        sortedList(listsState.lists.toMutableList(), sortType, sortDirection, listsState.filterRule)
+    }
+
+    fun filter(filterType: AuthorFilter) {
+        val userId = pref.getClientUUID()
+        val filterList = when (filterType) {
+            AuthorFilter.ALL -> keepLists
+            AuthorFilter.MY -> keepLists.filter { it.listOwner == userId }
+            AuthorFilter.OTHERS -> keepLists.filterNot { it.listOwner == userId }
+        }.toMutableList()
+        sortedList(filterList, listsState.sortType, listsState.sortDirection, filterType)
+    }
+
+    private fun sortedList(
+        list: MutableList<UiListObject>,
+        sortType: SortType,
+        sortDirection: SortDirection,
+        filterType: AuthorFilter
+    ) {
+        val updatedList = mutableListOf<UiListObject>()
+        when {
+            sortType == SortType.DATE && sortDirection == SortDirection.UP -> {
+                updatedList.addAll(list.sortedByDescending { it.listDatetimeValue })
+            }
+
+            sortType == SortType.DATE && sortDirection == SortDirection.DOWN -> {
+                updatedList.addAll(list.sortedBy { it.listDatetimeValue })
+            }
+
+            sortType == SortType.TYPE && sortDirection == SortDirection.UP -> {
+                updatedList.addAll(list.sortedByDescending { it.listLegend.listId })
+            }
+
+            sortType == SortType.TYPE && sortDirection == SortDirection.DOWN -> {
+                updatedList.addAll(list.sortedBy { it.listLegend.listId })
+            }
+
+            sortType == SortType.NOTHING -> {
+                updatedList.addAll(list)
+            }
+        }
+        listsState = if (updatedList.isNotEmpty())
+            listsState.copy(
+                sortDirection = sortDirection,
+                sortType = sortType,
+                filterRule = filterType,
+                lists = updatedList
+            )
+        else
+            listsState.copy(
+                sortDirection = sortDirection,
+                sortType = sortType,
+                filterRule = filterType
+            )
     }
 }

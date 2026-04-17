@@ -115,6 +115,7 @@ fun koinModule(): Module = module {
     factory<UpdateList> { UpdateListImpl(database = get(), remote = get()) }
     factory<SynchronizeLists> {
         SynchronizeListsImpl(
+            context = get(),
             database = get(),
             remote = get(),
             pref = get()
