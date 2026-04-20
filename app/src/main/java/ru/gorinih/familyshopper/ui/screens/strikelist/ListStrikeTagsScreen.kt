@@ -1,21 +1,19 @@
 package ru.gorinih.familyshopper.ui.screens.strikelist
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -85,70 +83,78 @@ fun ListStrikeTagsScreen(
     val brush =
         Brush.linearGradient(
             colors = if (isSystemInDarkTheme()) {
-                when (state.listLegend) {
+                when (state.listLegend) {// цвета статика темная тема
                     TypeLegendList.ALL -> listOf(
-                        ListDarkGreen,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListDarkGreen
+                        MaterialTheme.colorScheme.background,
+                        ListDarkGreen.copy(alpha = 0.6f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                        ListDarkBlue,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListDarkBlue
+                         MaterialTheme.colorScheme.background,
+                        ListDarkBlue.copy(alpha = 0.6f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                        ListDarkYellow,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListDarkYellow
+                        MaterialTheme.colorScheme.background,
+                        ListDarkYellow.copy(alpha = 0.6f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                        ListDarkRed,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListDarkRed
+                         MaterialTheme.colorScheme.background,
+                        ListDarkRed.copy(alpha = 0.7f),
+                        MaterialTheme.colorScheme.background,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        MaterialTheme.colorScheme.background,
                     )
                 }
-            } else {
+            } else { // цвета статика светлая тема
                 when (state.listLegend) {
                     TypeLegendList.ALL -> listOf(
-                        ListLightGreen,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListLightGreen
+                        MaterialTheme.colorScheme.background,
+                         ListLightGreen.copy(alpha = 0.5f),
+                                MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                        ListLightBlue,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListLightBlue
+                         MaterialTheme.colorScheme.background,
+                        ListLightBlue.copy(alpha = 0.5f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                        ListLightYellow,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListLightYellow
+                         MaterialTheme.colorScheme.background,
+                        ListLightYellow.copy(alpha = 0.7f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                        ListLightRed,
-                        MaterialTheme.colorScheme.onSecondary,
-                        ListLightRed
+                        MaterialTheme.colorScheme.background,
+                        ListLightRed.copy(alpha = 0.7f),
+                        MaterialTheme.colorScheme.background,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        MaterialTheme.colorScheme.background,
                     )
                 }
             }
         )
 
     val colors = if (isSystemInDarkTheme()) {
-        when (state.listLegend) {
+        when (state.listLegend) { //темный градиент
             TypeLegendList.ALL -> listOf(
+                MaterialTheme.colorScheme.surface,
                 ListDarkGreen,
-                MaterialTheme.colorScheme.surface
             )
 
             TypeLegendList.ADD -> listOf(
+                MaterialTheme.colorScheme.surface,
                 ListDarkBlue,
-                MaterialTheme.colorScheme.primaryContainer
             )
 
             TypeLegendList.VIEW -> listOf(
@@ -157,117 +163,127 @@ fun ListStrikeTagsScreen(
             )
 
             TypeLegendList.PRIVATE -> listOf(
+                MaterialTheme.colorScheme.surface,
                 ListDarkRed,
-                MaterialTheme.colorScheme.surface
+            )
+
+            TypeLegendList.NOTHING -> listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surface,
             )
         }
-    } else {
+    } else { // светлый градиент
         when (state.listLegend) {
             TypeLegendList.ALL -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
                 ListLightGreen,
-                MaterialTheme.colorScheme.onSecondary
             )
 
             TypeLegendList.ADD -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
                 ListLightBlue,
-                MaterialTheme.colorScheme.onSecondary
-            )
+             )
 
             TypeLegendList.VIEW -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
                 ListLightYellow,
-                MaterialTheme.colorScheme.onSecondary
             )
 
             TypeLegendList.PRIVATE -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
                 ListLightRed,
-                MaterialTheme.colorScheme.onSecondary
+            )
+
+            TypeLegendList.NOTHING -> listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.onSecondary,
             )
         }
     }
 
-
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 4.dp)
+    AnimatedAgsl(
+        modifier = Modifier.fillMaxSize(),
+        brush = brush,
+        startedColor = colors.first(),
+        endedColor = colors.last(),
+        isAnimate = state.background
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (state.isEditable) {
-                IconButton(
-                    enabled = !isClicked,
-                    onClick = {
-                        isClicked = true
-                        route(listUuid)
-                    }
-                ) {
-                    Icon(Icons.Default.EditNote, contentDescription = null)
-                }
-            } else IconButton(
-                enabled = false,
-                onClick = { }
-            ) {
-                Spacer(Modifier.width(48.dp))
-            }
-            Text(text = state.listName)
-            if (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
-                || state.isEditable
-            ) {
-                IconButton(
-                    onClick = { viewModel.updateList() }
-                ) {
-                    Icon(Icons.Default.Repeat, contentDescription = null)
-                }
-            } else Spacer(Modifier.width(48.dp))
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 4.dp)
 
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .border(
-                    border = BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.inverseSurface
-                    ),
-                    shape = RoundedCornerShape(4.dp)
-                )
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp)
         ) {
-            AnimatedAgsl(
-                modifier = Modifier.weight(1f),
-                brush = brush,
-                startedColor = colors.first(),
-                endedColor = colors.last(),
-                isAnimate = state.background
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                TagsList(
-                    list = state.tagNames,
-                    typeList = state.typeList,
-                    onClick = { name ->
-                        viewModel.updateTag(name, ActionTag.STRIKE)
-                    },
-                    onDelete = { name ->
-                        viewModel.updateTag(
-                            addedTagName = name,
-                            action = ActionTag.DELETE
-                        )
-                    },
-                    onEditComment = { name, comment ->
-                        viewModel.updateTag(
-                            name,
-                            ActionTag.COMMENT,
-                            comment
-                        )
+                if (state.isEditable) {
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            route(listUuid)
+                        }
+                    ) {
+                        Icon(Icons.Default.EditNote, contentDescription = null)
                     }
-                )
+                } else IconButton(
+                    enabled = false,
+                    onClick = { }
+                ) {
+                    Spacer(Modifier.width(48.dp))
+                }
+                Text(text = state.listName)
+                if (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
+                    || state.isEditable
+                ) {
+                    IconButton(
+                        onClick = { viewModel.updateList() }
+                    ) {
+                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    }
+                } else Spacer(Modifier.width(48.dp))
             }
+            HorizontalDivider(
+                thickness = 1.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+            TagsList(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, bottom = 4.dp),
+                list = state.tagNames,
+                typeList = state.typeList,
+                onClick = { name ->
+                    viewModel.updateTag(name, ActionTag.STRIKE)
+                },
+                onDelete = { name ->
+                    viewModel.updateTag(
+                        addedTagName = name,
+                        action = ActionTag.DELETE
+                    )
+                },
+                onEditComment = { name, comment ->
+                    viewModel.updateTag(
+                        name,
+                        ActionTag.COMMENT,
+                        comment
+                    )
+                },
+                onFocusRegister = { id, lambda ->
+
+                },
+                onFocusUnRegister = { id ->
+
+                },
+                onClearCurrentField = {}
+
+            )
         }
     }
     if (state.loading) ProgressLoadingOverlay()

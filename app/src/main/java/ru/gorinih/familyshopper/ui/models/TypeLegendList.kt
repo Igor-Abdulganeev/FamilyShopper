@@ -5,6 +5,7 @@ package ru.gorinih.familyshopper.ui.models
  */
 
 enum class TypeLegendList(val listId: Int) {
+    NOTHING(listId = 0), // чтобы не красить выбор
     ALL(listId = 1),
     ADD(listId = 2),
     VIEW(listId = 3),

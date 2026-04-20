@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Delete
@@ -48,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -362,6 +365,11 @@ fun CardListItem(
                     offsetXLight = 0.dp,
                     offsetYLight = 0.dp
                 )
+                .border(
+                    1.dp,
+                    Color.White.copy(alpha = 0.06f),
+                    shape = RoundedCornerShape(16.dp)
+                )
         ) {
             val colorBrush = MaterialTheme.colorScheme.background
             val brush = Brush.horizontalGradient(
@@ -386,6 +394,10 @@ fun CardListItem(
                             ListDarkRed,
                             colorBrush,
                         )
+                        TypeLegendList.NOTHING -> listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            colorBrush,
+                        )
                     }
                 } else {
                     when (item.listLegend) {
@@ -406,6 +418,11 @@ fun CardListItem(
 
                         TypeLegendList.PRIVATE -> listOf(
                             ListLightRed,
+                            colorBrush,
+                        )
+
+                        TypeLegendList.NOTHING -> listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
                             colorBrush,
                         )
                     }
@@ -444,19 +461,21 @@ fun CardListItem(
                                 .weight(1f),
                             contentAlignment = Alignment.TopStart
                         ) {
-                            Text(
-                                text = title,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    drawStyle = Stroke(
-                                        width = 4f,
-                                        join = StrokeJoin.Round
-                                    )
-                                ),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
+                            if(!isDark) {
+                                Text(
+                                    text = title,
+                                    style = TextStyle(
+                                        fontSize = 16.sp,
+                                        drawStyle = Stroke(
+                                            width = 4f,
+                                            join = StrokeJoin.Round
+                                        )
+                                    ),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
                             Text(
                                 text = title,
                                 style = TextStyle(

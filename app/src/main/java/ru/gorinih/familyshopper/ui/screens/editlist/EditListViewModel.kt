@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter
 
 class EditListViewModel(
     private val listUuid: String = "",
-    pref: StorageRepository,
+    private val pref: StorageRepository,
     private val database: DatabaseRepository,
     private val saveList: UpdateList,
     private val updateList: GetAndUpdateList,
@@ -45,13 +45,16 @@ class EditListViewModel(
     var shoppedList by mutableStateOf(
         value = UiShoppingState().copy(
             listNameId = R.string.new_list_name,
-            date = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+            date = DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(System.currentTimeMillis())),
-            listLegend = TypeLegendList.entries.first { it.listId == pref.getTypeList() }
         )
     )
         private set
+
+    private var currentEditingFieldId: String? = null
+    private var onCurrentFocusLost: (() -> Unit)? = null
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -94,10 +97,9 @@ class EditListViewModel(
                             tagNames = this.tagNames.map { it.toUiShoppingItem() },
                             usersUuid = this.usersUuid.map { it.userUuid },
                             loading = false,
-                            isAdd = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < 3), // owner другой и listLegend >2
-                            isEdit = this.ownerUuid == pref.getClientUUID() || (this.ownerUuid != pref.getClientUUID() && this.listLegend < TypeLegendList.ADD.listId),
                             userName = this.userName,
-                            allUsersUuid = allUsers
+                            allUsersUuid = allUsers,
+                            isOwner = pref.getClientUUID() == this.ownerUuid
                         )
                     }
                 try {
@@ -113,9 +115,8 @@ class EditListViewModel(
                                     tagNames = tagNames.map { it.toUiShoppingItem() },
                                     usersUuid = usersUuid.map { it.userUuid },
                                     loading = false,
-                                    isAdd = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 3), // owner другой и listLegend >2
-                                    isEdit = ownerUuid == pref.getClientUUID() || (ownerUuid != pref.getClientUUID() && listLegend < 2),
                                     userName = this.userName,
+                                    isOwner = pref.getClientUUID() == this.ownerUuid
                                 )
                             }
                         }
@@ -127,6 +128,8 @@ class EditListViewModel(
                     ownerUuid = pref.getClientUUID(),
                     listUuid = listUuid,
                     loading = false,
+                    isOwner = true,
+                    listLegend = TypeLegendList.entries.first { it.listId == pref.getTypeList() }
                 )
             }
         }
@@ -210,14 +213,11 @@ class EditListViewModel(
         }
     }
 
-    fun showUsersSelect() {
-        shoppedList = shoppedList.copy(usersSelect = !shoppedList.usersSelect)
-    }
-
     fun saveList() {
         if (!shoppedList.loading) {
             val startedTime = System.currentTimeMillis()
-            shoppedList = shoppedList.copy(loading = true, dateTime = startedTime)
+            val listTo = if (shoppedList.listLegend == TypeLegendList.PRIVATE) emptyList() else shoppedList.usersUuid
+            shoppedList = shoppedList.copy(loading = true, dateTime = startedTime, usersUuid = listTo)
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val result = saveList(shoppedList.toShoppedList()).toWarningState()
@@ -245,7 +245,25 @@ class EditListViewModel(
         shoppedList = shoppedList.copy(warning = WarningState())
     }
 
-    fun showDictionaries() {
-        shoppedList = shoppedList.copy(isDictionary = !shoppedList.isDictionary)
+    fun registerField(fieldId: String, onFocusLost: () -> Unit) {
+        if (currentEditingFieldId != null && currentEditingFieldId != fieldId) {
+            onCurrentFocusLost?.invoke()
+        }
+        currentEditingFieldId = fieldId
+        onCurrentFocusLost = onFocusLost
     }
+
+    fun unregisterField(fieldId: String) {
+        if (currentEditingFieldId == fieldId) {
+            currentEditingFieldId = null
+            onCurrentFocusLost = null
+        }
+    }
+
+    fun clearCurrentField() {
+        onCurrentFocusLost?.invoke()
+        currentEditingFieldId = null
+        onCurrentFocusLost = null
+    }
+
 }

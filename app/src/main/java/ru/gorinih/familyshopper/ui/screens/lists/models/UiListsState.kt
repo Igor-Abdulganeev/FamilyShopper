@@ -1,10 +1,10 @@
 package ru.gorinih.familyshopper.ui.screens.lists.models
 
+import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.domain.models.SortDirection
+import ru.gorinih.familyshopper.domain.models.SortType
 import ru.gorinih.familyshopper.ui.models.DeletingState
 import ru.gorinih.familyshopper.ui.models.WarningState
-import ru.gorinih.familyshopper.ui.views.AuthorFilter
-import ru.gorinih.familyshopper.ui.views.SortDirection
-import ru.gorinih.familyshopper.ui.views.SortType
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026

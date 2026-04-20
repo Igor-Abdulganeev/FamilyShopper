@@ -18,14 +18,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -43,12 +50,33 @@ fun RoundedTextField(
     label: String = "",
     placeholder: String = "",
     isEditable: Boolean = true,
+    isSingleLine: Boolean = true,
     trailingIcon: @Composable (() -> Unit)? = null,
-    action: (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
+    action: (() -> Unit)? = null,
+    onClearCurrentField: (() -> Unit)? = null,
 ) {
+
+    var internalValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+    }
+
+    LaunchedEffect(value) {
+        if (value != internalValue.text) {
+            internalValue = internalValue.copy(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        }
+    }
+
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = internalValue,
+        onValueChange = {
+            internalValue = it
+            if (value != it.text) onValueChange(it.text)
+            onClearCurrentField?.invoke()
+        },
         label = if (label.isNotEmpty()) {
             {
                 Text(
@@ -65,14 +93,17 @@ fun RoundedTextField(
                 )
             }
         } else null,
-        singleLine = true,
+        singleLine = isSingleLine,
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(24.dp)
-            ),
+            ).onFocusChanged { focus ->
+                if (focus.isFocused) onClearCurrentField?.invoke()
+            }
+        ,
         colors = OutlinedTextFieldDefaults.colors(
 
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -94,11 +125,10 @@ fun RoundedTextField(
         readOnly = !isEditable,
         enabled = isEditable,
         trailingIcon = trailingIcon,
-        /*
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
-        */
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
         keyboardActions = when (action) {
             null -> KeyboardActions.Default
             else -> KeyboardActions(
@@ -131,8 +161,8 @@ fun BracketTextField(
         animationSpec = tween(durationMillis = 250)
     )
     Row(
-        modifier = modifier.
-            padding(end = 8.dp)
+        modifier = modifier
+            .padding(end = 8.dp)
             .background(
                 color = backgroundColor,
                 shape = RoundedCornerShape(10)
@@ -149,19 +179,20 @@ fun BracketTextField(
             onValueChange = { str ->
                 onChange(str)
             },
-            modifier = Modifier.width(
-                when (width) {
-                    50.dp -> when {
-                        progress * 200.dp > 50.dp -> progress * 200.dp
-                        else -> 50.dp
-                    }
+            modifier = Modifier
+                .width(
+                    when (width) {
+                        50.dp -> when {
+                            progress * 200.dp > 50.dp -> progress * 200.dp
+                            else -> 50.dp
+                        }
 
-                    else -> when {
-                        progress * width < 50.dp -> 50.dp
-                        else -> progress * width
+                        else -> when {
+                            progress * width < 50.dp -> 50.dp
+                            else -> progress * width
+                        }
                     }
-                }
-            ),
+                ),
             placeholder = { Text(text = emptyText) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = backgroundColor,

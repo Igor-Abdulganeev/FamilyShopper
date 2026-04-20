@@ -74,8 +74,9 @@ class ListStrikeTagsViewModel(
                 }
                 val legend = TypeLegendList.entries.first { it.listId == listData.listLegend }
                 val type = when {
-                    ownerUuid -> TypeListTags.STRIKE
                     legend in listOf(TypeLegendList.ALL, TypeLegendList.ADD) -> TypeListTags.STRIKE
+                    legend == TypeLegendList.VIEW -> TypeListTags.VIEW
+                    ownerUuid && legend == TypeLegendList.PRIVATE -> TypeListTags.STRIKE
                     else -> TypeListTags.VIEW
                 }
                 val tagNames = listData.tagNames.map { it.toUiShoppingItem() }
@@ -194,7 +195,7 @@ class ListStrikeTagsViewModel(
             if (!diff) {
                 memoryList?.tagNames?.let { savedList ->
                     for (tag in shoppedList.tagNames) {
-                        if (!savedList.any { it.tagId == tag.tagId && it.isStrike == tag.isStrike }) diff =
+                        if (!savedList.any { it.tagId == tag.tagId && it.isStrike == tag.isStrike && it.tagComment == tag.tagComment }) diff =
                             true
                     }
                 }

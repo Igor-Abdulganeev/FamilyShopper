@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.domain.models.SortDirection
+import ru.gorinih.familyshopper.domain.models.SortType
 import java.util.UUID
 
 /**
@@ -62,6 +65,35 @@ class StorageSharedPreference(
         }
     }
 
+    override fun getSort(): Pair<SortType, SortDirection> {
+        val typeName: String? = preference.getString(SORT_TYPE, null)?.uppercase()
+        val directionName: String? = preference.getString(SORT_DIRECTION, null)?.uppercase()
+        val type = if (typeName!=null) SortType.valueOf(typeName ) else SortType.NOTHING
+        val direction = if (directionName!=null) SortDirection.valueOf(directionName ) else SortDirection.NOTHING
+        return Pair(type, direction)
+    }
+
+    override fun setSort(
+        type: SortType,
+        direction: SortDirection
+    ) {
+        preference.edit {
+            putString(SORT_TYPE, type.name)
+            putString(SORT_DIRECTION, direction.name)
+        }
+    }
+
+    override fun getAuthorFilter(): AuthorFilter =
+        preference.getString(FILTER_AUTHOR, null)?.run {
+            AuthorFilter.valueOf(this.uppercase())
+        } ?: AuthorFilter.ALL
+
+    override fun setAuthorFilter(filter: AuthorFilter) {
+        preference.edit {
+            putString(FILTER_AUTHOR, filter.name)
+        }
+    }
+
     companion object {
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
@@ -69,6 +101,9 @@ class StorageSharedPreference(
         private const val USER_NAME = "family_shopper_user_name"
         private const val BACKGROUND_STATE = "family_shopper_background_state"
         private const val DEFAULT_LIST_STATE = "family_shopper_default_list_state"
+        private const val SORT_DIRECTION = "family_shopper_sort_direction"
+        private const val SORT_TYPE = "family_shopper_sort_type"
+        private const val FILTER_AUTHOR = "family_shopper_filter_author"
 
         private const val SETTING_FILE_NAME = "family_settings"
     }

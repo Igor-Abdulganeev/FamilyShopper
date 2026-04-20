@@ -1,61 +1,70 @@
 package ru.gorinih.familyshopper.ui.screens.editlist
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.SupervisedUserCircle
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,7 +76,8 @@ import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
-import ru.gorinih.familyshopper.ui.views.DictionaryList
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
+import ru.gorinih.familyshopper.ui.views.ChipPanelSelectTypeList
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
@@ -78,6 +88,8 @@ import ru.gorinih.familyshopper.ui.views.shadow
  * Created by Igor Abdulganeev on 07.04.2026
  */
 
+@SuppressLint("ConfigurationScreenWidthHeight")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreen(
     listUuid: String,
@@ -92,12 +104,18 @@ fun EditListScreen(
     val keyboardManager = LocalFocusManager.current
     val screen = rememberScreenConfiguration()
     val named = stringResource(state.listNameId, state.date)
-    val stateLazyList = rememberLazyListState()
+    var isOpenUserSheet by rememberSaveable { mutableStateOf(false) }
+    var isDictionary by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    var helpWords by remember { mutableStateOf(listOf<String>()) }
+    var isHelpWords by remember { mutableStateOf(false) }
+
     BackHandler(enabled = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
     }
-    val context = LocalContext.current
+
     if (state.error) {
         Toast.makeText(context, "Ошибка сети, изменения внесены локально", Toast.LENGTH_LONG).show()
         onBack()
@@ -107,303 +125,247 @@ fun EditListScreen(
         if (addedTag.isNotBlank() || item.isNotBlank()) {
             viewModel.updateTag(item.takeIf { it.isNotBlank() } ?: addedTag, ActionTag.ADD, comment)
             addedTag = ""
+            helpWords = emptyList()
         }
     }
 
-    val tintIcon = when (state.isDictionary) {
+    val tintIcon = when (isDictionary) {
         false -> LocalContentColor.current
         true -> MaterialTheme.colorScheme.primary
     }
+    val typeColorTexts = listOf(
+        stringResource(R.string.label_icon_all),
+        stringResource(R.string.label_icon_add),
+        stringResource(R.string.label_icon_view),
+        stringResource(R.string.label_icon_private),
+    )
     when (screen) {
         ScreenLayoutType.SINGLE_PANE -> Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(top = 4.dp, start = 4.dp, end = 4.dp)
         ) {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val iconSize = (maxWidth / 12)
-                val iconLabelSize = with(LocalDensity.current) { (iconSize / 3).toSp() }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.inverseSurface
-                            ),
-                            shape = RoundedCornerShape(4.dp)
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp)
-                    ) {
-                        Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(bottom = 2.dp)
-                                .clip(CircleShape)
-                                .clickable(
-                                    onClick = {
-                                        viewModel.updateLegend(TypeLegendList.ALL)
-                                    }
-                                )
-                                .size(iconSize),
-                            contentScale = ContentScale.Inside,
-                            colorFilter = when {
-                                state.listLegend == TypeLegendList.ALL -> null
-                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                            }
-                        )
-                        Text(
-                            text = stringResource(R.string.label_icon_all),
-                            color = if (state.listLegend == TypeLegendList.ALL) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
-                            fontSize = iconLabelSize
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
-                    ) {
-                        Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(bottom = 2.dp)
-                                .clip(CircleShape)
-                                .clickable(
-                                    onClick = {
-                                        viewModel.updateLegend(TypeLegendList.ADD)
-                                    }
-                                )
-                                .size(iconSize),
-                            contentScale = ContentScale.Inside,
-                            colorFilter = when {
-                                state.listLegend == TypeLegendList.ADD -> null
-                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                            }
-                        )
-                        Text(
-                            text = stringResource(R.string.label_icon_add),
-                            color = if (state.listLegend == TypeLegendList.ADD) MaterialTheme.colorScheme.secondary
-                            else MaterialTheme.colorScheme.onSurface,
-                            fontSize = iconLabelSize
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
-                    ) {
-                        Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(bottom = 2.dp)
-                                .clip(CircleShape)
-                                .clickable(
-                                    onClick = {
-                                        viewModel.updateLegend(TypeLegendList.VIEW)
-                                    }
-                                )
-                                .size(iconSize),
-                            contentScale = ContentScale.Inside,
-                            colorFilter = when {
-                                state.listLegend == TypeLegendList.VIEW -> null
-                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                            }
-                        )
-                        Text(
-                            text = stringResource(R.string.label_icon_view),
-                            color = if (state.listLegend == TypeLegendList.VIEW) MaterialTheme.colorScheme.secondary
-                            else MaterialTheme.colorScheme.onSurface,
-                            fontSize = iconLabelSize
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 4.dp, top = 4.dp)
-                    ) {
-                        Image(
-                            painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .padding(bottom = 2.dp)
-                                .clickable(
-                                    onClick = {
-                                        viewModel.updateLegend(TypeLegendList.PRIVATE)
-                                    }
-                                )
-                                .size(iconSize),
-                            contentScale = ContentScale.Inside,
-                            colorFilter = when {
-                                state.listLegend == TypeLegendList.PRIVATE -> null
-                                else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                            }
-                        )
-                        Text(
-                            text = stringResource(R.string.label_icon_private),
-                            color = if (state.listLegend == TypeLegendList.PRIVATE) MaterialTheme.colorScheme.secondary
-                            else MaterialTheme.colorScheme.onSurface,
-                            fontSize = iconLabelSize
-                        )
-                    }
-                }
-            }
-            RoundedTextField(
-                value = state.listName,
-                onValueChange = { name ->
-                    viewModel.updateListName(name)
-                },
-                label = stringResource(R.string.label_list_name),
-                action = {
-                    keyboardManager.clearFocus()
-                },
-                trailingIcon = {
-                    if (state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
-                        IconButton(
-                            onClick = {
-                                viewModel.showUsersSelect()
-                            },
-                            modifier = Modifier.padding(end = 16.dp)
-                        ) {
-                            Icon(Icons.Default.SupervisedUserCircle, contentDescription = null)
-                        }
-                        Text(
-                            text = state.usersUuid.count().toString(),
-                            modifier = Modifier.padding(bottom = 16.dp, start = 12.dp),
-                            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                        )
-                    }
-                }
-            )
-            AnimatedVisibility(
-                visible = state.usersSelect,
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 32.dp, max = 38.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .padding(top = 2.dp)
-                        .border(
-                            width = 1.dp,
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.inverseSurface
-                        )
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                ) {
 
-                    LazyColumn(state = stateLazyList) {
-                        items(state.allUsersUuid, key = { list -> list.userUuid }) { item ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = item.isSelected,
-                                    onCheckedChange = { viewModel.selectUser(item.userUuid) }
-                                )
-                                Text(
-                                    text = item.userName,
-                                    modifier = Modifier.padding(start = 12.dp)
-                                )
-                            }
-                        }
+                typeColorTexts.forEachIndexed { index, text ->
+                    val colorTypeTextButton = when {
+                        index + 1 == state.listLegend.listId && state.isOwner -> MaterialTheme.colorScheme.onSurface
+                        index + 1 == state.listLegend.listId && !state.isOwner -> MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.7f
+                        )
+
+                        state.isOwner -> MaterialTheme.colorScheme.onSurface
+                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     }
-
+                    SegmentedButton(
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        selected = index + 1 == state.listLegend.listId,
+                        enabled = state.isOwner,
+                        onClick = { viewModel.updateLegend(TypeLegendList.entries.first { it.listId == index + 1 }) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = typeColorTexts.count()
+                        ),
+                        label = {
+                            BasicText(
+                                text = text,
+                                color = { colorTypeTextButton },
+                                maxLines = 1,
+                                autoSize = TextAutoSize.StepBased(),
+                            )
+                        },
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = GlassCircleImageHolder.getColor(index + 1)
+                                .copy(alpha = 0.5f),
+                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledActiveContainerColor = GlassCircleImageHolder.getColor(index + 1)
+                                .copy(alpha = 0.5f),
+                            disabledInactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.4f
+                            ),
+                        ),
+                        modifier = Modifier.fillMaxHeight()
+                    )
                 }
             }
-            RoundedTextField(
-                value = addedTag,
-                onValueChange = { name ->
-                    addedTag = name
-                },
-                label = stringResource(R.string.label_list_add_tag),
-                trailingIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(
-                            onClick = {
-                                addNewTag()
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDownward,
-                                contentDescription = null
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RoundedTextField(
+                    value = state.listName,
+                    onValueChange = { name ->
+                        viewModel.updateListName(name)
+                    },
+                    label = stringResource(R.string.label_list_name),
+                    action = {
+                        keyboardManager.clearFocus()
+                    },
+                    modifier = Modifier.weight(1f),
+                    onClearCurrentField = { viewModel.clearCurrentField() }
+                )
+                AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
+                    AssistChip(
+                        modifier = Modifier
+                            .weight(0.35f)
+                            .padding(start = 4.dp, end = 4.dp),
+                        onClick = {
+                            viewModel.clearCurrentField()
+                            keyboardManager.clearFocus()
+                            isOpenUserSheet = true
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(
+                                    R.string.label_icon_select_words,
+                                    state.usersUuid.count()
+                                ),
+                                fontSize = 12.sp,
+                                maxLines = 1
                             )
+                        },
+                    )
+                }
+            }
+
+            if (isOpenUserSheet) {
+                UsersSheet(
+                    listUsers = state.allUsersUuid,
+                    modifier = Modifier.navigationBarsPadding(),
+                    multiplier = 0.2f,
+                    onDismiss = { isOpenUserSheet = false },
+                    onChecked = { viewModel.selectUser(it) }
+                )
+            }
+
+            ExposedDropdownMenuBox(
+                expanded = isHelpWords,
+                onExpandedChange = { isHelpWords = it }
+            ) {
+                RoundedTextField(
+                    value = addedTag,
+                    onValueChange = { name ->
+                        addedTag = name
+                        helpWords = when {
+                            name.isNotBlank() -> state.listAllTags.filter { it.contains(name) && (it !in state.tagNames.map { tags -> tags.tagName }) }
+                                .take(5)
+
+                            else -> emptyList()
                         }
-                        IconButton(
-                            onClick = {
-                                viewModel.showDictionaries()
+                        isHelpWords = helpWords.isNotEmpty()
+                    },
+                    modifier = Modifier
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
+                        .fillMaxWidth(),
+                    label = stringResource(R.string.label_list_add_tag),
+                    leadingIcon = if (state.listAllTags.isNotEmpty()) {
+                        {
+                            IconButton(
+                                onClick = {
+                                    keyboardManager.clearFocus()
+                                    isDictionary = true
+                                }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.List,
+                                    contentDescription = null,
+                                    tint = tintIcon
+                                )
                             }
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.List,
-                                contentDescription = null,
-                                tint = tintIcon
+                        }
+                    } else null,
+                    trailingIcon = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = {
+                                    addNewTag()
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDownward,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    },
+                    action = {
+                        addNewTag()
+                    },
+                    onClearCurrentField = { viewModel.clearCurrentField() }
+                )
+                if (helpWords.isNotEmpty()) {
+                    ExposedDropdownMenu(
+                        expanded = isHelpWords,
+                        onDismissRequest = { isHelpWords = false }
+                    ) {
+                        helpWords.forEach { word ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = word,
+                                        modifier = Modifier.padding(
+                                            horizontal = 4.dp,
+                                            vertical = 4.dp
+                                        )
+                                    )
+                                },
+                                onClick = {
+                                    // addNewTag(item = word)
+                                    addedTag = word
+                                    isHelpWords = false
+                                }
                             )
                         }
                     }
-                },
-                action = {
-                    addNewTag()
                 }
-            )
-            Row(
+            }
+
+            if (isDictionary) {
+                DictionarySheet(
+                    list = state.listAllTags,
+                    onDismiss = { isDictionary = false },
+                    onClick = { text -> addNewTag(text) },
+                    modifier = Modifier.navigationBarsPadding(),
+                )
+            }
+
+            TagsList(
+                list = state.tagNames,
+                typeList = TypeListTags.EDIT,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(top = 4.dp, bottom = 4.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(4.dp)
+                    .padding(top = 4.dp, bottom = 4.dp),
+                onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
+                onDelete = { name ->
+                    viewModel.updateTag(
+                        addedTagName = name,
+                        action = ActionTag.DELETE
                     )
-                    .border(
-                        border = BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.inverseSurface
-                        ),
-                        shape = RoundedCornerShape(4.dp)
+                },
+                onEditComment = { name, comment ->
+                    viewModel.updateTag(
+                        name,
+                        ActionTag.COMMENT,
+                        comment
                     )
-            ) {
-                TagsList(
-                    list = state.tagNames,
-                    typeList = TypeListTags.EDIT,
-                    modifier = Modifier.weight(1f),
-                    onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
-                    onDelete = { name ->
-                        viewModel.updateTag(
-                            addedTagName = name,
-                            action = ActionTag.DELETE
-                        )
-                    },
-                    onEditComment = { name, comment ->
-                        viewModel.updateTag(
-                            name,
-                            ActionTag.COMMENT,
-                            comment
-                        )
-                    }
-                )
-                AnimatedVisibility(
-                    visible = state.isDictionary,
-                ) {
-                    DictionaryList(
-                        list = state.listAllTags,
-                        modifier = Modifier
-                            .fillMaxWidth(0.35f),
-                        onClick = { addNewTag(it) }
-                    )
+                },
+                onFocusRegister = { id, lambda ->
+                    viewModel.registerField(id, lambda)
+                },
+                onFocusUnRegister = { id ->
+                    viewModel.unregisterField(id)
+                },
+                onClearCurrentField = {
+                    viewModel.clearCurrentField()
                 }
-            }
+            )
+
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -417,6 +379,7 @@ fun EditListScreen(
                         alphaShadowLight = 0.3f
                     ),
                 onClick = {
+                    viewModel.clearCurrentField()
                     viewModel.saveList()
                 }
             ) {
@@ -429,89 +392,18 @@ fun EditListScreen(
                 .fillMaxSize()
                 .padding(top = 4.dp, end = 4.dp)
         ) {
-            BoxWithConstraints(Modifier.fillMaxHeight()) {
-                val iconSize = (maxHeight / 10)
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(2.dp),
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(bottom = 2.dp)
-                            .clip(CircleShape)
-                            .clickable(
-                                onClick = {
-                                    viewModel.updateLegend(TypeLegendList.ALL)
-                                }
-                            )
-                            .size(iconSize),
-                        contentScale = ContentScale.Inside,
-                        colorFilter = when {
-                            state.listLegend == TypeLegendList.ALL -> null
-                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                        }
-                    )
-                    Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(bottom = 2.dp)
-                            .clip(CircleShape)
-                            .clickable(
-                                onClick = {
-                                    viewModel.updateLegend(TypeLegendList.ADD)
-                                }
-                            )
-                            .size(iconSize),
-                        contentScale = ContentScale.Inside,
-                        colorFilter = when {
-                            state.listLegend == TypeLegendList.ADD -> null
-                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                        }
-                    )
-                    Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(bottom = 2.dp)
-                            .clip(CircleShape)
-                            .clickable(
-                                onClick = {
-                                    viewModel.updateLegend(TypeLegendList.VIEW)
-                                }
-                            )
-                            .size(iconSize),
-                        contentScale = ContentScale.Inside,
-                        colorFilter = when {
-                            state.listLegend == TypeLegendList.VIEW -> null
-                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                        }
-                    )
-                    Image(
-                        painter = GlassCircleImageHolder.getImage(state.listLegend.listId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .padding(bottom = 2.dp)
-                            .clickable(
-                                onClick = {
-                                    viewModel.updateLegend(TypeLegendList.PRIVATE)
-                                }
-                            )
-                            .size(iconSize),
-                        contentScale = ContentScale.Inside,
-                        colorFilter = when {
-                            state.listLegend == TypeLegendList.PRIVATE -> null
-                            else -> ColorFilter.tint(Color.Gray, blendMode = BlendMode.SrcIn)
-                        }
-                    )
-                }
-            }
+            ChipPanelSelectTypeList(
+                legend = state.listLegend.listId,
+                isOwner = state.isOwner,
+                textChips = typeColorTexts,
+                onClick = { index ->
+                    viewModel.updateLegend(TypeLegendList.entries.first { it.listId == index + 1 })
+                },
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(IntrinsicSize.Min),
+                showText = false
+            )
             Column(Modifier.fillMaxWidth()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -522,108 +414,187 @@ fun EditListScreen(
                         onValueChange = { name ->
                             viewModel.updateListName(name)
                         },
-                        label = stringResource(R.string.label_list_name),
+                        label = stringResource(R.string.label_list_name_short),
                         action = {
                             keyboardManager.clearFocus()
                         },
-                        modifier = Modifier.weight(0.4f)
-                    )
-                    Button(
                         modifier = Modifier
-                            .weight(0.2f)
-                            .padding(horizontal = 4.dp)
-                            .shadow(
-                                colorLight = MaterialTheme.colorScheme.primary,
-                                shadowRadius = 4.dp,
-                                borderRadius = 16.dp,
-                                offsetYLight = 2.dp,
-                                offsetXLight = 3.dp,
-                                alphaShadowLight = 0.3f
-                            ),
-                        onClick = {
-                            viewModel.saveList()
-                        }
+                            .weight(0.3f)
+                            .padding(end = 4.dp),
+                        onClearCurrentField = { viewModel.clearCurrentField() }
+                    )
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .padding(end = 4.dp),
+                        expanded = isHelpWords,
+                        onExpandedChange = { isHelpWords = it }
                     ) {
-                        Text("Сохранить")
-                    }
-                    RoundedTextField(
-                        value = addedTag,
-                        onValueChange = { name ->
-                            addedTag = name
-                        },
-                        // label = stringResource(R.string.label_list_add_tag),
-                        trailingIcon = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    onClick = {
-                                        addNewTag()
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowDownward,
-                                        contentDescription = null
-                                    )
+                        RoundedTextField(
+                            value = addedTag,
+                            onValueChange = { name ->
+                                addedTag = name
+                                helpWords = when {
+                                    name.isNotBlank() -> state.listAllTags.filter { it.contains(name) && (it !in state.tagNames.map { tags -> tags.tagName }) }
+                                        .take(5)
+
+                                    else -> emptyList()
                                 }
-                                IconButton(
-                                    onClick = {
-                                        viewModel.showDictionaries()
+                                isHelpWords = helpWords.isNotEmpty()
+                            },
+                            modifier = Modifier
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+                            label = stringResource(R.string.label_list_add_tag),
+                            leadingIcon = if (state.listAllTags.isNotEmpty()) {
+                                {
+                                    IconButton(
+                                        onClick = {
+                                            keyboardManager.clearFocus()
+                                            isDictionary = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.List,
+                                            contentDescription = null,
+                                            tint = tintIcon
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.List,
-                                        contentDescription = null,
-                                        tint = tintIcon
+                                }
+                            } else null,
+                            trailingIcon = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    IconButton(
+                                        onClick = {
+                                            addNewTag()
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowDownward,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            },
+                            action = {
+                                addNewTag()
+                            },
+                            onClearCurrentField = { viewModel.clearCurrentField() }
+                        )
+                        if (helpWords.isNotEmpty()) {
+                            ExposedDropdownMenu(
+                                expanded = isHelpWords,
+                                onDismissRequest = { isHelpWords = false }
+                            ) {
+                                helpWords.forEach { word ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = word,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 4.dp,
+                                                    vertical = 4.dp
+                                                )
+                                            )
+                                        },
+                                        onClick = {
+                                            // addNewTag(item = word)
+                                            addedTag = word
+                                            isHelpWords = false
+                                        }
                                     )
                                 }
                             }
-                        },
-                        action = {
-                            addNewTag()
-                        },
-                        modifier = Modifier.weight(0.4f)
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(top = 4.dp, bottom = 4.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.inverseSurface
-                            ),
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                ) {
-                    TagsList(
-                        list = state.tagNames,
-                        typeList = TypeListTags.EDIT,
-                        modifier = Modifier.weight(1f),
-                        onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
-                        onDelete = { name -> viewModel.updateTag(name, ActionTag.DELETE) },
-                        onEditComment = { name, comment ->
-                            viewModel.updateTag(
-                                name,
-                                ActionTag.COMMENT,
-                                comment
+                        }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(0.2f)
+                    ) {
+                        AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
+                            AssistChip(
+                                modifier = Modifier
+                                    .padding(start = 4.dp, end = 4.dp),
+                                onClick = {
+                                    viewModel.clearCurrentField()
+                                    keyboardManager.clearFocus()
+                                    isOpenUserSheet = true
+                                },
+                                label = {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.label_icon_select_words,
+                                            state.usersUuid.count()
+                                        ),
+                                        fontSize = 12.sp,
+                                        maxLines = 1
+                                    )
+                                },
                             )
                         }
-                    )
-                    AnimatedVisibility(
-                        visible = state.isDictionary,
-                    ) {
-                        DictionaryList(
-                            list = state.listAllTags,
+                        Button(
                             modifier = Modifier
-                                .fillMaxWidth(0.35f),
-                            onClick = { addNewTag(it) }
-                        )
+                                // .weight(0.2f)
+                                .padding(horizontal = 4.dp)
+                                .shadow(
+                                    colorLight = MaterialTheme.colorScheme.primary,
+                                    shadowRadius = 4.dp,
+                                    borderRadius = 16.dp,
+                                    offsetYLight = 2.dp,
+                                    offsetXLight = 3.dp,
+                                    alphaShadowLight = 0.3f
+                                ),
+                            onClick = {
+                                viewModel.saveList()
+                            }
+                        ) {
+                            Text("Сохранить")
+                        }
                     }
+                }
+
+                if (isDictionary) {
+                    DictionarySheet(
+                        list = state.listAllTags,
+                        onDismiss = { isDictionary = false },
+                        onClick = { text -> addNewTag(text) },
+                        modifier = Modifier.navigationBarsPadding(),
+                    )
+                }
+
+                TagsList(
+                    list = state.tagNames,
+                    typeList = TypeListTags.EDIT,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 4.dp),
+                    onClick = { name -> viewModel.updateTag(name, ActionTag.STRIKE) },
+                    onDelete = { name -> viewModel.updateTag(name, ActionTag.DELETE) },
+                    onEditComment = { name, comment ->
+                        viewModel.updateTag(
+                            name,
+                            ActionTag.COMMENT,
+                            comment
+                        )
+                    },
+                    onFocusRegister = { id, lambda ->
+                        viewModel.registerField(id, lambda)
+                    },
+                    onFocusUnRegister = { id ->
+                        viewModel.unregisterField(id)
+                    },
+                    onClearCurrentField = {
+                        viewModel.clearCurrentField()
+                    }
+                )
+
+                if (isOpenUserSheet) {
+                    UsersSheet(
+                        listUsers = state.allUsersUuid,
+                        modifier = Modifier.navigationBarsPadding(),
+                        multiplier = 0.4f,
+                        onDismiss = { isOpenUserSheet = false },
+                        onChecked = { viewModel.selectUser(it) }
+                    )
                 }
             }
         }
@@ -644,5 +615,147 @@ fun EditListScreen(
         }
     }
     if (state.saved) onBack()
+}
+
+@Composable
+fun UserRow(
+    userName: String,
+    isSelected: Boolean,
+    onCheckedChange: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(
+                onClick = { onCheckedChange() }
+            ),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isSelected,
+            onCheckedChange = {},
+            colors = CheckboxDefaults.colors(
+                uncheckedColor = MaterialTheme.colorScheme.primary
+            )
+        )
+        Text(
+            text = userName,
+            modifier = Modifier.padding(start = 12.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UsersSheet(
+    listUsers: List<UiListUsers>,
+    onDismiss: () -> Unit,
+    onChecked: (String) -> Unit,
+    multiplier: Float,
+    modifier: Modifier = Modifier,
+) {
+    val usersSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val stateLazyList = rememberLazyListState()
+    val isDark = isSystemInDarkTheme()
+    LaunchedEffect(Unit) {
+        if (listUsers.isNotEmpty()) stateLazyList.scrollToItem(0)
+    }
+
+    val heightSheet = LocalConfiguration.current.screenHeightDp.dp * multiplier
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = usersSheetState,
+        modifier = modifier,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(width = 16.dp)
+        },
+        scrimColor = if (isDark) MaterialTheme.colorScheme.background.copy(alpha = 0.6f) else BottomSheetDefaults.ScrimColor
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = heightSheet)
+                .padding(top = 2.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                )
+        ) {
+            LazyColumn(
+                state = stateLazyList,
+                modifier = Modifier.clipToBounds(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(
+                    listUsers,
+                    key = { list -> list.userUuid },
+                    contentType = { "user_row" }
+                ) { item ->
+                    UserRow(
+                        userName = item.userName,
+                        isSelected = item.isSelected,
+                        onCheckedChange = { onChecked(item.userUuid) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DictionarySheet(
+    list: List<String>,
+    onDismiss: () -> Unit,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dictionaryState = rememberModalBottomSheetState()
+    val stateLazyList = rememberLazyListState()
+    val isDark = isSystemInDarkTheme()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = dictionaryState,
+        modifier = modifier,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(width = 16.dp)
+        },
+        scrimColor = if (isDark) MaterialTheme.colorScheme.background.copy(alpha = 0.6f) else BottomSheetDefaults.ScrimColor
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                )
+        ) {
+            LazyColumn(
+                state = stateLazyList,
+                modifier = Modifier.clipToBounds(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(list, key = { text -> text }) { item ->
+                    Text(
+                        text = item,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 12.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(
+                                onClick = { onClick(item) }
+                            )
+                    )
+                }
+            }
+        }
+    }
 
 }

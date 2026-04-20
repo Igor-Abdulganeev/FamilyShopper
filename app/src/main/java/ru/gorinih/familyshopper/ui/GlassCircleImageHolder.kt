@@ -19,7 +19,18 @@ object GlassCircleImageHolder {
         4 to GlassCircleImage(ListHeaderRed),
     )
 
+    val colorList = mapOf<Int, Color>(
+        1 to ListHeaderGreen,
+        2 to ListHeaderBlue,
+        3 to ListHeaderYellow,
+        4 to ListHeaderRed,
+    )
+
     fun getImage(listLegend: Int): Painter =
         if (typedList.containsKey(listLegend)) typedList[listLegend]
-            ?: GlassCircleImage(Color.Green) else GlassCircleImage(Color.Green)
+            ?: GlassCircleImage(ListHeaderGreen) else GlassCircleImage(ListHeaderGreen)
+
+    fun getColor(listLegend: Int): Color =
+        if (colorList.containsKey(listLegend)) colorList[listLegend]
+            ?: ListHeaderGreen else ListHeaderGreen
 }

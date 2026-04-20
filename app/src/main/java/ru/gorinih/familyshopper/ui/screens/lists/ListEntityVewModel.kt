@@ -12,6 +12,9 @@ import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.domain.models.SortDirection
+import ru.gorinih.familyshopper.domain.models.SortType
 import ru.gorinih.familyshopper.domain.usecases.DeleteList
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.ui.models.DeletingState
@@ -22,9 +25,6 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListsState
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
-import ru.gorinih.familyshopper.ui.views.AuthorFilter
-import ru.gorinih.familyshopper.ui.views.SortDirection
-import ru.gorinih.familyshopper.ui.views.SortType
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -36,7 +36,13 @@ class ListEntityVewModel(
     private val delete: DeleteList,
     private val pref: StorageRepository,
 ) : ViewModel() {
-    var listsState by mutableStateOf(UiListsState())
+    var listsState by mutableStateOf(
+        UiListsState().copy(
+            sortType = pref.getSort().first,
+            sortDirection = pref.getSort().second,
+            filterRule = pref.getAuthorFilter()
+        )
+    )
         private set
 
     private val keepLists = mutableListOf<UiListObject>()
@@ -63,7 +69,8 @@ class ListEntityVewModel(
                 keepLists.clear()
                 keepLists.addAll(list)
                 withContext(Dispatchers.Main.immediate) {
-                    listsState = listsState.copy(lists = list, loading = false)
+                    val filter = pref.getAuthorFilter()
+                    filter(filter)
                 }
             }
         }
@@ -157,6 +164,8 @@ class ListEntityVewModel(
         sortDirection: SortDirection,
         filterType: AuthorFilter
     ) {
+        pref.setSort(sortType, sortDirection)
+        pref.setAuthorFilter(filterType)
         val updatedList = mutableListOf<UiListObject>()
         when {
             sortType == SortType.DATE && sortDirection == SortDirection.UP -> {
@@ -184,13 +193,15 @@ class ListEntityVewModel(
                 sortDirection = sortDirection,
                 sortType = sortType,
                 filterRule = filterType,
-                lists = updatedList
+                lists = updatedList,
+                loading = false
             )
         else
             listsState.copy(
                 sortDirection = sortDirection,
                 sortType = sortType,
-                filterRule = filterType
+                filterRule = filterType,
+                loading = false
             )
     }
 }

@@ -2,23 +2,20 @@ package ru.gorinih.familyshopper.ui.views
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,24 +25,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.models.TypeListTags
-import ru.gorinih.familyshopper.ui.models.isEdit
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
-import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
@@ -59,12 +54,18 @@ fun TagsList(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     onDelete: (String) -> Unit,
-    onEditComment: (String, String) -> Unit
+    onEditComment: (String, String) -> Unit,
+    onFocusRegister: (String, () -> Unit) -> Unit,
+    onFocusUnRegister: (String) -> Unit,
+    onClearCurrentField: () -> Unit,
 ) {
     val stateTagsColumn = rememberLazyListState()
+    var sizeList by rememberSaveable { mutableStateOf(0) }
+
     LaunchedEffect(list.size) {
-        if (list.isNotEmpty())
+        if (list.isNotEmpty() && sizeList < list.count())
             stateTagsColumn.animateScrollToItem(0)
+        sizeList = list.count()
     }
 
     if (list.isEmpty()) {
@@ -83,65 +84,13 @@ fun TagsList(
                 TagItem(
                     tag = item,
                     type = typeList,
+                    onFocusRegister = onFocusRegister,
+                    onFocusUnRegister = onFocusUnRegister,
+                    onClearCurrentField = onClearCurrentField,
                     onClick = { onClick(item.tagName) },
                     onDelete = { onDelete(item.tagName) },
-                    onEditComment = { comment -> onEditComment(item.tagName, comment) }
+                    onEditComment = { comment -> onEditComment(item.tagName, comment) },
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun DictionaryList(
-    list: List<String>,
-    modifier: Modifier,
-    onClick: (String) -> Unit
-) {
-    val stateDictionaryColumn = rememberLazyListState()
-    var empty by remember { mutableStateOf(list.isEmpty()) }
-    val modifierList = modifier
-        .padding(start = 4.dp, top = 2.dp, bottom = 2.dp)
-        .background(
-            color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(4.dp)
-        )
-        .border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.inverseSurface
-            ),
-            shape = RoundedCornerShape(4.dp)
-        )
-    when (empty) {
-        false -> LazyColumn(
-            state = stateDictionaryColumn,
-            modifier = modifierList
-        ) {
-            items(list, key = { id -> id }) { item ->
-                Text(
-                    text = item,
-                    style = TextStyle(lineHeight = 16.sp),
-                    modifier = Modifier
-                        .padding(start = 4.dp, top = 2.dp, bottom = 2.dp)
-                        .clickable(
-                            onClick = { onClick(item) }
-                        )
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
-        true -> {
-            Row(modifier = modifierList) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.label_empty_list),
-                    style = TextStyle(lineHeight = 16.sp),
-                    modifier = Modifier
-                        .padding(start = 4.dp, top = 2.dp, bottom = 2.dp)
-                )
-                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -151,48 +100,84 @@ fun DictionaryList(
 fun TagItem(
     tag: UiShoppingItem,
     type: TypeListTags = TypeListTags.EDIT,
-    onClick: () -> Unit,
+    onClick: (Boolean?) -> Unit,
     onDelete: () -> Unit,
-    onEditComment: (String) -> Unit
+    onEditComment: (String) -> Unit,
+    onFocusRegister: (String, () -> Unit) -> Unit,
+    onFocusUnRegister: (String) -> Unit,
+    onClearCurrentField: () -> Unit,
 ) {
-    val progress by animateFloatAsState(
+    val strikeProgress by animateFloatAsState(
         targetValue = if (tag.isStrike) 1f else 0f,
-        animationSpec = tween(durationMillis = 300)
+        animationSpec = tween(durationMillis = 350)
     )
-    val color = MaterialTheme.colorScheme.secondary
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = if (type.isEdit()) 0.dp else 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        when (type) {
-            TypeListTags.EDIT -> {
-                IconButton(
-                    onClick = {
-                        onDelete()
+    val color = MaterialTheme.colorScheme.primary
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    when (type) {
+        TypeListTags.EDIT -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = tag.isStrike,
+                    onCheckedChange = {
+                        onClearCurrentField()
+                        onClick(it)
                     },
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .weight(0.3f)
-                ) {
-                    Icon(Icons.Default.Clear, contentDescription = null)
-                }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = tag.tagName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onSurface,
+                    onTextLayout = {textLayoutResult = it},
                     modifier = Modifier
                         .weight(1f)
-                        .clickable(
-                            onClick = {
-                                onClick()
-                            }
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(onClick = {
+                            onClearCurrentField()
+                            onClick(null)
+                        }
                         )
-                        .padding(start = 4.dp, end = 4.dp)
                         .drawWithContent {
                             drawContent()
-                            if (progress > 0f) {
+                            val layout = textLayoutResult ?: return@drawWithContent
+                            if (strikeProgress > 0f) {
+
+                                for (i in 0 until layout.lineCount) {
+                                    val lineStart = layout.getLineLeft(i)
+                                    val lineEnd = layout.getLineRight(i)
+                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineWidth = lineEnd - lineStart
+
+                                    var xStart = 0f
+                                    var xEnd = 0f
+                                    when (tag.isStrike) {
+                                        true -> {
+                                            xStart = lineStart
+                                            xEnd = lineStart + (lineWidth * strikeProgress)
+                                        }
+
+                                        false -> {
+                                            xStart = lineStart + (lineWidth * (1f - strikeProgress))
+                                            xEnd = lineEnd
+                                        }
+                                    }
+                                    drawLine(
+                                        color = color,
+                                        start = Offset(x = xStart, lineMiddleY),
+                                        end = Offset(x = xEnd, lineMiddleY),
+                                        strokeWidth = 2.dp.toPx(),
+                                        cap = StrokeCap.Round
+                                    )
+                                }
+/*
                                 val y = size.height / 2f
                                 var xStart = 0f
                                 var xEnd = 0f
@@ -200,11 +185,11 @@ fun TagItem(
                                 when (tag.isStrike) {
                                     true -> {
                                         xStart = 0f
-                                        xEnd = size.width * progress
+                                        xEnd = size.width * strikeProgress
                                     }
 
                                     false -> {
-                                        xStart = (1f - progress) * size.width
+                                        xStart = (1f - strikeProgress) * size.width
                                         xEnd = size.width
                                     }
                                 }
@@ -215,125 +200,220 @@ fun TagItem(
                                     strokeWidth = 2.dp.toPx(),
                                     cap = StrokeCap.Round
                                 )
+                                */
                             }
                         }
                 )
-                BracketTextField(
+                EditableCommentChip(
+                    tagId = tag.tagName,
                     comment = tag.tagComment,
-//            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                    onChange = { comment ->
+                    onCommentChange = { comment ->
                         onEditComment(comment)
                     },
-                    modifier = Modifier.weight(0.7f)
+                    modifier = Modifier.padding(end = 4.dp),
+                    onFocusRegister = onFocusRegister,
+                    onFocusUnRegister = onFocusUnRegister,
                 )
-            }
-
-            TypeListTags.STRIKE -> {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                IconButton(
+                    onClick = {
+                        onClearCurrentField()
+                        onDelete()
+                    },
                 ) {
-                    Text(
-                        text = tag.tagName,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(
-                                onClick = {
-                                    onClick()
-                                }
-                            )
-                            .padding(start = 16.dp, end = 4.dp)
-                            .drawWithContent {
-                                drawContent()
-                                if (progress > 0f) {
-                                    val y = size.height / 2f
-                                    var xStart = 0f
-                                    var xEnd = 0f
-
-                                    when (tag.isStrike) {
-                                        true -> {
-                                            xStart = 0f
-                                            xEnd = size.width * progress
-                                        }
-
-                                        false -> {
-                                            xStart = (1f - progress) * size.width
-                                            xEnd = size.width
-                                        }
-                                    }
-                                    drawLine(
-                                        color = color,
-                                        start = Offset(x = xStart, y),
-                                        end = Offset(x = xEnd, y),
-                                        strokeWidth = 2.dp.toPx(),
-                                        cap = StrokeCap.Round
-                                    )
-                                }
-                            }
-                    )
-                    if (tag.tagComment.isNotBlank()) {
-                        Text(
-                            text = "(${tag.tagComment})",
-                            modifier = Modifier
-                                .weight(0.7f)
-                        )
-                    }
+                    Icon(Icons.Default.Clear, null)
                 }
             }
+        }
 
-            TypeListTags.VIEW -> {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = tag.tagName,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(start = 16.dp, end = 4.dp)
-                            .drawWithContent {
-                                drawContent()
-                                if (progress > 0f) {
-                                    val y = size.height / 2f
+        TypeListTags.VIEW -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = tag.tagName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    onTextLayout = { textLayoutResult = it },
+                    color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            val layout = textLayoutResult ?: return@drawWithContent
+                            if (strikeProgress > 0f) {
+
+                                for (i in 0 until layout.lineCount) {
+                                    val lineStart = layout.getLineLeft(i)
+                                    val lineEnd = layout.getLineRight(i)
+                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineWidth = lineEnd - lineStart
+
                                     var xStart = 0f
                                     var xEnd = 0f
-
                                     when (tag.isStrike) {
                                         true -> {
-                                            xStart = 0f
-                                            xEnd = size.width * progress
+                                            xStart = lineStart
+                                            xEnd = lineStart + (lineWidth * strikeProgress)
                                         }
 
                                         false -> {
-                                            xStart = (1f - progress) * size.width
-                                            xEnd = size.width
+                                            xStart = lineStart + (lineWidth * (1f - strikeProgress))
+                                            xEnd = lineEnd
                                         }
                                     }
                                     drawLine(
                                         color = color,
-                                        start = Offset(x = xStart, y),
-                                        end = Offset(x = xEnd, y),
+                                        start = Offset(x = xStart, lineMiddleY),
+                                        end = Offset(x = xEnd, lineMiddleY),
                                         strokeWidth = 2.dp.toPx(),
                                         cap = StrokeCap.Round
                                     )
                                 }
+                                /*
+                                                                val y = size.height / 2f
+                                                                var xStart = 0f
+                                                                var xEnd = 0f
+
+                                                                when (tag.isStrike) {
+                                                                    true -> {
+                                                                        xStart = 0f
+                                                                        xEnd = size.width * strikeProgress
+                                                                    }
+
+                                                                    false -> {
+                                                                        xStart = (1f - strikeProgress) * size.width
+                                                                        xEnd = size.width
+                                                                    }
+                                                                }
+                                                                drawLine(
+                                                                    color = color,
+                                                                    start = Offset(x = xStart, y),
+                                                                    end = Offset(x = xEnd, y),
+                                                                    strokeWidth = 2.dp.toPx(),
+                                                                    cap = StrokeCap.Round
+                                                                )
+                                                                */
                             }
+                        }
+                )
+                if (tag.tagComment.isNotBlank()) {
+                    Text(
+                        text = "(${tag.tagComment})",
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .weight(0.7f)
                     )
-                    if (tag.tagComment.isNotBlank()) {
-                        Text(
-                            text = "(${tag.tagComment})",
-                            modifier = Modifier
-                        )
+                }
+            }
+        }
+
+        TypeListTags.STRIKE -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable(onClick = {
+                        onClearCurrentField()
+                        onClick(null)
                     }
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = tag.isStrike,
+                    onCheckedChange = {
+                        onClearCurrentField()
+                        onClick(it)
+                    },
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = tag.tagName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    onTextLayout = { textLayoutResult = it },
+                    color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            val layout = textLayoutResult ?: return@drawWithContent
+                            if (strikeProgress > 0f) {
+
+                                for (i in 0 until layout.lineCount) {
+                                    val lineStart = layout.getLineLeft(i)
+                                    val lineEnd = layout.getLineRight(i)
+                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineWidth = lineEnd - lineStart
+
+                                    var xStart = 0f
+                                    var xEnd = 0f
+                                    when (tag.isStrike) {
+                                        true -> {
+                                            xStart = lineStart
+                                            xEnd = lineStart + (lineWidth * strikeProgress)
+                                        }
+
+                                        false -> {
+                                            xStart = lineStart + (lineWidth * (1f - strikeProgress))
+                                            xEnd = lineEnd
+                                        }
+                                    }
+                                    drawLine(
+                                        color = color,
+                                        start = Offset(x = xStart, lineMiddleY),
+                                        end = Offset(x = xEnd, lineMiddleY),
+                                        strokeWidth = 3.dp.toPx(),
+                                        cap = StrokeCap.Round
+                                    )
+                                }
+                                /*
+                                                                val y = size.height / 2f
+                                                                var xStart = 0f
+                                                                var xEnd = 0f
+
+                                                                when (tag.isStrike) {
+                                                                    true -> {
+                                                                        xStart = 0f
+                                                                        xEnd = size.width * strikeProgress
+                                                                    }
+
+                                                                    false -> {
+                                                                        xStart = (1f - strikeProgress) * size.width
+                                                                        xEnd = size.width
+                                                                    }
+                                                                }
+                                                                drawLine(
+                                                                    color = color,
+                                                                    start = Offset(x = xStart, y),
+                                                                    end = Offset(x = xEnd, y),
+                                                                    strokeWidth = 2.dp.toPx(),
+                                                                    cap = StrokeCap.Round
+                                                                )
+                                                                */
+                            }
+                        }
+                )
+                if (tag.tagComment.isNotBlank()) {
+                    Text(
+                        text = "(${tag.tagComment})",
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .weight(0.7f)
+                    )
                 }
             }
         }
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewTagItem() {
@@ -353,7 +433,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.EDIT,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                onClearCurrentField = {},
             )
 
             Spacer(
@@ -372,7 +455,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.EDIT,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
 
             Spacer(
@@ -391,7 +477,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.STRIKE,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
 
             Spacer(
@@ -410,7 +499,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.STRIKE,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
 
             Spacer(
@@ -430,7 +522,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.VIEW,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -449,7 +544,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.VIEW,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -467,7 +565,10 @@ fun PreviewTagItem() {
                 type = TypeListTags.EDIT,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -485,9 +586,14 @@ fun PreviewTagItem() {
                 type = TypeListTags.STRIKE,
                 onClick = {},
                 onDelete = {},
-                onEditComment = {}
+                onEditComment = {},
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = {},
+                        onClearCurrentField = {},
             )
 
         }
     }
 }
+
+ */

@@ -18,7 +18,7 @@ data class UiShoppingState(
     val listUuid: String = "", // идентификатор списка
     val ownerUuid: String = "", // идентификатор создателя (client)
     val listVersion: Int = 0, // версия списка
-    val listLegend: TypeLegendList = TypeLegendList.ALL, // тип списка из TypeShoppedList
+    val listLegend: TypeLegendList = TypeLegendList.NOTHING, // тип списка из TypeShoppedList
     val tagNames: List<UiShoppingItem> = emptyList(), // таги товаров с пометкой то отмечено
     val usersUuid: List<String> = emptyList(), // это список пользователей которым назначен список
     val dateTime: Long = 0L, // дата создания/обновления списка
@@ -26,14 +26,11 @@ data class UiShoppingState(
 
     val listNameId: Int = 0, // ресурс имени для нового списка
     val date: String = "", // дата создания, для имени
-    val isDictionary: Boolean = false, // показать список тэгов сохраненных
     val listAllTags: List<String> = emptyList(), //список всех тэгов для выбора, пока просто без заголовочных букв
     val saved: Boolean = false, //лист сохранен нужно вернуться на предыдущий экран
     val loading: Boolean = false, //надо показать загрузку
     val warning: WarningState = WarningState(), // показ ошибки
-    val isAdd: Boolean = true, // можно ли добавлять - нет если owner другой и listLegend >2 TODO вероятно устарел проверить
-    val isEdit: Boolean = true, // можно ли редактировать - нет если owner другой и listLegend >1 TODO и этот, в редактирование чужого уже не попасть, только в пометках надо это внести
-    val usersSelect: Boolean = false, // если будут пользователи еще, то показываем или нет панель с их выбором
+    val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUsers> = emptyList(), // список всех пользователей
     val error: Boolean = false, // метка сетевой ошибки, когда список сохранен только в БД и не отправлен на сервер, например нет интернета
 )
@@ -51,7 +48,7 @@ fun UiShoppingState.toShoppedList() =
         countTags = 0, // в обратную сторону в БД они не нужны
         countStrikes = 0,
         userName = this.userName
-)
+    )
 
 fun UiShoppingItem.toShoppedItem() =
     ShoppedItem(

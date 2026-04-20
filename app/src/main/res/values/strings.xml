@@ -9,12 +9,13 @@
     <string name="label_lists_header">"все списки"</string>
     <string name="label_sync_header">"сохраненные продукты"</string>
     <string name="new_list_name">"Список от %s"</string>
-    <string name="label_list_name">"Наименование списка"</string>
+    <string name="label_list_name">"наименование списка"</string>
+    <string name="label_list_name_short">"наименование"</string>
     <string name="label_list_add_tag">"введите наименование"</string>
     <string name="label_empty_list">Отсутствуют данные</string>
-    <string name="label_icon_all">открыт для всех</string>
-    <string name="label_icon_add">только отметки</string>
-    <string name="label_icon_view">только чтение</string>
+    <string name="label_icon_all">открыт</string>
+    <string name="label_icon_add">отметки</string>
+    <string name="label_icon_view">чтение</string>
     <string name="label_icon_private">частный</string>
     <string name="label_full_icon_all">список будет доступен всем пользователям хранилища для любых действий с ним.</string>
     <string name="label_full_icon_add">другие пользователи смогут только отметить записи в списке, редактирование, добавление или удаление запрещены</string>
@@ -41,4 +42,5 @@
     <string name="warning_text_not_changed">Изменений нет</string>
     <string name="warning_text_changed">Обновлено - %1$s</string>
     <string name="warning_text_deleted">Удалено - %1$s</string>
+    <string name="label_icon_select_words">Кому: %1$s</string>
 </resources>

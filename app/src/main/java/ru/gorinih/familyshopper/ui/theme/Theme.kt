@@ -13,51 +13,71 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = MediumGreen,
     onPrimary = White,
-    secondary = LightBlue,
-    onSecondary = Black,
-    tertiary = DarkBlue,
-    onTertiary = White,
+
+    secondary = DarkBlue,
+    onSecondary = White,
+
+    tertiary = LightBlue,
+    onTertiary = Black,
+
     background = VeryDarkGray,
-    onBackground = VeryLightGray,
+    onBackground = White,
+
     surface = SurfaceDark,
     onSurface = White,
+
+    surfaceVariant = MediumGray.copy(alpha = 0.15f),
+    onSurfaceVariant = LightGrayText,
+
     error = ErrorPink,
     onError = Black,
-    primaryContainer = DarkGray,
+
+    primaryContainer = SurfaceDark,
     onPrimaryContainer = White,
-    secondaryContainer = DarkGray,
+
+    secondaryContainer = SurfaceDark,
     onSecondaryContainer = White,
-    tertiaryContainer = DarkGray,
+
+    tertiaryContainer = SurfaceDark,
     onTertiaryContainer = White,
-    surfaceVariant = DarkGray,
-    onSurfaceVariant = LightGrayText,
-    outline = LightGray,
+
+    outline = OutlineDark,
     inverseOnSurface = VeryDarkGray,
-    scrim = White
+    scrim = Black
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = LightGreen,
     onPrimary = Black,
+
     secondary = DarkBlue,
     onSecondary = White,
+
     tertiary = LightBlue,
     onTertiary = Black,
+
     background = VeryLightGray,
-    onBackground = DarkGrayText,
+    onBackground = Black,
+
     surface = LightGray,
     onSurface = Black,
-    error = ErrorRed,
-    onError = White,
-    primaryContainer = LightGray,
-    onPrimaryContainer = Black,
-    secondaryContainer = LightGray,
-    onSecondaryContainer = Black,
-    tertiaryContainer = LightGray,
-    onTertiaryContainer = Black,
+
     surfaceVariant = MediumGray,
     onSurfaceVariant = DarkGrayText,
-    outline = LightGray,
+
+    error = ErrorRed,
+    onError = White,
+
+    primaryContainer = MediumGray,
+    onPrimaryContainer = Black,
+
+    secondaryContainer = MediumGray,
+    onSecondaryContainer = Black,
+
+    tertiaryContainer = MediumGray,
+    onTertiaryContainer = Black,
+
+    outline = OutlineLight,
     inverseOnSurface = White,
     scrim = Black
 )
