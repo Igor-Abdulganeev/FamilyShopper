@@ -195,7 +195,7 @@ class ListStrikeTagsViewModel(
             if (!diff) {
                 memoryList?.tagNames?.let { savedList ->
                     for (tag in shoppedList.tagNames) {
-                        if (!savedList.any { it.tagId == tag.tagId && it.isStrike == tag.isStrike && it.tagComment == tag.tagComment }) diff =
+                        if (!savedList.any { it.tagId == tag.tagId && it.tagName == tag.tagName && it.isStrike == tag.isStrike && it.tagComment == tag.tagComment }) diff =
                             true
                     }
                 }

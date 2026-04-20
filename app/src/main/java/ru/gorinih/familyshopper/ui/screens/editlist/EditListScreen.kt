@@ -315,8 +315,8 @@ fun EditListScreen(
                                     )
                                 },
                                 onClick = {
-                                    // addNewTag(item = word)
-                                    addedTag = word
+                                    addNewTag(item = word) // выбор сразу вносит в список
+                                    //addedTag = word // выбор добавляет в строку ввода
                                     isHelpWords = false
                                 }
                             )

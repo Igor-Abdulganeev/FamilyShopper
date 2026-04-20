@@ -15,6 +15,7 @@ import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemote
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.EditDictionariesState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
@@ -27,6 +28,7 @@ import ru.gorinih.familyshopper.ui.screens.dictionary.models.toUiTag
 class EditDictionariesViewModel(
     private val database: DatabaseRepository,
     private val syncRemote: SynchronizeDictionaries,
+    private val syncAllRemote: SynchronizeDictionariesGetAllRemote,
     pref: StorageRepository
 ) : ViewModel() {
 
@@ -42,25 +44,12 @@ class EditDictionariesViewModel(
     }
 
     var dictionaryState = MutableStateFlow(
-        EditDictionariesState(canSync = pref.getGroupUUID().isNotBlank(), isLoading = true)
+        EditDictionariesState(canSync = pref.getGroupUUID().isNotBlank())
     )
         private set
 
-    /*
-        val data = database.takeDictionaries()
-            .map { list -> list.groupBy { it.tagId }
-                .map { (key, value) -> UiDictionary(
-                    tagId = key,
-                    tagNames = value.map { it.toUiTag() }
-                ) }
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L),
-                initialValue = emptyList()
-            )
-    */
-
     init {
+        syncDictionaries()
         database.takeDictionaries()
             .map { list ->
                 list.groupBy { it.tagId }
@@ -112,24 +101,33 @@ class EditDictionariesViewModel(
         }
     }
 
+    fun syncDictionaries() {
+        dictionaryState.update { it.copy(isLoading = true) }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            syncRemote().apply {
+                when {// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
+                    !this.isError -> dictionaryState.update { it.copy(isLoading = false) }
+                    this.isError -> dictionaryState.update {
+                        it.copy(
+                            isLoading = false,
+                            warning = WarningState(
+                                isWarning = true,
+                                textWarning = this.textError
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun refreshDictionaries() {
         if (!dictionaryState.value.isLoading) {
             dictionaryState.update { it.copy(isLoading = true) }
             viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-                syncRemote().apply {
-                    when {// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
-                        !this.isError -> dictionaryState.update { it.copy(isLoading = false) }
-                        this.isError -> dictionaryState.update {
-                            it.copy(
-                                isLoading = false,
-                                warning = WarningState(
-                                    isWarning = true,
-                                    textWarning = this.textError
-                                )
-                            )
-                        }
-                    }
-                }
+                syncAllRemote().apply {
+                    dictionaryState.update { it.copy(isLoading = false) }
+                 }
             }
         }
     }

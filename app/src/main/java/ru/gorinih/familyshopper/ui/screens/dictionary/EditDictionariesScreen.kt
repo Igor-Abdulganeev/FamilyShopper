@@ -1,26 +1,21 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Clear
@@ -32,7 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,10 +57,27 @@ fun EditDictionariesScreen(
 ) {
     val state by viewModel.dictionaryState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(initialPage = 0) { state.list.size }
+    var currentPosition by remember { mutableIntStateOf(0) }
     var addedTag by remember { mutableStateOf("") }
+    var selectedTab by remember { mutableStateOf("") }
 
+    LaunchedEffect(currentPosition) {
+        if (currentPosition >= 0)
+            pagerState.animateScrollToPage(currentPosition, animationSpec = tween(durationMillis = 400))
+    }
+
+    LaunchedEffect(state.list.size) {
+        if (selectedTab.isNotBlank()) {
+            val allPositions = state.list.map { it.tagId }.toMutableSet()
+            allPositions.add(selectedTab)
+            val sortedPosition = allPositions.sortedBy { it }
+            currentPosition = sortedPosition.indexOf(selectedTab)
+            selectedTab = ""
+        }
+    }
     fun addNewTag() {
         if (addedTag.isNotBlank()) {
+            selectedTab = addedTag.first().uppercaseChar().toString()
             viewModel.addTag(addedTag)
             addedTag = ""
         }
@@ -75,15 +89,14 @@ fun EditDictionariesScreen(
             .fillMaxSize()
             .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
     ) {
-        if (state.canSync) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
 
-                ) {
-                Spacer(Modifier.width(48.dp))
-                Text(text = stringResource(R.string.label_sync_header))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+
+            ) {
+            if (state.canSync) {
                 IconButton(
                     onClick = {
                         viewModel.refreshDictionaries()
@@ -92,29 +105,29 @@ fun EditDictionariesScreen(
                     Icon(Icons.Default.Repeat, contentDescription = null)
                 }
             }
+            RoundedTextField(
+                value = addedTag,
+                onValueChange = { text ->
+                    addedTag = text
+                    if (text.length == 1) {
+                        val allPositions = state.list.map { it.tagId }.toMutableSet()
+                        val char = text.first().uppercaseChar().toString()
+                        currentPosition = allPositions.indexOf(char)
+                                    }
+                },
+                placeholder = stringResource(R.string.label_enter_new_tag),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            addNewTag()
+                        },
+                    ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                },
+                action = {
+                    addNewTag()
+                }
+            )
         }
-        RoundedTextField(
-            value = addedTag,
-            onValueChange = { text ->
-                addedTag = text
-                /*
-                                    currentPosition = if (text.length == 1) {
-                                        getAlphabet.indexOf(text.first().uppercaseChar())
-                                    } else -1
-                */
-            },
-            placeholder = stringResource(R.string.label_enter_new_tag),
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        addNewTag()
-                    },
-                ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
-            },
-            action = {
-                addNewTag()
-            }
-        )
         when (state.list.count()) {
             0 -> EmptyAlphabet(modifier)
             else -> AlphabetTabs(
@@ -150,17 +163,6 @@ fun EmptyAlphabet(
         modifier = modifier
             .fillMaxSize()
             .padding(2.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(4.dp)
-            )
-            .border(
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.inverseSurface
-                ),
-                shape = RoundedCornerShape(4.dp)
-            )
     ) {
         Text(stringResource(R.string.label_empty_list), modifier = Modifier.padding(16.dp))
     }
@@ -183,17 +185,6 @@ fun AlphabetTabs(
         modifier = modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(4.dp)
-            )
-            .border(
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.inverseSurface
-                ),
-                shape = RoundedCornerShape(4.dp)
-            )
     ) {
         HorizontalPager(
             state = pagerState,

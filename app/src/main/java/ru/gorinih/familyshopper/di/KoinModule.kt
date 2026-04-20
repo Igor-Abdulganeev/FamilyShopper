@@ -31,6 +31,8 @@ import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateList
 import ru.gorinih.familyshopper.domain.usecases.UpdateListImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemote
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsImpl
@@ -124,11 +126,12 @@ fun koinModule(): Module = module {
     factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
     factory<UpdateUsers> { UpdateUsersImpl(remote = get(), database = get()) }
     factory<DeleteList> { DeleteListImpl(database = get(), remote = get()) }
+    factory<SynchronizeDictionariesGetAllRemote> { SynchronizeDictionariesGetAllRemoteImpl(remote = get(), database = get()) }
 
     single { GlassCircleImageHolder }
 
     viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
-    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), pref = get()) }
+    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), syncAllRemote = get(), pref = get()) }
     viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
     viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
     viewModel { (listId: String) ->
