@@ -5,7 +5,7 @@ import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
-import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import java.util.UUID
 import kotlin.String
 
@@ -31,7 +31,7 @@ data class UiShoppingState(
     val loading: Boolean = false, //надо показать загрузку
     val warning: WarningState = WarningState(), // показ ошибки
     val isOwner: Boolean = false,
-    val allUsersUuid: List<UiListUsers> = emptyList(), // список всех пользователей
+    val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
     val error: Boolean = false, // метка сетевой ошибки, когда список сохранен только в БД и не отправлен на сервер, например нет интернета
 )
 

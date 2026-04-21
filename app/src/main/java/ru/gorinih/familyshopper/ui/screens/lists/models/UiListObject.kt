@@ -17,7 +17,7 @@ data class UiListObject(
     val listName: String,
     val listLegend: TypeLegendList,
     val listOwner: String,
-    val listTo: List<UiListUsers> = emptyList(),
+    val listTo: List<UiListUser> = emptyList(),
     val listDatetime: String,
     val listDatetimeValue: Long,
     val countTags: Int,

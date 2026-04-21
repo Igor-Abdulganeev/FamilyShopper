@@ -9,18 +9,19 @@ import ru.gorinih.familyshopper.domain.models.ShoppedUsers
  */
 
 interface UpdateUsers {
-    suspend operator fun invoke()
+    suspend operator fun invoke(replace: Boolean = false)
 }
 
 class UpdateUsersImpl(
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
 ) : UpdateUsers {
-    override suspend fun invoke() {
+    override suspend fun invoke(replace: Boolean) {
         val remoteUsers = remote.getUsersNames()
         if (remoteUsers.isNotEmpty()) {
             val listUser =
                 remoteUsers.map { (key, value) -> ShoppedUsers(userUuid = key, userName = value) }
+            if (replace) database.replaceUsers((listUser))
             database.keepUsers(listUser)
         }
     }

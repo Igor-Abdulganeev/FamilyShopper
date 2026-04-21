@@ -1,12 +1,22 @@
 package ru.gorinih.familyshopper.ui.views
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +25,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,15 +43,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
@@ -136,7 +152,7 @@ fun TagItem(
                     fontWeight = FontWeight.Medium,
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
-                    onTextLayout = {textLayoutResult = it},
+                    onTextLayout = { textLayoutResult = it },
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
@@ -153,7 +169,8 @@ fun TagItem(
                                 for (i in 0 until layout.lineCount) {
                                     val lineStart = layout.getLineLeft(i)
                                     val lineEnd = layout.getLineRight(i)
-                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineMiddleY =
+                                        (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
                                     val lineWidth = lineEnd - lineStart
 
                                     var xStart = 0f
@@ -177,30 +194,6 @@ fun TagItem(
                                         cap = StrokeCap.Round
                                     )
                                 }
-/*
-                                val y = size.height / 2f
-                                var xStart = 0f
-                                var xEnd = 0f
-
-                                when (tag.isStrike) {
-                                    true -> {
-                                        xStart = 0f
-                                        xEnd = size.width * strikeProgress
-                                    }
-
-                                    false -> {
-                                        xStart = (1f - strikeProgress) * size.width
-                                        xEnd = size.width
-                                    }
-                                }
-                                drawLine(
-                                    color = color,
-                                    start = Offset(x = xStart, y),
-                                    end = Offset(x = xEnd, y),
-                                    strokeWidth = 2.dp.toPx(),
-                                    cap = StrokeCap.Round
-                                )
-                                */
                             }
                         }
                 )
@@ -249,7 +242,8 @@ fun TagItem(
                                 for (i in 0 until layout.lineCount) {
                                     val lineStart = layout.getLineLeft(i)
                                     val lineEnd = layout.getLineRight(i)
-                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineMiddleY =
+                                        (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
                                     val lineWidth = lineEnd - lineStart
 
                                     var xStart = 0f
@@ -273,31 +267,7 @@ fun TagItem(
                                         cap = StrokeCap.Round
                                     )
                                 }
-                                /*
-                                                                val y = size.height / 2f
-                                                                var xStart = 0f
-                                                                var xEnd = 0f
-
-                                                                when (tag.isStrike) {
-                                                                    true -> {
-                                                                        xStart = 0f
-                                                                        xEnd = size.width * strikeProgress
-                                                                    }
-
-                                                                    false -> {
-                                                                        xStart = (1f - strikeProgress) * size.width
-                                                                        xEnd = size.width
-                                                                    }
-                                                                }
-                                                                drawLine(
-                                                                    color = color,
-                                                                    start = Offset(x = xStart, y),
-                                                                    end = Offset(x = xEnd, y),
-                                                                    strokeWidth = 2.dp.toPx(),
-                                                                    cap = StrokeCap.Round
-                                                                )
-                                                                */
-                            }
+                             }
                         }
                 )
                 if (tag.tagComment.isNotBlank()) {
@@ -349,7 +319,8 @@ fun TagItem(
                                 for (i in 0 until layout.lineCount) {
                                     val lineStart = layout.getLineLeft(i)
                                     val lineEnd = layout.getLineRight(i)
-                                    val lineMiddleY = (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
+                                    val lineMiddleY =
+                                        (layout.getLineTop(i) + layout.getLineBottom(i)) / 2f
                                     val lineWidth = lineEnd - lineStart
 
                                     var xStart = 0f
@@ -373,30 +344,6 @@ fun TagItem(
                                         cap = StrokeCap.Round
                                     )
                                 }
-                                /*
-                                                                val y = size.height / 2f
-                                                                var xStart = 0f
-                                                                var xEnd = 0f
-
-                                                                when (tag.isStrike) {
-                                                                    true -> {
-                                                                        xStart = 0f
-                                                                        xEnd = size.width * strikeProgress
-                                                                    }
-
-                                                                    false -> {
-                                                                        xStart = (1f - strikeProgress) * size.width
-                                                                        xEnd = size.width
-                                                                    }
-                                                                }
-                                                                drawLine(
-                                                                    color = color,
-                                                                    start = Offset(x = xStart, y),
-                                                                    end = Offset(x = xEnd, y),
-                                                                    strokeWidth = 2.dp.toPx(),
-                                                                    cap = StrokeCap.Round
-                                                                )
-                                                                */
                             }
                         }
                 )
@@ -413,7 +360,107 @@ fun TagItem(
     }
 }
 
-/*
+@Composable
+fun Users(
+    list: List<UiListUser>,
+    modifier: Modifier = Modifier,
+    onEdit: (UiListUser) -> Unit,
+    onDelete: (UiListUser) -> Unit,
+) {
+    val stateList = rememberLazyListState()
+
+    Box(modifier = modifier) {
+        LazyColumn(
+            state = stateList,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+        ) {
+            items(list, key = {it.userUuid; it.userName}) { item ->
+                User(
+                    item = item,
+                    onEdit = { onEdit(it) },
+                    onDelete = { onDelete(item) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun User(
+    item: UiListUser,
+    modifier: Modifier = Modifier,
+    onEdit: (UiListUser) -> Unit,
+    onDelete: () -> Unit,
+) {
+    var editable by remember { mutableStateOf(false) }
+    var editName by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(item.userName) {
+        editName = item.userName
+    }
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(
+            onClick = {
+                onDelete()
+            },
+        ) {
+            Icon(Icons.Default.Clear, null)
+        }
+        AnimatedContent(
+            targetState = editable,
+            transitionSpec = { fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(clip = false) }
+        ) { isEdit ->
+            when (isEdit) {
+                true -> {
+                    RoundedTextField(
+                        value = editName,
+                        onValueChange = { name ->
+                            editName = name
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    editable = false
+                                    onEdit(item.copy(userName = editName))
+                                }
+                            ) {
+                                Icon(Icons.Default.Done, contentDescription = null)
+                            }
+                        }
+                    )
+                }
+
+                false -> {
+                    Box(modifier = Modifier.fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            onClick = { editable = true },
+                        )
+                    ){
+                        Text(
+                            text = editName,
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                        )
+                    }
+                 }
+            }
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewTagItem() {
@@ -458,7 +505,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
 
             Spacer(
@@ -480,7 +527,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
 
             Spacer(
@@ -502,7 +549,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
 
             Spacer(
@@ -525,7 +572,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -547,7 +594,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -568,7 +615,7 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
             Spacer(
                 Modifier
@@ -589,11 +636,9 @@ fun PreviewTagItem() {
                 onEditComment = {},
                 onFocusRegister = { _, _ -> },
                 onFocusUnRegister = {},
-                        onClearCurrentField = {},
+                onClearCurrentField = {},
             )
 
         }
     }
 }
-
- */

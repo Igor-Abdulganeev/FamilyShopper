@@ -236,8 +236,8 @@ fun ListStrikeTagsScreen(
                     Spacer(Modifier.width(48.dp))
                 }
                 Text(text = state.listName)
-                if (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
-                    || state.isEditable
+                if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
+                    || state.isEditable)
                 ) {
                     IconButton(
                         onClick = { viewModel.updateList() }

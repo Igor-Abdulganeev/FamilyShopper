@@ -41,7 +41,8 @@ class ListStrikeTagsViewModel(
 
     var shoppedList by mutableStateOf(
         UiStrikeState(
-            background = pref.getBackgroundState()
+            background = pref.getBackgroundState(),
+            isUpdate = pref.getGroupUUID().isNotBlank(),
         )
     )
         private set

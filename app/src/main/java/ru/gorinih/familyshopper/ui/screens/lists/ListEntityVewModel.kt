@@ -40,7 +40,8 @@ class ListEntityVewModel(
         UiListsState().copy(
             sortType = pref.getSort().first,
             sortDirection = pref.getSort().second,
-            filterRule = pref.getAuthorFilter()
+            filterRule = pref.getAuthorFilter(),
+            isUpdate = pref.getGroupUUID().isNotBlank()
         )
     )
         private set
@@ -125,19 +126,21 @@ class ListEntityVewModel(
     fun deleteList(listId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = delete(listId = listId)
+            val list = keepLists.filterNot { it.listId == listId }
+            keepLists.clear()
+            keepLists.addAll(list)
             listsState = when (result.isError) {
-                true -> listsState.copy(
-                    deleting = DeletingState(),
-                    warning = WarningState(
-                        isWarning = true,
-                        textWarning = "Удаление выполнено локально, ${result.textError}"
+                true -> {
+                    listsState.copy(
+                        deleting = DeletingState(),
+                        warning = WarningState(
+                            isWarning = true,
+                            textWarning = "Удаление выполнено локально, ${result.textError}"
+                        )
                     )
-                )
+                }
 
                 false -> {
-                    val list = keepLists.filterNot { it.listId == listId }
-                    keepLists.clear()
-                    keepLists.addAll(list)
                     listsState.copy(deleting = DeletingState())
                 }
             }
@@ -187,21 +190,18 @@ class ListEntityVewModel(
             sortType == SortType.NOTHING -> {
                 updatedList.addAll(list)
             }
+
+            sortDirection == SortDirection.NOTHING -> {
+                updatedList.addAll(list)
+            }
         }
-        listsState = if (updatedList.isNotEmpty())
-            listsState.copy(
-                sortDirection = sortDirection,
-                sortType = sortType,
-                filterRule = filterType,
-                lists = updatedList,
-                loading = false
-            )
-        else
-            listsState.copy(
-                sortDirection = sortDirection,
-                sortType = sortType,
-                filterRule = filterType,
-                loading = false
-            )
+        listsState = listsState.copy(
+            sortDirection = sortDirection,
+            sortType = sortType,
+            filterRule = filterType,
+            lists = updatedList,
+            loading = false,
+            isUpdate = pref.getGroupUUID().isNotBlank()
+        )
     }
 }

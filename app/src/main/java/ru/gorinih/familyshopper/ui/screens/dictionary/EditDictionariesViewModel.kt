@@ -102,22 +102,8 @@ class EditDictionariesViewModel(
     }
 
     fun syncDictionaries() {
-        dictionaryState.update { it.copy(isLoading = true) }
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            syncRemote().apply {
-                when {// может пройти обновление а данные не изменятся, тогда Room не дернется, и лоадер подвиснет
-                    !this.isError -> dictionaryState.update { it.copy(isLoading = false) }
-                    this.isError -> dictionaryState.update {
-                        it.copy(
-                            isLoading = false,
-                            warning = WarningState(
-                                isWarning = true,
-                                textWarning = this.textError
-                            )
-                        )
-                    }
-                }
-            }
+            syncRemote()
         }
     }
 
@@ -127,7 +113,7 @@ class EditDictionariesViewModel(
             viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
                 syncAllRemote().apply {
                     dictionaryState.update { it.copy(isLoading = false) }
-                 }
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -75,7 +77,7 @@ import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
-import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
 import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
@@ -153,38 +155,49 @@ fun ListEntityScreen(
                         onSorted = { type, direction -> viewModel.sorter(type, direction) }
                     )
 
-                    IconButton(
-                        onClick = { viewModel.updateList() },
-                        modifier = Modifier.weight(0.3f)
-                    ) {
-                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    if (state.isUpdate) {
+                        IconButton(
+                            onClick = { viewModel.updateList() },
+                            modifier = Modifier.weight(0.3f)
+                        ) {
+                            Icon(Icons.Default.Repeat, contentDescription = null)
+                        }
                     }
                 }
 
-                LazyColumn(state = stateLazy) {
-                    items(state.lists, key = { item -> item.listId }) { item ->
-                        val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
-                        CardListItem(
-                            item = item,
-                            painter = painter,
-                            onClick = {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastClickTime > 500L) {
-                                    lastClickTime = currentTime
-                                    router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                if (state.lists.isEmpty()) {
+                    AssistChip(
+                        modifier = Modifier.padding(16.dp),
+                        onClick = {addList()},
+                        label = {Text(text = stringResource(R.string.label_empty_list_comand_text))},
+                        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                } else {
+                    LazyColumn(state = stateLazy) {
+                        items(state.lists, key = { item -> item.listId }) { item ->
+                            val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                            CardListItem(
+                                item = item,
+                                painter = painter,
+                                onClick = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                    }
+                                },
+                                onDelete = {
+                                    viewModel.startDeleteList(item.listId)
+                                },
+                                onEdit = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                    }
                                 }
-                            },
-                            onDelete = {
-                                viewModel.startDeleteList(item.listId)
-                            },
-                            onEdit = {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastClickTime > 500L) {
-                                    lastClickTime = currentTime
-                                    router(NavigationKey.EditListScreen(listUuid = item.listId))
-                                }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -196,7 +209,7 @@ fun ListEntityScreen(
                     .fillMaxSize()
                     .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(0.1f)) {
                     IconButton(
@@ -209,42 +222,52 @@ fun ListEntityScreen(
                     ) {
                         Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
                     }
-                    IconButton(
-                        onClick = { viewModel.updateList() },
-                        modifier = Modifier.weight(0.3f)
-                    ) {
-                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    if (state.isUpdate) {
+                        IconButton(
+                            onClick = { viewModel.updateList() },
+                            modifier = Modifier.weight(0.3f)
+                        ) {
+                            Icon(Icons.Default.Repeat, contentDescription = null)
+                        }
                     }
-
                 }
 
-                LazyColumn(state = stateLazy, modifier = Modifier.weight(1f)) {
-                    items(state.lists, key = { item -> item.listId }) { item ->
-                        val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
-                        CardListItem(
-                            item = item,
-                            painter = painter,
-                            onClick = {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastClickTime > 500L) {
-                                    lastClickTime = currentTime
-                                    router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
-                                }
-                            },
-                            onDelete = {
-                                viewModel.startDeleteList(item.listId)
-                            },
-                            onEdit = {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastClickTime > 500L) {
-                                    lastClickTime = currentTime
-                                    router(NavigationKey.EditListScreen(listUuid = item.listId))
-                                }
-                            }
+                if (state.lists.isEmpty()) {
+                    Box(modifier = Modifier.weight(1f),) {
+                        AssistChip(
+                            onClick = {addList()},
+                            label = {Text(text = stringResource(R.string.label_empty_list_comand_text))},
+                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
+                } else {
+                    LazyColumn(state = stateLazy, modifier = Modifier.weight(1f)) {
+                        items(state.lists, key = { item -> item.listId }) { item ->
+                            val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                            CardListItem(
+                                item = item,
+                                painter = painter,
+                                onClick = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                    }
+                                },
+                                onDelete = {
+                                    viewModel.startDeleteList(item.listId)
+                                },
+                                onEdit = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
-
                 ChipPanel(
                     modifier = Modifier.weight(0.25f),
                     startSelectedAuthorFilter = state.filterRule,
@@ -568,12 +591,12 @@ fun PreviewMat() {
                     listLegend = TypeLegendList.ALL,
                     listOwner = "asdas0,",
                     listTo = listOf(
-                        UiListUsers(
+                        UiListUser(
                             userUuid = "fkgjfkddfklgk",
                             userName = "Марья",
                             isSelected = false
                         ),
-                        UiListUsers(
+                        UiListUser(
                             userUuid = "fkgjfkddfkккlgk",
                             userName = "Олег",
                             isSelected = false
@@ -617,7 +640,7 @@ fun PreviewMat() {
                     listLegend = TypeLegendList.VIEW,
                     listOwner = "asdas0,",
                     listTo = listOf(
-                        UiListUsers(
+                        UiListUser(
                             userUuid = "fkgjfkddfklgk",
                             userName = "Марья",
                             isSelected = false
@@ -642,7 +665,7 @@ fun PreviewMat() {
                     listLegend = TypeLegendList.PRIVATE,
                     listOwner = "asdas0,",
                     listTo = listOf(
-                        UiListUsers(
+                        UiListUser(
                             userUuid = "fkgjfkddfklgk",
                             userName = "",
                             isSelected = true

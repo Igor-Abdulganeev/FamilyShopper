@@ -76,7 +76,7 @@ import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
-import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.views.ChipPanelSelectTypeList
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
@@ -651,7 +651,7 @@ fun UserRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsersSheet(
-    listUsers: List<UiListUsers>,
+    listUsers: List<UiListUser>,
     onDismiss: () -> Unit,
     onChecked: (String) -> Unit,
     multiplier: Float,

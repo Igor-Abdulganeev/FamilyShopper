@@ -9,20 +9,20 @@ import ru.gorinih.familyshopper.domain.models.ShoppedUsers
  */
 
 @Parcelize
-data class UiListUsers(
+data class UiListUser(
     val userUuid: String,
     val userName: String,
     val isSelected: Boolean
 ) : Parcelable
 
-fun UiListUsers.toShoppedUsers() =
+fun UiListUser.toShoppedUsers() =
     ShoppedUsers(
         userUuid = this.userUuid,
         userName = this.userName
     )
 
 fun ShoppedUsers.toUiListUsers(check: Boolean = false) =
-    UiListUsers(
+    UiListUser(
         userUuid = this.userUuid,
         userName = this.userName,
         isSelected = check

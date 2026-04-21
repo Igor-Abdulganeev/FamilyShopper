@@ -9,13 +9,19 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 import java.util.UUID
 
 /**
@@ -39,8 +45,17 @@ class SettingsViewModel(
     val shareEvents = _shareData.receiveAsFlow()
 
     init {
+        updateUsers(false)
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            updater()
+            database.takeUsers()
+                .catch { }
+                .onEach { users ->
+                    val list: List<UiListUser> = users.map { it.toUiListUsers() }
+                        .filterNot { it.userUuid == pref.getClientUUID() }.sortedBy { it.userUuid }
+                    stateSettings = stateSettings.copy(listUsers = list)
+                }.stateIn(
+                    viewModelScope
+                )
         }
     }
 
@@ -64,6 +79,29 @@ class SettingsViewModel(
     fun updateTypeList(type: Int) {
         stateSettings = stateSettings.copy(defaultTypeList = type)
         pref.setTypeList(type)
+    }
+
+    fun updateUser(user: UiListUser, isDelete: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if (isDelete) {
+                database.deleteUser(user.toShoppedUsers())
+            } else {
+                database.keepUser(user.toShoppedUsers())
+            }
+        }
+    }
+
+    fun updateUsers(replace: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            updater(replace)
+        }
+    }
+
+    fun clearUsers() {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            stateSettings.listUsers.filterNot { it.userUuid == pref.getClientUUID() }
+                .forEach { database.deleteUser(it.toShoppedUsers()) }
+        }
     }
 
     fun saveUserName() {

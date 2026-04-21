@@ -3,12 +3,12 @@ package ru.gorinih.familyshopper.ui.screens.settings
 import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,8 +28,10 @@ import androidx.compose.foundation.text.TextAutoSizeDefaults
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
@@ -72,7 +74,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
+import ru.gorinih.familyshopper.ui.views.DividerTransparent
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
+import ru.gorinih.familyshopper.ui.views.Users
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -126,9 +131,11 @@ fun SettingsScreen(
         }
     }
 
-    val pagesTitle = listOf(stringResource(R.string.label_settings_tab_keys),
+    val pagesTitle = listOf(
+        stringResource(R.string.label_settings_tab_keys),
         stringResource(R.string.label_settings_tab_users),
-        stringResource(R.string.label_settings_tab_views)
+        stringResource(R.string.label_settings_tab_views),
+        stringResource(R.string.label_settings_tab_about)
     )
     var expandedGroupKey by rememberSaveable { mutableStateOf(false) }
     var expandedUserKey by rememberSaveable { mutableStateOf(false) }
@@ -176,18 +183,18 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            contentPadding = PaddingValues(horizontal = 8.dp),
             userScrollEnabled = true,
             verticalAlignment = Alignment.Top
         ) { page ->
             when (page) {
                 0 -> {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 8.dp)
-                        .verticalScroll(state = scrollPageState),
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 8.dp)
+                            .verticalScroll(state = scrollPageState),
                         verticalArrangement = Arrangement.Top,
-                        ) {
+                    ) {
                         RoundedTextField(
                             modifier = Modifier.padding(top = 16.dp),
                             value = state.groupUUID,
@@ -196,11 +203,11 @@ fun SettingsScreen(
                             },
                             label = stringResource(R.string.label_key_group),
                             isEditable = groupIdEditable,
-/*
-                            leadingIcon = {
-                                Icon(Icons.Default.VpnKey, contentDescription = null)
-                            },
-*/
+                            /*
+                                                        leadingIcon = {
+                                                            Icon(Icons.Default.VpnKey, contentDescription = null)
+                                                        },
+                            */
                             trailingIcon = {
                                 Row() {
                                     if (groupIdEditable) {
@@ -293,11 +300,11 @@ fun SettingsScreen(
                             },
                             label = stringResource(R.string.label_key_client),
                             isEditable = clientIdEditable,
-/*
-                            leadingIcon = {
-                                          Icon(Icons.Default.AccountCircle, contentDescription = null)
-                                   },
-*/
+                            /*
+                                                        leadingIcon = {
+                                                                      Icon(Icons.Default.AccountCircle, contentDescription = null)
+                                                               },
+                            */
                             trailingIcon = {
                                 Row() {
                                     if (clientIdEditable) {
@@ -373,6 +380,9 @@ fun SettingsScreen(
                                 )
                             }
                         }
+
+                        DividerTransparent(Modifier.padding(top = 16.dp))
+
                         Text(
                             text = stringResource(R.string.help_keys_property),
                             autoSize = TextAutoSize.StepBased(maxFontSize = TextAutoSizeDefaults.MaxFontSize * 0.15),
@@ -390,7 +400,7 @@ fun SettingsScreen(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp, horizontal = 8.dp),
                         verticalArrangement = Arrangement.Top,
-                        ) {
+                    ) {
                         RoundedTextField(
                             modifier = Modifier.padding(top = 16.dp),
                             value = state.userName,
@@ -408,95 +418,156 @@ fun SettingsScreen(
                                 .padding(vertical = 4.dp)
                                 .alpha(0.8f)
                         )
+
+
+                        DividerTransparent(modifier = Modifier.padding(vertical = 16.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            Text(text = stringResource(R.string.header_other_users))
+                            AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
+                                IconButton(
+                                    onClick = { viewModel.clearUsers() },
+                                ) {
+                                    Icon(Icons.Default.DeleteForever, null)
+                                }
+                            }
+                            IconButton(
+                                onClick = { viewModel.updateUsers(true) },
+                            ) {
+                                Icon(Icons.Default.Repeat, null)
+                            }
+
+                        }
+
+                        AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
+                            Users(
+                                list = state.listUsers,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                onEdit = {
+                                    viewModel.updateUser(it, isDelete = false)
+                                },
+                                onDelete = {
+                                    viewModel.updateUser(it, isDelete = true)
+                                }
+                            )
+                        }
                     }
                 }
 
                 2 -> {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 4.dp),
-                        verticalArrangement = Arrangement.Top,) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            Checkbox(
-                                checked = state.rainbow,
-                                onCheckedChange = {
-                                    viewModel.updateBackground()
-                                },
-                            )
-                            Text(
-                                stringResource(R.string.label_settings_background),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(16.dp)
-                        )
-                    }
-
-                    LazyColumn(
+                    Column(
                         modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                        verticalArrangement = Arrangement.Top,
                     ) {
-                        itemsIndexed((1..4).toList()) { index, item ->
-                            if (index == 0) {
-                                Text(
-                                    context.getString(R.string.label_full_icon_header),
-                                    //modifier = Modifier,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(4.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable(
-                                        onClick = {
-                                            viewModel.updateTypeList(item)
-                                        }
-                                    )
                             ) {
-                                val label = when (item) {
-                                    1 -> R.string.label_full_icon_all
-                                    2 -> R.string.label_full_icon_add
-                                    3 -> R.string.label_full_icon_view
-                                    else -> R.string.label_full_icon_private
-                                }
-                                Image(
-                                    painter = GlassCircleImageHolder.getImage(item),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        //.padding(start = 8.dp)
-                                        .clip(CircleShape)
-                                        .size(16.dp),
-                                    contentScale = ContentScale.Inside,
-                                    colorFilter = when {
-                                        state.defaultTypeList == index + 1 -> null
-
-                                        else -> ColorFilter.tint(
-                                            Color.Gray,
-                                            blendMode = BlendMode.SrcIn
-                                        )
-                                    }
+                                Checkbox(
+                                    checked = state.rainbow,
+                                    onCheckedChange = {
+                                        viewModel.updateBackground()
+                                    },
                                 )
                                 Text(
-                                    text = stringResource(label), modifier = Modifier
-                                        .padding(start = 8.dp),
-                                    style = TextStyle(
-                                        fontSize = 14.sp,
-                                     //   lineHeight = 14.sp
-                                    )
+                                    stringResource(R.string.label_settings_background),
+                                    modifier = Modifier.padding(start = 8.dp)
                                 )
+                            }
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(16.dp)
+                            )
+                        }
+
+                        DividerTransparent()
+
+                        LazyColumn(
+                            modifier = Modifier.padding(top = 16.dp)
+                        ) {
+                            itemsIndexed((1..4).toList()) { index, item ->
+                                if (index == 0) {
+                                    Text(
+                                        stringResource(R.string.label_full_icon_header),
+                                        modifier = Modifier.padding(
+                                            start = 8.dp,
+                                            end = 8.dp,
+                                            bottom = 8.dp
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable(
+                                            onClick = {
+                                                viewModel.updateTypeList(item)
+                                            }
+                                        )
+                                ) {
+                                    val label = when (item) {
+                                        1 -> R.string.label_full_icon_all
+                                        2 -> R.string.label_full_icon_add
+                                        3 -> R.string.label_full_icon_view
+                                        else -> R.string.label_full_icon_private
+                                    }
+                                    Image(
+                                        painter = GlassCircleImageHolder.getImage(item),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            //.padding(start = 8.dp)
+                                            .clip(CircleShape)
+                                            .size(24.dp),
+                                        contentScale = ContentScale.Inside,
+                                        colorFilter = when {
+                                            state.defaultTypeList == index + 1 -> null
+
+                                            else -> ColorFilter.tint(
+                                                Color.Gray,
+                                                blendMode = BlendMode.SrcIn
+                                            )
+                                        }
+                                    )
+                                    Text(
+                                        text = stringResource(label), modifier = Modifier
+                                            .padding(start = 8.dp),
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                            //   lineHeight = 14.sp
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
-                        }
+                }
+
+                3 -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AboutScreen()
+                     }
                 }
             }
         }

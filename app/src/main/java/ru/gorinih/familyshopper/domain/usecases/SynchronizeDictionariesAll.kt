@@ -37,7 +37,7 @@ class SynchronizeDictionariesGetAllRemoteImpl(
             return Results(false)
 
         } catch (_: IOException) {
-            return Results(true, textErrorResource = R.string.error_network_text)
+            return Results(true, textError = "Отсутствует подключение к сети", textErrorResource = R.string.error_network_text)
         } catch (ex: Throwable) {
             return Results(true, ex.localizedMessage ?: "unknown error")
         }

@@ -18,4 +18,5 @@ data class UiListsState(
     val sortDirection: SortDirection = SortDirection.NOTHING, // ортировка списка вверх вниз
     val sortType: SortType = SortType.NOTHING, // сортировка списка по дате, типу
     val filterRule: AuthorFilter = AuthorFilter.ALL, // фильтр по автору
+    val isUpdate: Boolean = true, // можно ли обновлять по сети (установлен ли ключ хранилища)
 )

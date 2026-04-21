@@ -73,17 +73,13 @@ class MainActivity : ComponentActivity() {
                                     horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    if (backStackEntry?.destination?.route?.contains("SettingsScreen") != true) {
+                                    if (
+                                        backStackEntry?.destination?.route?.contains("SettingsScreen") != true
+                                        ) {
                                         IconButton(
+                                            enabled = navController.currentDestination?.route?.contains("DictionariesScreen") == false,
                                             onClick = {
-                                                val destination =
-                                                    navController.currentDestination?.route?.contains(
-                                                        "DictionariesScreen"
-                                                    )
-                                                        ?: false
-                                                if (!destination) navController.navigate(
-                                                    NavigationKey.DictionariesScreen
-                                                )
+                                                navController.navigate(NavigationKey.DictionariesScreen)
                                             }
                                         ) {
                                             Icon(
@@ -93,11 +89,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                     IconButton(
+                                        enabled = navController.currentDestination?.route?.contains("SettingsScreen") == false,
                                         onClick = {
-                                            val destination =
-                                                navController.currentDestination?.route?.contains("SettingsScreen")
-                                                    ?: false
-                                            if (!destination) navController.navigate(NavigationKey.SettingsScreen)
+                                            navController.navigate(NavigationKey.SettingsScreen)
                                         }
                                     ) {
                                         Icon(

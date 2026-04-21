@@ -13,8 +13,11 @@ import ru.gorinih.familyshopper.data.db.models.DbUsers
 @Dao
 interface UserDao {
 
-    @Insert(entity = DbUsers::class, onConflict = OnConflictStrategy.REPLACE)
+    @Insert(entity = DbUsers::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUsers(list: List<DbUsers>)
+
+   @Insert(entity = DbUsers::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun replaceUsers(list: List<DbUsers>)
 
     @Insert(entity = DbUsers::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: DbUsers)
@@ -25,5 +28,6 @@ interface UserDao {
     @Query("SELECT * FROM users_list where user_uuid=:userUuid")
     suspend fun takeUser(userUuid: String): DbUsers?
 
-
+    @Query("DELETE FROM users_list where user_uuid=:userUuid")
+    suspend fun deleteUser(userUuid: String)
 }

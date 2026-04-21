@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.domain.usecases
 
-import android.util.Log
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.models.Results
@@ -24,11 +23,9 @@ class UpdateListImpl(
         //  надо получить с сервера версии, найти нашу если есть, если нет то 0, и увеличить на 1
         val remoteLists = remote.getListsVersions()
 
-        Log.i("GINES", "remoteLists=$remoteLists")
         val remoteListVersion =
             if (remoteLists.containsKey(data.listId)) remoteLists[data.listId]?.listVersion
                 ?: 0 else 0
-        Log.i("GINES", "remoteListVersion=$remoteListVersion")
         //    получить список локальных тэгоы и если есть новые то их добавить (только для легенды 1-3)
         if (data.listLegend != 4) {
             val localTags = database.getDictionaryTags()
@@ -43,7 +40,6 @@ class UpdateListImpl(
         when (remoteLists.containsKey(data.listId) && remoteListVersion > data.listVersion) {
             true -> {
                 val saveData = remote.getCurrentListById(data.listId)
-                Log.i("GINES", "true remote getCurrentListById=$saveData")
                 saveData?.let {
                     database.updateList(it)
                 }
@@ -53,7 +49,6 @@ class UpdateListImpl(
                 val localListVersion =
                     (if (remoteListVersion > data.listVersion) remoteListVersion else data.listVersion) + 1
                 val saveData = data.copy(listVersion = localListVersion)
-                Log.i("GINES", "false remote? localsaveData=$saveData")
                 database.updateList(saveData)
                 remote.updateListWithVersion(listOf(saveData))
             }

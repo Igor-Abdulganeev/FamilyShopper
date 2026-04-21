@@ -1,6 +1,7 @@
 package ru.gorinih.familyshopper.domain.usecases
 
 import okio.IOException
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.models.Results
@@ -21,7 +22,7 @@ class DeleteListImpl(
         val result = try {
             remote.deleteListWithVersion(listId = listId)
         } catch (_: IOException) {
-            Results(isError = true, textError = "Отсутствует подключение к сети")
+            Results(isError = true, textError = "Отсутствует подключение к сети", textErrorResource = R.string.error_network_state)
         } catch (ex: Throwable) {
             Results(isError = true, textError = ex.localizedMessage ?: "")
         }

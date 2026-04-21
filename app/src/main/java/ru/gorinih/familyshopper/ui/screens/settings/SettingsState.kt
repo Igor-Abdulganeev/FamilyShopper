@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.ui.screens.settings
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -16,4 +17,5 @@ data class SettingsState(
     val rainbow: Boolean, // анимированный или нет фон
     val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
     val isSharing: Boolean = false, //шаринг данных запущен
+    val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
 ): Parcelable

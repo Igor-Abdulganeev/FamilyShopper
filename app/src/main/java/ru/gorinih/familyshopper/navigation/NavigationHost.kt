@@ -1,5 +1,9 @@
 package ru.gorinih.familyshopper.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -35,7 +39,13 @@ fun NavigationHost(
     NavHost(
         modifier = modifier,
         navController = navigationController,
-        startDestination = startedScreenKey
+        startDestination = startedScreenKey,
+        enterTransition = {
+            slideInHorizontally(animationSpec = tween(durationMillis = 500)) + fadeIn(animationSpec = tween(durationMillis = 200))
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(durationMillis = 250))
+        }
     ) {
         composable<NavigationKey.SettingsScreen> {
             SettingsScreen(
@@ -53,18 +63,6 @@ fun NavigationHost(
         composable<NavigationKey.DictionariesScreen> {
             EditDictionariesScreen()
         }
-
-        /*
-                composable<NavigationKey.StartedScreen> {
-                    StartedScreen(
-                        router = { key ->
-                            navigationController.navigate(key)
-                        },
-                        backClick = { popupBackStack() },
-                        navigationActions = navigationActions
-                    )
-                }
-        */
 
         composable<NavigationKey.EditListScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()

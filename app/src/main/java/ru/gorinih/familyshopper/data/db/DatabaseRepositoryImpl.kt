@@ -199,8 +199,16 @@ class DatabaseRepositoryImpl(
         userDao.insertUsers(users.map { it.toDbUsers() })
     }
 
+    override suspend fun replaceUsers(users: List<ShoppedUsers>) {
+        userDao.replaceUsers(users.map { it.toDbUsers() })
+    }
+
     override suspend fun keepUser(user: ShoppedUsers) {
         userDao.insertUser(user.toDbUsers())
+    }
+
+    override suspend fun deleteUser(user: ShoppedUsers) {
+        userDao.deleteUser(user.userUuid)
     }
 
     override suspend fun deleteDictionaryVersion(tagId: String) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -224,4 +225,21 @@ fun PreviewMaterialGroupBoxNight() {
             }
         }
     }
+}
+
+@Composable
+fun DividerTransparent(modifier: Modifier = Modifier){
+    val brush = Brush.linearGradient(
+        colors = listOf(
+            Color.Transparent,
+            MaterialTheme.colorScheme.surfaceVariant,
+            Color.Transparent,
+        )
+    )
+    Box(
+        modifier = modifier.fillMaxWidth().height(2.dp)
+            .background(brush = brush)
+            .padding(horizontal = 32.dp)
+    )
+
 }

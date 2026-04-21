@@ -3,6 +3,8 @@ package ru.gorinih.familyshopper.domain.usecases
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import okio.IOException
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
@@ -25,7 +27,7 @@ class SynchronizeDictionariesImpl(
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
 ) : SynchronizeDictionaries {
-    override suspend fun invoke(): Results {
+    override suspend fun invoke(): Results =
         try {
             val remoteVersions: Map<String, Int> = remote.getDictionariesVersions()
             val localVersions: Map<String, Int> = database.takeDictionariesVersions()
@@ -87,12 +89,17 @@ class SynchronizeDictionariesImpl(
                     database.deleteDictionaryVersion(version.tagId)
                 }
             }
-            return Results(
+            Results(
                 false,
                 if (needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else ""
             )
+        } catch (_: IOException) {
+            Results(
+                isError = true,
+                textError = "Отсутствует подключение к сети",
+                textErrorResource = R.string.error_network_state
+            )
         } catch (ex: Throwable) {
-            return Results(true, ex.localizedMessage ?: "unknown error")
+            Results(true, ex.localizedMessage ?: "unknown error")
         }
-    }
 }
