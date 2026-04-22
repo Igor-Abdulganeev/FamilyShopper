@@ -34,7 +34,8 @@
     <string name="toolbar_main_header">Семейные покупки</string>
     <string name="button_text_positive">Да</string>
     <string name="button_text_negative">Отмена</string>
-    <string name="text_delete_list">Вы хотите удалить список: \n  %1$s</string>
+    <string name="text_delete_list">Вы хотите удалить список: \n  %1$s ?</string>
+    <string name="text_delete_local_list">Вы хотите удалить список из локальной базы: \n  %1$s ?</string>
     <string name="warning_caption_text">Внимание!</string>
     <string name="button_save_text">Сохранить</string>
     <string name="label_filter_chip_author_owner">Мои</string>
@@ -55,6 +56,8 @@
 
     <string name="error_network_text">неизвестная ошибка</string>
     <string name="error_network_state">Отсутствует подключение к сети.</string>
+
+    <string name="warning_local_changed">Изменения внесены только локально!</string>
 
     <string name="about_version">Версия %1$s</string>
     <string name="about_description">"%1$s — приложение для ведения общих списков покупок.\nПозволяет создавать списки, делиться ими с членами семьи и синхронизировать изменения."</string>

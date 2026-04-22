@@ -32,7 +32,7 @@ data class UiShoppingState(
     val warning: WarningState = WarningState(), // показ ошибки
     val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
-    val error: Boolean = false, // метка сетевой ошибки, когда список сохранен только в БД и не отправлен на сервер, например нет интернета
+    val isLocalJob: Boolean = false, // локально или сетевая (есть groupUuid или нет)
 )
 
 fun UiShoppingState.toShoppedList() =

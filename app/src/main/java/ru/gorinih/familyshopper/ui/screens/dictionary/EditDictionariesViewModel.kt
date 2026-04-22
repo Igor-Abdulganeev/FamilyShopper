@@ -14,9 +14,10 @@ import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemote
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCase
 import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.EditDictionariesState
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.toUiTag
@@ -27,8 +28,8 @@ import ru.gorinih.familyshopper.ui.screens.dictionary.models.toUiTag
 
 class EditDictionariesViewModel(
     private val database: DatabaseRepository,
-    private val syncRemote: SynchronizeDictionaries,
-    private val syncAllRemote: SynchronizeDictionariesGetAllRemote,
+    private val syncRemote: SynchronizeDictionariesUseCase,
+    private val syncAllRemote: SynchronizeDictionariesGetAllRemoteUseCase,
     pref: StorageRepository
 ) : ViewModel() {
 
@@ -111,9 +112,10 @@ class EditDictionariesViewModel(
         if (!dictionaryState.value.isLoading) {
             dictionaryState.update { it.copy(isLoading = true) }
             viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-                syncAllRemote().apply {
+                val result = syncAllRemote().apply {
                     dictionaryState.update { it.copy(isLoading = false) }
                 }
+                if (result.isError) dictionaryState.update {it.copy(warning = result.toWarningState())}
             }
         }
     }

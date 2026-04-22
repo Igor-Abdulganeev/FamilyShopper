@@ -15,10 +15,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
-import ru.gorinih.familyshopper.domain.usecases.UpdateUsers
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
+import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
@@ -30,9 +32,9 @@ import java.util.UUID
 
 class SettingsViewModel(
     private val pref: StorageRepository,
-    private val remote: RemoteRepository,
+    private val remote: UpdateUserUseCase,
     private val database: DatabaseRepository,
-    private val updater: UpdateUsers,
+    private val updater: UpdateUsersUseCase,
 ) : ViewModel() {
 
     var stateSettings by mutableStateOf(getStartedKeys())
@@ -108,11 +110,16 @@ class SettingsViewModel(
                             stateSettings.userName
                         )
                     )
-                    remote.setUserName()
+                    val result = remote()
+                    stateSettings = stateSettings.copy(warning = result.toWarningState())
                 } catch (_: Throwable) {
                 }
             }
         }
+    }
+
+    fun onDismiss() {
+        stateSettings = stateSettings.copy(warning = WarningState())
     }
 
     fun restoreGroupUuid() {

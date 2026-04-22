@@ -8,14 +8,14 @@ import ru.gorinih.familyshopper.domain.models.ShoppedUsers
  * Created by Igor Abdulganeev on 14.04.2026
  */
 
-interface UpdateUsers {
+interface UpdateUsersUseCase {
     suspend operator fun invoke(replace: Boolean = false)
 }
 
-class UpdateUsersImpl(
+class UpdateUsersUseCaseImpl(
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
-) : UpdateUsers {
+) : UpdateUsersUseCase {
     override suspend fun invoke(replace: Boolean) {
         val remoteUsers = remote.getUsersNames()
         if (remoteUsers.isNotEmpty()) {

@@ -28,7 +28,7 @@ interface JsonApi {
     suspend fun updateSharedData(
         @Path("group_id") groupId: String,
         @Body updates: Map<String, @JvmSuppressWildcards Any?>
-    ): Response<Unit>
+    )
 
     //region СЛОВАРИ (Dictionaries) ---
 

@@ -2,7 +2,6 @@ package ru.gorinih.familyshopper.domain
 
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
-import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
@@ -19,8 +18,6 @@ interface RemoteRepository {
 
     suspend fun updateDictionaryWithVersion(updates: List<DictionaryRemoteTag>)
 
-    suspend fun deleteDictionaryWithVersion(updates: List<DictionaryRemoteTag>)
-
     suspend fun getListsVersions(): Map<String, ListRemoteInfo>
 
     suspend fun updateListWithVersion(updates: List<ShoppedList>)
@@ -29,7 +26,7 @@ interface RemoteRepository {
 
     suspend fun getCurrentListById(listId: String): ShoppedList?
 
-    suspend fun deleteListWithVersion(listId: String): Results
+    suspend fun deleteListWithVersion(listId: String)
 
     suspend fun setUserName()
 

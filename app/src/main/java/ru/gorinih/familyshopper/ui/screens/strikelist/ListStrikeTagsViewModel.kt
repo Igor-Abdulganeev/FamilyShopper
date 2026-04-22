@@ -11,12 +11,11 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.IOException
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
-import ru.gorinih.familyshopper.domain.usecases.UpdateList
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
@@ -34,7 +33,7 @@ import ru.gorinih.familyshopper.ui.screens.strikelist.models.UiStrikeState
 class ListStrikeTagsViewModel(
     listUuid: String = "",
     private val database: DatabaseRepository,
-    private val updateList: UpdateList,
+    private val updateList: UpdateListUseCase,
     private val pref: StorageRepository
 ) : ViewModel() {
 
@@ -56,13 +55,7 @@ class ListStrikeTagsViewModel(
                 if (memoryList == null) {
                     memoryList = listData
                     memoryList?.let {
-                        updater = async {
-                            try {
-                                updateList(it)
-                            } catch (_: Throwable) {
-                                return@async Results(isError = false, textError = "")
-                            }
-                        }
+                        updater = async { updateList(it) }
                     }
                 } else {
                     memoryList = listData
@@ -170,20 +163,12 @@ class ListStrikeTagsViewModel(
                 memoryList =
                     memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
                 memoryList?.let {
-                    shoppedList = try {
-                        val result = updateList(it).toWarningState()
-                        if (result.isWarning) shoppedList.copy(warning = result, loading = false)
-                        else {
-                            shoppedList.copy(loading = false)
-                        }
-                    } catch (ex: Throwable) {
+                    val result = updateList(it)
+                    shoppedList = if (result.isError) {
                         memoryList = keepMemory
-                        shoppedList.copy(
-                            warning = WarningState(
-                                isWarning = true,
-                                textWarning = ex.localizedMessage ?: ""
-                            ), loading = false
-                        )
+                        shoppedList.copy(warning = result.toWarningState(), loading = false)
+                    } else {
+                        shoppedList.copy(loading = false)
                     }
                 }
             }
@@ -209,13 +194,8 @@ class ListStrikeTagsViewModel(
         memoryList =
             memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
         memoryList?.let {
-            try {
-                updateList(it)
-            } catch (_: IOException) {
-                database.updateList(it)
-            } catch (_: Throwable) {
+            val result = updateList(it)
+            if (result.isError && result.textErrorResource != 0) database.updateList(it)
             }
         }
-    }
-
 }

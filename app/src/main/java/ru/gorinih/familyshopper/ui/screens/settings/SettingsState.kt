@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.ui.screens.settings
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 
 /**
@@ -18,4 +19,5 @@ data class SettingsState(
     val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
     val isSharing: Boolean = false, //шаринг данных запущен
     val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
+    val warning: WarningState = WarningState(), // обработка исключений
 ): Parcelable

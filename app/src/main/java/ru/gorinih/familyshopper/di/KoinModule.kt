@@ -24,20 +24,22 @@ import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
-import ru.gorinih.familyshopper.domain.usecases.DeleteList
-import ru.gorinih.familyshopper.domain.usecases.DeleteListImpl
-import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateList
-import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListImpl
-import ru.gorinih.familyshopper.domain.usecases.UpdateList
-import ru.gorinih.familyshopper.domain.usecases.UpdateListImpl
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionaries
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemote
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteImpl
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesImpl
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsImpl
-import ru.gorinih.familyshopper.domain.usecases.UpdateUsers
-import ru.gorinih.familyshopper.domain.usecases.UpdateUsersImpl
+import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCase
+import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
@@ -108,25 +110,27 @@ fun koinModule(): Module = module {
 
     factory<RemoteRepository> { RemoteRepositoryImpl(pref = get(), remoteApi = get<JsonApi>()) }
 
-    factory<SynchronizeDictionaries> {
-        SynchronizeDictionariesImpl(
+    factory<SynchronizeDictionariesUseCase> {
+        SynchronizeDictionariesUseCaseImpl(
             remote = get(),
-            database = get()
+            database = get(),
+            pref = get()
         )
     }
-    factory<UpdateList> { UpdateListImpl(database = get(), remote = get()) }
-    factory<SynchronizeLists> {
-        SynchronizeListsImpl(
+    factory<UpdateListUseCase> { UpdateListUseCaseImpl(database = get(), remote = get(), pref = get()) }
+    factory<SynchronizeListsUseCase> {
+        SynchronizeListsUseCaseImpl(
             context = get(),
             database = get(),
             remote = get(),
             pref = get()
         )
     }
-    factory<GetAndUpdateList> { GetAndUpdateListImpl(database = get(), remote = get()) }
-    factory<UpdateUsers> { UpdateUsersImpl(remote = get(), database = get()) }
-    factory<DeleteList> { DeleteListImpl(database = get(), remote = get()) }
-    factory<SynchronizeDictionariesGetAllRemote> { SynchronizeDictionariesGetAllRemoteImpl(remote = get(), database = get()) }
+    factory<GetAndUpdateListUseCase> { GetAndUpdateListUseCaseImpl(database = get(), remote = get()) }
+    factory<UpdateUsersUseCase> { UpdateUsersUseCaseImpl(remote = get(), database = get()) }
+    factory<DeleteListUseCase> { DeleteListUseCaseImpl(database = get(), remote = get(), pref = get()) }
+    factory<SynchronizeDictionariesGetAllRemoteUseCase> { SynchronizeDictionariesGetAllRemoteUseCaseImpl(remote = get(), database = get(), pref = get()) }
+    factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
 

@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Repeat
@@ -53,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -72,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
 import ru.gorinih.familyshopper.navigation.ScreenLayoutType
@@ -168,12 +171,33 @@ fun ListEntityScreen(
                 }
 
                 if (state.lists.isEmpty()) {
-                    AssistChip(
-                        modifier = Modifier.padding(16.dp),
-                        onClick = {addList()},
-                        label = {Text(text = stringResource(R.string.label_empty_list_comand_text))},
-                        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
-                    )
+                    if (state.filterRule != AuthorFilter.OTHERS)
+                        AssistChip(
+                            modifier = Modifier.padding(16.dp),
+                            onClick = { addList() },
+                            label = { Text(text = stringResource(R.string.label_empty_list_comand_text)) },
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    else
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                        )
+                        {
+                            Text(
+                                text = stringResource(R.string.label_empty_list),
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+
                 } else {
                     LazyColumn(state = stateLazy) {
                         items(state.lists, key = { item -> item.listId }) { item ->
@@ -190,6 +214,9 @@ fun ListEntityScreen(
                                 },
                                 onDelete = {
                                     viewModel.startDeleteList(item.listId)
+                                },
+                                onLocalDelete = {
+                                    viewModel.startLocalDeleteList(item.listId)
                                 },
                                 onEdit = {
                                     val currentTime = System.currentTimeMillis()
@@ -235,12 +262,32 @@ fun ListEntityScreen(
                 }
 
                 if (state.lists.isEmpty()) {
-                    Box(modifier = Modifier.weight(1f),) {
-                        AssistChip(
-                            onClick = {addList()},
-                            label = {Text(text = stringResource(R.string.label_empty_list_comand_text))},
-                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
-                        )
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (state.filterRule != AuthorFilter.OTHERS)
+                            AssistChip(
+                                onClick = { addList() },
+                                label = { Text(text = stringResource(R.string.label_empty_list_comand_text)) },
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            )
+                        else
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                            )
+                            {
+                                Text(
+                                    text = stringResource(R.string.label_empty_list),
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                     }
                 } else {
                     LazyColumn(state = stateLazy, modifier = Modifier.weight(1f)) {
@@ -258,6 +305,9 @@ fun ListEntityScreen(
                                 },
                                 onDelete = {
                                     viewModel.startDeleteList(item.listId)
+                                },
+                                onLocalDelete = {
+                                    viewModel.startLocalDeleteList(item.listId)
                                 },
                                 onEdit = {
                                     val currentTime = System.currentTimeMillis()
@@ -291,20 +341,33 @@ fun ListEntityScreen(
 
     if (state.warning.isWarning) {
         ErrorDialog(
-            errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
+            errorText = if (state.warning.resourceWarning != 0) "${stringResource(state.warning.resourceWarning)}\n${
+                stringResource(
+                    R.string.warning_local_changed
+                )
+            }"
             else state.warning.textWarning
         ) {
             viewModel.onDismiss()
         }
     }
-
     if (state.deleting.isDelete) {
         QueryDialog(
             question = stringResource(
                 state.deleting.queryText,
-                state.lists.first { it.listId == state.deleting.deletedId }.listName
+                state.lists.firstOrNull { it.listId == state.deleting.deletedId }?.listName ?: ""
             ),
             onDone = { viewModel.deleteList(state.deleting.deletedId) },
+            onCancel = { viewModel.stopDeleteList() }
+        )
+    }
+    if (state.localDeleting.isDelete) {
+        QueryDialog(
+            question = stringResource(
+                state.localDeleting.queryText,
+                state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName ?: ""
+            ),
+            onDone = { viewModel.localDeleteList(state.localDeleting.deletedId) },
             onCancel = { viewModel.stopDeleteList() }
         )
     }
@@ -316,6 +379,7 @@ fun CardListItem(
     painter: Painter? = null,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    onLocalDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
     val title = item.listName.takeIf { it.isNotBlank() }
@@ -357,10 +421,15 @@ fun CardListItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
-                onClick = { onDelete() },
-                enabled = item.isDelete
+                onClick = {
+                    if (item.isDelete) onDelete()
+                    else onLocalDelete()
+                },
             ) {
-                Icon(Icons.Default.Delete, contentDescription = null)
+                if (item.isDelete)
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                else
+                    Icon(Icons.Default.DeleteOutline, contentDescription = null)
             }
             IconButton(
                 onClick = { onEdit() },
@@ -419,6 +488,7 @@ fun CardListItem(
                             ListDarkRed,
                             colorBrush,
                         )
+
                         TypeLegendList.NOTHING -> listOf(
                             MaterialTheme.colorScheme.surfaceVariant,
                             colorBrush,
@@ -486,7 +556,7 @@ fun CardListItem(
                                 .weight(1f),
                             contentAlignment = Alignment.TopStart
                         ) {
-                            if(!isDark) {
+                            if (!isDark) {
                                 Text(
                                     text = title,
                                     style = TextStyle(
@@ -568,11 +638,15 @@ fun CardListItem(
                                 strokeCap = StrokeCap.Butt,
                                 drawStopIndicator = {}
                             )
-                            if (progress==1f)
-                            Icon(Icons.Default.Done, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                    modifier =  Modifier.weight(0.3f).padding(horizontal = 4.dp))
-                            else Spacer(modifier =  Modifier.weight(0.3f))
+                            if (progress == 1f)
+                                Icon(
+                                    Icons.Default.Done, contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier
+                                        .weight(0.3f)
+                                        .padding(horizontal = 4.dp)
+                                )
+                            else Spacer(modifier = Modifier.weight(0.3f))
                         }
                     }
                     Text(
@@ -624,7 +698,8 @@ fun PreviewMat() {
                 GlassCircleImageHolder.getImage(1),
                 onClick = {},
                 onDelete = {},
-                onEdit = {}
+                onEdit = {},
+                onLocalDelete = {}
             )
             CardListItem(
                 UiListObject(
@@ -643,7 +718,8 @@ fun PreviewMat() {
                 GlassCircleImageHolder.getImage(2),
                 onClick = {},
                 onDelete = {},
-                onEdit = {}
+                onEdit = {},
+                onLocalDelete = {}
             )
             CardListItem(
                 UiListObject(
@@ -668,7 +744,8 @@ fun PreviewMat() {
                 GlassCircleImageHolder.getImage(3),
                 onClick = {},
                 onDelete = {},
-                onEdit = {}
+                onEdit = {},
+                onLocalDelete = {}
             )
             CardListItem(
                 UiListObject(
@@ -693,7 +770,8 @@ fun PreviewMat() {
                 GlassCircleImageHolder.getImage(4),
                 onClick = {},
                 onDelete = {},
-                onEdit = {}
+                onEdit = {},
+                onLocalDelete = {}
             )
         }
     }

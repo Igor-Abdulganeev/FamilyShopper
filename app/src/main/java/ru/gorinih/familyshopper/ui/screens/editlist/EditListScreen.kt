@@ -1,7 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.editlist
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -107,7 +106,6 @@ fun EditListScreen(
     val named = stringResource(state.listNameId, state.date)
     var isOpenUserSheet by rememberSaveable { mutableStateOf(false) }
     var isDictionary by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
 
     var helpWords by remember { mutableStateOf(listOf<String>()) }
     var isHelpWords by remember { mutableStateOf(false) }
@@ -115,11 +113,6 @@ fun EditListScreen(
     BackHandler(enabled = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
-    }
-
-    if (state.error) {
-        Toast.makeText(context, "Ошибка сети, изменения внесены локально", Toast.LENGTH_LONG).show()
-        onBack()
     }
 
     fun addNewTag(item: String = "", comment: String = "") {
@@ -210,7 +203,7 @@ fun EditListScreen(
                     modifier = Modifier.weight(1f),
                     onClearCurrentField = { viewModel.clearCurrentField() }
                 )
-                AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
+                AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE && !state.isLocalJob) {
                     AssistChip(
                         modifier = Modifier
                             .weight(0.35f)
@@ -511,7 +504,7 @@ fun EditListScreen(
                         modifier = Modifier
                             .weight(0.2f)
                     ) {
-                        AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE) {
+                        AnimatedVisibility(state.allUsersUuid.isNotEmpty() && state.listLegend != TypeLegendList.PRIVATE && !state.isLocalJob) {
                             AssistChip(
                                 modifier = Modifier
                                     .padding(start = 4.dp, end = 4.dp),
@@ -545,6 +538,7 @@ fun EditListScreen(
                                     alphaShadowLight = 0.3f
                                 ),
                             onClick = {
+                                viewModel.clearCurrentField()
                                 viewModel.saveList()
                             }
                         ) {
@@ -608,11 +602,15 @@ fun EditListScreen(
         ProgressLoadingOverlay()
     }
     if (state.warning.isWarning) {
-        ErrorDialog(
-            errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
-            else state.warning.textWarning
-        ) {
-            viewModel.onDismiss()
+        when (state.warning.resourceWarning) {
+            0 -> ErrorDialog(errorText = state.warning.textWarning) { viewModel.onDismiss() }
+            else -> ErrorDialog(
+                errorText = "${stringResource(state.warning.resourceWarning)}\n${
+                    stringResource(
+                        R.string.warning_local_changed
+                    )
+                }"
+            ) { viewModel.onDismissSaved() }
         }
     }
     if (state.saved) onBack()
@@ -638,12 +636,14 @@ fun UserRow(
                 uncheckedColor = MaterialTheme.colorScheme.primary
             )
         )
-        Box(modifier = Modifier.fillMaxSize()
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                onClick = { onCheckedChange() }
-            )
-        ){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(
+                    onClick = { onCheckedChange() }
+                )
+        ) {
             Text(
                 text = userName,
                 modifier = Modifier.padding(start = 12.dp)

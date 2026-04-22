@@ -24,7 +24,7 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 8
+val vCode = 9
 val vName = "1.0"
 
 android {

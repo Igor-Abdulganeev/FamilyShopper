@@ -15,8 +15,8 @@ import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
-import ru.gorinih.familyshopper.domain.usecases.DeleteList
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeLists
+import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCase
 import ru.gorinih.familyshopper.ui.models.DeletingState
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
@@ -32,8 +32,8 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 
 class ListEntityVewModel(
     private val database: DatabaseRepository,
-    private val sync: SynchronizeLists,
-    private val delete: DeleteList,
+    private val sync: SynchronizeListsUseCase,
+    private val delete: DeleteListUseCase,
     private val pref: StorageRepository,
 ) : ViewModel() {
     var listsState by mutableStateOf(
@@ -85,23 +85,14 @@ class ListEntityVewModel(
         if (!listsState.loading) {
             listsState = listsState.copy(loading = true)
             viewModelScope.launch(Dispatchers.IO) {
-                listsState = try {
-                    val result = sync().toWarningState()
-                    when {
-                        result.isWarning || result.complete.isNotBlank() -> listsState.copy(
-                            warning = result,
-                            loading = false
-                        )
-
-                        else -> listsState.copy(loading = false)
-                    }
-                } catch (ex: Throwable) {
+                val result = sync()
+                listsState = if (result.isError) {
                     listsState.copy(
-                        warning = WarningState(
-                            isWarning = true,
-                            textWarning = ex.localizedMessage ?: "неизвестная ошибка"
-                        ), loading = false
+                        warning = result.toWarningState(),
+                        loading = false
                     )
+                } else {
+                    listsState.copy(loading = false)
                 }
             }
         }
@@ -119,31 +110,43 @@ class ListEntityVewModel(
         }
     }
 
+    fun startLocalDeleteList(listId: String) {
+        if (!listsState.localDeleting.isDelete) {
+            listsState = listsState.copy(
+                localDeleting = DeletingState(
+                    isDelete = true,
+                    deletedId = listId,
+                    queryText = R.string.text_delete_local_list,
+                ),
+            )
+        }
+    }
+
     fun stopDeleteList() {
-        listsState = listsState.copy(deleting = DeletingState())
+        listsState = listsState.copy(deleting = DeletingState(), localDeleting = DeletingState())
     }
 
     fun deleteList(listId: String) {
+        stopDeleteList()
         viewModelScope.launch(Dispatchers.IO) {
             val result = delete(listId = listId)
             val list = keepLists.filterNot { it.listId == listId }
             keepLists.clear()
             keepLists.addAll(list)
-            listsState = when (result.isError) {
-                true -> {
-                    listsState.copy(
-                        deleting = DeletingState(),
-                        warning = WarningState(
-                            isWarning = true,
-                            textWarning = "Удаление выполнено локально, ${result.textError}"
-                        )
-                    )
-                }
+            if (result.isError) listsState = listsState.copy(
+                deleting = DeletingState(),
+                warning = result.toWarningState()
+            )
+        }
+    }
 
-                false -> {
-                    listsState.copy(deleting = DeletingState())
-                }
-            }
+    fun localDeleteList(listId: String) {
+        stopDeleteList()
+        viewModelScope.launch(Dispatchers.IO) {
+            database.deleteList(listId)
+            val list = keepLists.filterNot { it.listId == listId }
+            keepLists.clear()
+            keepLists.addAll(list)
         }
     }
 

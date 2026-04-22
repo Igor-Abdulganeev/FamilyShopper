@@ -78,6 +78,7 @@ import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
 
@@ -632,4 +633,11 @@ fun SettingsScreen(
             }
         }
     }
+    if (state.warning.isWarning) ErrorDialog(
+        errorText = when (state.warning.resourceWarning) {
+            0 -> state.warning.textWarning
+            else -> stringResource(state.warning.resourceWarning)
+        }
+    ) { viewModel.onDismiss() }
+
 }

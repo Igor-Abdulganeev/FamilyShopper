@@ -15,6 +15,7 @@ data class UiListsState(
     val warning: WarningState = WarningState(), // для обработки ошибок
     val loading: Boolean = false,
     val deleting: DeletingState = DeletingState(), // удаление списка
+    val localDeleting: DeletingState = DeletingState(), // удаление списка только в БД (для чужих)
     val sortDirection: SortDirection = SortDirection.NOTHING, // ортировка списка вверх вниз
     val sortType: SortType = SortType.NOTHING, // сортировка списка по дате, типу
     val filterRule: AuthorFilter = AuthorFilter.ALL, // фильтр по автору

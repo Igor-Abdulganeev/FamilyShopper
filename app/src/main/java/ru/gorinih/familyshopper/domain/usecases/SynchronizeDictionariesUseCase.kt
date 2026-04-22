@@ -7,6 +7,7 @@ import okio.IOException
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
+import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.Results
@@ -19,14 +20,15 @@ import ru.gorinih.familyshopper.domain.models.Results
  * результат так же загоняем в БД и автообновление UI все показывает
  */
 
-interface SynchronizeDictionaries {
+interface SynchronizeDictionariesUseCase {
     suspend operator fun invoke(): Results
 }
 
-class SynchronizeDictionariesImpl(
+class SynchronizeDictionariesUseCaseImpl(
+    private val pref: StorageRepository,
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
-) : SynchronizeDictionaries {
+) : SynchronizeDictionariesUseCase {
     override suspend fun invoke(): Results =
         try {
             val remoteVersions: Map<String, Int> = remote.getDictionariesVersions()
@@ -90,16 +92,14 @@ class SynchronizeDictionariesImpl(
                 }
             }
             Results(
-                false,
-                if (needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else ""
+                isError = false,
+                textComplete = if (needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else ""
             )
         } catch (_: IOException) {
-            Results(
-                isError = true,
-                textError = "Отсутствует подключение к сети",
-                textErrorResource = R.string.error_network_state
-            )
+            if (pref.getGroupUUID().isNotBlank())
+                Results(isError = true, textErrorResource = R.string.error_network_state)
+            else Results(isError = false)
         } catch (ex: Throwable) {
-            Results(true, ex.localizedMessage ?: "unknown error")
+            Results(true, ex.localizedMessage ?: "")
         }
 }

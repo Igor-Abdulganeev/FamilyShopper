@@ -9,22 +9,22 @@ import ru.gorinih.familyshopper.domain.models.getNewerOrNull
  * Created by Igor Abdulganeev on 10.04.2026
  */
 
-interface GetAndUpdateList {
+interface GetAndUpdateListUseCase {
     suspend operator fun invoke(listId: String): ShoppedList?
 }
 
-class GetAndUpdateListImpl(
+class GetAndUpdateListUseCaseImpl(
     private val database: DatabaseRepository,
     private val remote: RemoteRepository
-): GetAndUpdateList {
-    override suspend fun invoke(listId: String): ShoppedList? {
-        val remoteResult = remote.getCurrentListById(listId = listId)
-        remoteResult?.let { list ->
+) : GetAndUpdateListUseCase {
+    override suspend fun invoke(listId: String): ShoppedList? =
+        try {
+            val remoteResult = remote.getCurrentListById(listId = listId) ?: return null
             val localResult = database.takeList(listId)
-            val result = list.getNewerOrNull(localResult)
+            val result = remoteResult.getNewerOrNull(localResult)
             result?.let { database.updateList(result) }
-            return result
+            result
+        } catch (_: Throwable) {
+            null
         }
-        return null
-    }
 }
