@@ -97,13 +97,6 @@ class SettingsViewModel(
         }
     }
 
-    fun clearUsers() {
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            stateSettings.listUsers.filterNot { it.userUuid == pref.getClientUUID() }
-                .forEach { database.deleteUser(it.toShoppedUsers()) }
-        }
-    }
-
     fun saveUserName() {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             if (stateSettings.userName != stateSettings.userNameSaved) {
@@ -122,14 +115,12 @@ class SettingsViewModel(
         }
     }
 
+    fun restoreGroupUuid() {
+        stateSettings = stateSettings.copy(groupUUID = pref.getGroupUUID())
+    }
+
     fun applyGroupUuid() {
-        if (stateSettings.groupUUID.isNotBlank()) {
-            pref.setGroupUUID(stateSettings.groupUUID)
-        } else {
-            val current =
-                pref.getGroupUUID().takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
-            stateSettings = stateSettings.copy(groupUUID = current)
-        }
+        pref.setGroupUUID(stateSettings.groupUUID)
     }
 
     fun applyClientUuid() {
@@ -177,7 +168,7 @@ class SettingsViewModel(
             clientUUID = pref.getClientUUID(),
             groupUUID = pref.getGroupUUID(),
             isFirstTime = !pref.getStartedKey(),
-            userName = pref.getUserName(),
+            userName = if(!pref.getStartedKey() && pref.getUserName().isBlank()) pref.getClientUUID().substringBefore('-') else pref.getUserName(),
             userNameSaved = pref.getUserName(),
             rainbow = pref.getBackgroundState(),
             defaultTypeList = pref.getTypeList()

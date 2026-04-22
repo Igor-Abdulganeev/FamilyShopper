@@ -28,7 +28,6 @@ import androidx.compose.foundation.text.TextAutoSizeDefaults
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Repeat
@@ -73,9 +72,12 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.navigation.ScreenLayoutType
+import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
-import ru.gorinih.familyshopper.ui.views.DividerTransparent
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
+import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
 
@@ -94,8 +96,9 @@ fun SettingsScreen(
     val state = viewModel.stateSettings
     var groupIdEditable by rememberSaveable { mutableStateOf(state.groupUUID.isBlank()) }
     var clientIdEditable by rememberSaveable { mutableStateOf(state.clientUUID.isBlank()) }
-    val scrollPageState = rememberScrollState()
+    val scrollKeysPage = rememberScrollState()
     val context = LocalContext.current
+    val screen = rememberScreenConfiguration()
 
     LaunchedEffect(Unit) {
         viewModel.shareEvents.collect { uuid ->
@@ -145,7 +148,6 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 8.dp, end = 8.dp)
     ) {
 
         PrimaryScrollableTabRow(
@@ -182,6 +184,7 @@ fun SettingsScreen(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp)
                 .weight(1f),
             userScrollEnabled = true,
             verticalAlignment = Alignment.Top
@@ -192,7 +195,7 @@ fun SettingsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp, horizontal = 8.dp)
-                            .verticalScroll(state = scrollPageState),
+                            .verticalScroll(state = scrollKeysPage),
                         verticalArrangement = Arrangement.Top,
                     ) {
                         RoundedTextField(
@@ -213,10 +216,7 @@ fun SettingsScreen(
                                     if (groupIdEditable) {
                                         IconButton(
                                             onClick = {
-                                                with(viewModel) {
-                                                    updateGroupUuid("")
-                                                    applyGroupUuid()
-                                                }
+                                                viewModel.restoreGroupUuid()
                                             }
                                         ) {
                                             Icon(
@@ -381,7 +381,7 @@ fun SettingsScreen(
                             }
                         }
 
-                        DividerTransparent(Modifier.padding(top = 16.dp))
+                        DividerHorizontalTransparent(Modifier.padding(top = 16.dp))
 
                         Text(
                             text = stringResource(R.string.help_keys_property),
@@ -395,71 +395,132 @@ fun SettingsScreen(
                 }
 
                 1 -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 8.dp),
-                        verticalArrangement = Arrangement.Top,
-                    ) {
-                        RoundedTextField(
-                            modifier = Modifier.padding(top = 16.dp),
-                            value = state.userName,
-                            onValueChange = { str ->
-                                viewModel.updateUserName(str)
-                            },
-                            label = stringResource(R.string.label_user_name),
-                        )
-                        Text(
-                            text = stringResource(R.string.help_user_name_property),
-                            fontSize = 12.sp,
-                            style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
-                            textAlign = TextAlign.Justify,
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .alpha(0.8f)
-                        )
-
-
-                        DividerTransparent(modifier = Modifier.padding(vertical = 16.dp))
-
-                        Row(
+                    when(screen) {
+                        ScreenLayoutType.SINGLE_PANE -> Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceAround
+                                .padding(vertical = 8.dp, horizontal = 8.dp),
+                            verticalArrangement = Arrangement.Top,
                         ) {
-                            Text(text = stringResource(R.string.header_other_users))
-                            AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
-                                IconButton(
-                                    onClick = { viewModel.clearUsers() },
-                                ) {
-                                    Icon(Icons.Default.DeleteForever, null)
-                                }
-                            }
-                            IconButton(
-                                onClick = { viewModel.updateUsers(true) },
-                            ) {
-                                Icon(Icons.Default.Repeat, null)
-                            }
+                            RoundedTextField(
+                                modifier = Modifier.padding(top = 16.dp),
+                                value = state.userName,
+                                onValueChange = { str ->
+                                    viewModel.updateUserName(str)
+                                },
+                                label = stringResource(R.string.label_user_name),
+                            )
+                            Text(
+                                text = stringResource(R.string.help_user_name_property),
+                                fontSize = 12.sp,
+                                style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                textAlign = TextAlign.Justify,
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .alpha(0.8f)
+                            )
 
-                        }
 
-                        AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
-                            Users(
-                                list = state.listUsers,
+                            DividerHorizontalTransparent(modifier = Modifier.padding(vertical = 16.dp))
+
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                onEdit = {
-                                    viewModel.updateUser(it, isDelete = false)
-                                },
-                                onDelete = {
-                                    viewModel.updateUser(it, isDelete = true)
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceAround
+                            ) {
+                                Text(text = stringResource(R.string.header_other_users))
+                                IconButton(
+                                    onClick = { viewModel.updateUsers(true) },
+                                ) {
+                                    Icon(Icons.Default.Repeat, null)
                                 }
-                            )
+
+                            }
+
+                            AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
+                                Users(
+                                    list = state.listUsers,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    onEdit = {
+                                        viewModel.updateUser(it, isDelete = false)
+                                    },
+                                    onDelete = {
+                                        viewModel.updateUser(it, isDelete = true)
+                                    }
+                                )
+                            }
+                        }
+                        ScreenLayoutType.TWO_PANE -> Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(vertical = 8.dp, horizontal = 8.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(0.5f),
+                                verticalArrangement = Arrangement.Top,
+                            ) {
+                                RoundedTextField(
+                                    modifier = Modifier.padding(top = 16.dp),
+                                    value = state.userName,
+                                    onValueChange = { str ->
+                                        viewModel.updateUserName(str)
+                                    },
+                                    label = stringResource(R.string.label_user_name),
+                                )
+                                Text(
+                                    text = stringResource(R.string.help_user_name_property),
+                                    fontSize = 12.sp,
+                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    textAlign = TextAlign.Justify,
+                                    modifier = Modifier
+                                        .padding(vertical = 4.dp)
+                                        .alpha(0.8f)
+                                )
+                            }
+
+                            DividerVerticalTransparent(modifier = Modifier.padding(horizontal = 16.dp))
+
+                            Column(
+                                modifier = Modifier.weight(0.5f),
+                                verticalArrangement = Arrangement.Top,
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    Text(text = stringResource(R.string.header_other_users))
+                                    IconButton(
+                                        onClick = { viewModel.updateUsers(true) },
+                                    ) {
+                                        Icon(Icons.Default.Repeat, null)
+                                    }
+
+                                }
+
+                                AnimatedVisibility(visible = state.listUsers.isNotEmpty()) {
+                                    Users(
+                                        list = state.listUsers,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp),
+                                        onEdit = {
+                                            viewModel.updateUser(it, isDelete = false)
+                                        },
+                                        onDelete = {
+                                            viewModel.updateUser(it, isDelete = true)
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
+
                 }
 
                 2 -> {
@@ -490,10 +551,9 @@ fun SettingsScreen(
                                     .fillMaxWidth()
                                     .height(16.dp)
                             )
+
+                            DividerHorizontalTransparent()
                         }
-
-                        DividerTransparent()
-
                         LazyColumn(
                             modifier = Modifier.padding(top = 16.dp)
                         ) {

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.AssistChip
@@ -457,7 +459,7 @@ fun CardListItem(
             MaterialGroupBox(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onClick() },
-                color = MaterialTheme.colorScheme.primary, //tintBackground
+                color = MaterialTheme.colorScheme.primary,
                 brush = brush,
             ) {
                 Column {
@@ -549,18 +551,29 @@ fun CardListItem(
                     )
 
                     if (progress != 0f) {
-                        LinearProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(4.dp)
-                                .padding(horizontal = 32.dp),
-                            progress = { progress },
-                            color = MaterialTheme.colorScheme.tertiary,
-                            trackColor = MaterialTheme.colorScheme.primary,
-                            gapSize = 0.dp,
-                            strokeCap = StrokeCap.Butt,
-                            drawStopIndicator = {}
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(4.dp)
+                                    .padding(start = 32.dp),
+                                progress = { progress },
+                                color = MaterialTheme.colorScheme.tertiary,
+                                trackColor = MaterialTheme.colorScheme.primary,
+                                gapSize = 0.dp,
+                                strokeCap = StrokeCap.Butt,
+                                drawStopIndicator = {}
+                            )
+                            if (progress==1f)
+                            Icon(Icons.Default.Done, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier =  Modifier.weight(0.3f).padding(horizontal = 4.dp))
+                            else Spacer(modifier =  Modifier.weight(0.3f))
+                        }
                     }
                     Text(
                         text = "${item.countStrikes} из ${item.countTags}  выполнено",

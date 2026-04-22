@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -76,7 +79,7 @@ fun TagsList(
     onClearCurrentField: () -> Unit,
 ) {
     val stateTagsColumn = rememberLazyListState()
-    var sizeList by rememberSaveable { mutableStateOf(0) }
+    var sizeList by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(list.size) {
         if (list.isNotEmpty() && sizeList < list.count())
@@ -369,8 +372,8 @@ fun Users(
 ) {
     val stateList = rememberLazyListState()
 
-    Box(modifier = modifier) {
         LazyColumn(
+            modifier = modifier,
             state = stateList,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
@@ -383,7 +386,6 @@ fun Users(
                 )
             }
         }
-    }
 }
 
 @Composable
@@ -395,27 +397,35 @@ fun User(
 ) {
     var editable by remember { mutableStateOf(false) }
     var editName by rememberSaveable { mutableStateOf("") }
+    val focusRequest = remember { FocusRequester() }
 
     LaunchedEffect(item.userName) {
         editName = item.userName
     }
 
+    LaunchedEffect(editable) {
+        if (editable) focusRequest.requestFocus()
+    }
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         IconButton(
             onClick = {
                 onDelete()
             },
+            modifier = Modifier.weight(0.1f)
         ) {
             Icon(Icons.Default.Clear, null)
         }
         AnimatedContent(
             targetState = editable,
             transitionSpec = { fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(clip = false) }
-        ) { isEdit ->
+                    fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(clip = false) },
+            modifier = Modifier.weight(1.0f)
+        )
+        { isEdit ->
             when (isEdit) {
                 true -> {
                     RoundedTextField(
@@ -424,7 +434,8 @@ fun User(
                             editName = name
                         },
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .focusRequester(focusRequest)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -439,12 +450,8 @@ fun User(
                 }
 
                 false -> {
-                    Box(modifier = Modifier.fillMaxSize()
+                    Box(modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable(
-                            onClick = { editable = true },
-                        )
                     ){
                         Text(
                             text = editName,
@@ -457,6 +464,15 @@ fun User(
                  }
             }
         }
+        IconButton(
+            onClick = {
+                editable = true
+            },
+            modifier = Modifier.weight(0.1f)
+        ) {
+            Icon(Icons.Default.EditNote, null)
+        }
+
     }
 
 }

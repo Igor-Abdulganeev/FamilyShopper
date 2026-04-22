@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -626,25 +627,28 @@ fun UserRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                onClick = { onCheckedChange() }
-            ),
+            .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
             checked = isSelected,
-            onCheckedChange = {},
+            onCheckedChange = { onCheckedChange() },
             colors = CheckboxDefaults.colors(
                 uncheckedColor = MaterialTheme.colorScheme.primary
             )
         )
-        Text(
-            text = userName,
-            modifier = Modifier.padding(start = 12.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(
+                onClick = { onCheckedChange() }
+            )
+        ){
+            Text(
+                text = userName,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+        }
     }
 }
 

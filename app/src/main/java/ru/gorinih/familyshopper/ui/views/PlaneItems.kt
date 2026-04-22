@@ -8,10 +8,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -228,7 +230,7 @@ fun PreviewMaterialGroupBoxNight() {
 }
 
 @Composable
-fun DividerTransparent(modifier: Modifier = Modifier){
+fun DividerHorizontalTransparent(modifier: Modifier = Modifier){
     val brush = Brush.linearGradient(
         colors = listOf(
             Color.Transparent,
@@ -240,6 +242,25 @@ fun DividerTransparent(modifier: Modifier = Modifier){
         modifier = modifier.fillMaxWidth().height(2.dp)
             .background(brush = brush)
             .padding(horizontal = 32.dp)
+    )
+
+}
+
+@Composable
+fun DividerVerticalTransparent(modifier: Modifier = Modifier){
+    val brush = Brush.verticalGradient(
+        colors = listOf(
+            Color.Transparent,
+            MaterialTheme.colorScheme.surfaceVariant,
+            Color.Transparent,
+        ),
+        startY = 0f,
+        endY = Float.POSITIVE_INFINITY
+    )
+    Box(
+        modifier = modifier.fillMaxHeight().width(2.dp)
+            .background(brush = brush)
+            .padding(vertical = 32.dp)
     )
 
 }
