@@ -1,5 +1,7 @@
 package ru.gorinih.familyshopper
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,6 +37,8 @@ import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationHost
 import ru.gorinih.familyshopper.navigation.NavigationKey
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import ru.gorinih.familyshopper.ui.views.LocaleHelper
+import ru.gorinih.familyshopper.ui.views.getLocaleFromPreference
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -118,5 +122,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * поддержка смены локали старых андроидов
+     */
+    override fun attachBaseContext(newBase: Context?) {
+        val context = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && newBase!= null) {
+            val code = getLocaleFromPreference(newBase)
+            LocaleHelper.wrap(newBase, code)
+        } else { newBase }
+        super.attachBaseContext(context)
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="languages_names">
+        <item>Системный</item>
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Сербский (латиница)</item>
+        <item>Сербский (кириллица)</item>
+        <item>Тайский</item>
+        <item>Якутский</item>
+    </string-array>
+
+</resources>

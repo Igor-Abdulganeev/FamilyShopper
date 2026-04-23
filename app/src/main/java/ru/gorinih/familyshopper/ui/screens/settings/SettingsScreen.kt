@@ -79,6 +79,7 @@ import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.LanguageSelector
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
 
@@ -100,6 +101,7 @@ fun SettingsScreen(
     val scrollKeysPage = rememberScrollState()
     val context = LocalContext.current
     val screen = rememberScreenConfiguration()
+    val scrollAppearancePage = rememberScrollState()
 
     LaunchedEffect(Unit) {
         viewModel.shareEvents.collect { uuid ->
@@ -528,7 +530,9 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                            .padding(vertical = 8.dp, horizontal = 4.dp)
+                            .verticalScroll(scrollAppearancePage)
+                        ,
                         verticalArrangement = Arrangement.Top,
                     ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -555,8 +559,11 @@ fun SettingsScreen(
 
                             DividerHorizontalTransparent()
                         }
-                        LazyColumn(
+                        LanguageSelector(
                             modifier = Modifier.padding(top = 16.dp)
+                        )
+                        LazyColumn(
+                            modifier = Modifier.padding(top = 16.dp).height(300.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->
                                 if (index == 0) {
@@ -574,7 +581,7 @@ fun SettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(4.dp)
+                                        .padding(horizontal = 4.dp, vertical = 8.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .clickable(
                                             onClick = {
@@ -592,7 +599,6 @@ fun SettingsScreen(
                                         painter = GlassCircleImageHolder.getImage(item),
                                         contentDescription = null,
                                         modifier = Modifier
-                                            //.padding(start = 8.dp)
                                             .clip(CircleShape)
                                             .size(24.dp),
                                         contentScale = ContentScale.Inside,
@@ -610,7 +616,7 @@ fun SettingsScreen(
                                             .padding(start = 8.dp),
                                         style = TextStyle(
                                             fontSize = 14.sp,
-                                            //   lineHeight = 14.sp
+                                               lineHeight = 18.sp
                                         )
                                     )
                                 }

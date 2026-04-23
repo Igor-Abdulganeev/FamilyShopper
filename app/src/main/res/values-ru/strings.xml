@@ -1,0 +1,78 @@
+<resources>
+    <string name="app_name">Семейные списки</string>
+    <string name="help_client_key_property">Ключ пользователя позволяет Вам использовать приватные списки, видимые только Вам, а так же регулировать уровень доступа к созданным Вами спискам:\n * ограничений нет, любой пользователь может добавлять или удалять записи;\n * ограничение на изменение списка, другой пользователь может только изменять статус записей;\n * ограничение на любые изменения, другой пользователь может только читать записи;\n * частный список, данный список виден только Вам.\nВнимание! Если Вы измените данный ключ, то потеряете доступ ко всем своим частным спискам и так же не сможете изменить права у огранниченных списков, созданных Вами ранее</string>
+    <string name="help_group_key_property">Ключ хранилища для работы с Вашими списками. Вы можете:\n - создать новый ключ: при этом будет использовано новое хранилище для ваших списков.\n - ввести уже существующий ключ (например сохраненный ранее, при переустановке): при этом Вы сможете работать со своим хранилищем, созданным ранее.\n - ввести полученный ключ от другого пользователя: при этом Вы сможете пользоваться общими списками.\nБез данного ключа списки хранятся ТОЛЬКО на устройстве!</string>
+    <string name="help_keys_property">Рекомендуется сохранить данные ключи для возможности восстановления работы со списками, например при переустановке приложения!</string>
+    <string name="label_key_group">Ключ группы</string>
+    <string name="label_key_client">Ключ пользователя</string>
+    <string name="label_enter_new_tag">введите наименование</string>
+    <string name="label_lists_header">"все списки"</string>
+    <string name="label_sync_header">"сохраненные продукты"</string>
+    <string name="new_list_name">"Список от %s"</string>
+    <string name="label_list_name">"наименование списка"</string>
+    <string name="label_list_name_short">"наименование"</string>
+    <string name="label_list_add_tag">"введите наименование"</string>
+    <string name="label_empty_list">Отсутствуют данные</string>
+    <string name="label_results_count">%1$s из %2$s выполнено</string>
+
+    <string name="label_icon_all">открыт</string>
+    <string name="label_icon_add">отметки</string>
+    <string name="label_icon_view">чтение</string>
+    <string name="label_icon_private">частный</string>
+    <string name="label_full_icon_header">тип создаваемого списка по умолчанию</string>
+    <string name="label_full_icon_all">список будет доступен всем пользователям хранилища для любых действий с ним.</string>
+    <string name="label_full_icon_add">другие пользователи смогут только отметить записи в списке, редактирование, добавление или удаление запрещены</string>
+    <string name="label_full_icon_view">другие пользователи могут только причесть список, любые изменения в нем запрещены</string>
+    <string name="label_full_icon_private">данный список недоступен другим пользователям и виден только автору</string>
+    <string name="label_empty_list_name">Список без названия</string>
+
+    <string name="warning_list_not_found_text">Возникли проблемы с данным списком, он не обнаружен</string>
+    <string name="help_user_name_property">Ввведите отображаемое имя, что бы другие пользователи могли видеть, кто создал список. Так же с именем будет удобней назначать списки кому-либо.</string>
+    <string name="label_user_name">Имя пользователя</string>
+    <string name="label_owner_name">Автор: %1$s</string>
+    <string name="label_other_names">Для: %1$s</string>
+    <string name="label_member_name">Участники: </string>
+    <string name="toolbar_main_header">Семейные списки</string>
+    <string name="text_delete_list">Вы хотите удалить список? \n      %1$s</string>
+    <string name="text_delete_local_list">Вы хотите удалить список из локальной базы? \n      %1$s</string>
+    <string name="warning_caption_text">Внимание!</string>
+    <string name="button_save_text">Сохранить</string>
+    <string name="label_filter_chip_author_owner">Мои</string>
+    <string name="label_filter_chip_author_other">Чужие</string>
+    <string name="label_filter_chip_author_all">Все</string>
+    <string name="label_sort_chip_date">по дате</string>
+    <string name="label_sort_chip_type">по типу</string>
+    <string name="warning_text_not_changed">Изменений нет</string>
+    <string name="warning_text_changed">Обновлено - %1$s</string>
+    <string name="warning_text_deleted">Удалено - %1$s</string>
+    <string name="label_icon_select_words">Кому: %1$s</string>
+    <string name="label_settings_tab_keys">Ключи</string>
+    <string name="label_settings_tab_users">Пользователи</string>
+    <string name="header_other_users">Пользователи хранилища:</string>
+    <string name="label_settings_tab_views">Внешний вид</string>
+    <string name="label_settings_tab_about">О программе</string>
+    <string name="label_settings_background">фон списка динамический (выбрано) или статический (не выбрано).</string>
+
+    <string name="error_title_text">Ошибка</string>
+    <string name="error_network_text">неизвестная ошибка</string>
+    <string name="error_network_state">Проверьте подключение к сети.</string>
+
+    <string name="warning_local_changed">Изменения внесены только локально!</string>
+
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_description">"%1$s — приложение для ведения общих списков.\nПозволяет создавать списки, делиться ими с членами семьи и синхронизировать изменения."</string>
+    <string name="about_license_description">"Это программное обеспечение распространяется под лицензией "</string>
+    <string name="about_license_name">GNU General Public License v3.0</string>
+    <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
+    <string name="about_code_description">"Исходный код доступен на "</string>
+    <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
+    <string name="about_code_name">GitHub</string>
+    <string name="about_copyright">© 2026 GorInIh. Все права защищены.</string>
+    <string name="label_empty_list_comand_text">Создайте свой список</string>
+
+    <string name="button_text_ok">Ок</string>
+    <string name="button_text_positive">Да</string>
+    <string name="button_text_negative">Отмена</string>
+
+    <string name="label_language_selector">Язык</string>
+</resources>
