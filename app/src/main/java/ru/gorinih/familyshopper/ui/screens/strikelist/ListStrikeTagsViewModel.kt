@@ -48,13 +48,16 @@ class ListStrikeTagsViewModel(
 
     private var memoryList: ShoppedList? = null
     private var updater: Deferred<Results>? = null
+    private var hiddenUpdater: Boolean = false
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             database.observeList(listId = listUuid).collect { listData ->
-                if (memoryList == null) {
+                if (memoryList == null && pref.getGroupUUID().isNotBlank()) {
                     memoryList = listData
                     memoryList?.let {
+                        hiddenUpdater = true
                         updater = async { updateList(it) }
                     }
                 } else {
@@ -79,6 +82,7 @@ class ListStrikeTagsViewModel(
                     l > 20 -> "${listData.listName.substring(IntRange(0, 20))}..."
                     else -> listData.listName
                 }
+                val progress = hiddenUpdater.also { hiddenUpdater = false }
                 withContext(Dispatchers.Main.immediate) {
                     shoppedList =
                         shoppedList.copy(
@@ -87,6 +91,7 @@ class ListStrikeTagsViewModel(
                             typeList = type,
                             listLegend = legend,
                             listName = listName,
+                            hiddenUpdate = progress
                         )
                 }
             }

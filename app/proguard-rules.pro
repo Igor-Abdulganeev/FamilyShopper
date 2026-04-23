@@ -23,4 +23,31 @@
 # Serialization
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable *;
+    <fields>;
 }
+
+# Сохраняем Companion-объекты и методы сериализатора
+-keepclassmembers class * {
+    *** Companion;
+    *** serializer(...);
+}
+
+#Сохраняем Room
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    <init>(...);
+}
+-keep class * extends androidx.room.Entity
+
+# Предотвращаем обфускацию имен типов в Retrofit
+#-keep class retrofit2.** { *; }
+-keepattributes Signature
+
+-keep class ru.gorinih.familyshopper.data.db.models.** { *; }
+-keep class ru.gorinih.familyshopper.data.remote.models.** { *; }
+-keep class ru.gorinih.familyshopper.domain.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.screens.dictionary.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.screens.editlist.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.screens.lists.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.screens.settings.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.screens.strikelist.models.** { *; }

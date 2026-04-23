@@ -24,6 +24,7 @@ import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
+import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
 import java.util.UUID
 
 /**
@@ -175,7 +176,9 @@ class SettingsViewModel(
             clientUUID = pref.getClientUUID(),
             groupUUID = pref.getGroupUUID(),
             isFirstTime = !pref.getStartedKey(),
-            userName = if(!pref.getStartedKey() && pref.getUserName().isBlank()) pref.getClientUUID().substringBefore('-') else pref.getUserName(),
+            userName = if (!pref.getStartedKey() && pref.getUserName()
+                    .isBlank()
+            ) pref.getClientUUID().substringBefore('-') else pref.getUserName(),
             userNameSaved = pref.getUserName(),
             rainbow = pref.getBackgroundState(),
             defaultTypeList = pref.getTypeList()

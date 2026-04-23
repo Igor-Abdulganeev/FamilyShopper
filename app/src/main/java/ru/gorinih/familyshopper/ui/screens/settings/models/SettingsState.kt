@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.settings
+package ru.gorinih.familyshopper.ui.screens.settings.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

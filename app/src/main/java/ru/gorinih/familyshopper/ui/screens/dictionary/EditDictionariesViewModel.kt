@@ -83,7 +83,7 @@ class EditDictionariesViewModel(
 
     fun addTag(tag: String) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val tagName = tag.lowercase()
+            val tagName = tag.lowercase().trim()
             val tagId: String = tagName.first().toString().uppercase()
             database.addTag(
                 DictionaryLocalTag(

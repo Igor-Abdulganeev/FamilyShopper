@@ -3,16 +3,19 @@ package ru.gorinih.familyshopper.ui.screens.strikelist
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -225,7 +228,7 @@ fun ListStrikeTagsScreen(
                         onClick = {
                             isClicked = true
                             route(listUuid)
-                        }
+                        },
                     ) {
                         Icon(Icons.Default.EditNote, contentDescription = null)
                     }
@@ -239,10 +242,20 @@ fun ListStrikeTagsScreen(
                 if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
                     || state.isEditable)
                 ) {
-                    IconButton(
-                        onClick = { viewModel.updateList() }
-                    ) {
-                        Icon(Icons.Default.Repeat, contentDescription = null)
+                    Box(Modifier.width(48.dp).align(Alignment.CenterVertically)){
+                        if (state.hiddenUpdate) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.padding(start = 4.dp, top = 4.dp).size(36.dp)
+                            )
+                        }
+                        IconButton(
+                            enabled = !state.hiddenUpdate,
+                            onClick = { viewModel.updateList() },
+                        ) {
+                            Icon(Icons.Default.Repeat, contentDescription = null)
+                        }
                     }
                 } else Spacer(Modifier.width(48.dp))
             }
@@ -275,12 +288,8 @@ fun ListStrikeTagsScreen(
                         comment
                     )
                 },
-                onFocusRegister = { id, lambda ->
-
-                },
-                onFocusUnRegister = { id ->
-
-                },
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = { },
                 onClearCurrentField = {}
 
             )
