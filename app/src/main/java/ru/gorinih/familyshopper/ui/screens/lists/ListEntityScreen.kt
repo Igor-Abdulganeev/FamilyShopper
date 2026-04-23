@@ -353,7 +353,7 @@ fun ListEntityScreen(
     }
     if (state.deleting.isDelete) {
         QueryDialog(
-            question = stringResource(
+            text = stringResource(
                 state.deleting.queryText,
                 state.lists.firstOrNull { it.listId == state.deleting.deletedId }?.listName ?: ""
             ),
@@ -363,7 +363,7 @@ fun ListEntityScreen(
     }
     if (state.localDeleting.isDelete) {
         QueryDialog(
-            question = stringResource(
+            text = stringResource(
                 state.localDeleting.queryText,
                 state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName ?: ""
             ),
@@ -650,7 +650,7 @@ fun CardListItem(
                         }
                     }
                     Text(
-                        text = "${item.countStrikes} из ${item.countTags}  выполнено",
+                        text = stringResource(R.string.label_results_count, item.countStrikes.toString(), item.countTags.toString()),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 32.dp)

@@ -38,7 +38,7 @@ class EditDictionariesViewModel(
             it.copy(
                 warning = WarningState(
                     isWarning = true,
-                    textWarning = throwable.localizedMessage ?: "неизвестная ошибка"
+                    textWarning = throwable.localizedMessage ?: ""
                 )
             )
         }
@@ -65,7 +65,7 @@ class EditDictionariesViewModel(
                     it.copy(
                         warning = WarningState(
                             isWarning = true,
-                            textWarning = error.localizedMessage ?: "неизвестная ошибка"
+                            textWarning = error.localizedMessage ?: ""
                         ), isLoading = false
                     )
                 }
@@ -103,7 +103,7 @@ class EditDictionariesViewModel(
     }
 
     fun syncDictionaries() {
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        viewModelScope.launch(Dispatchers.IO) {
             syncRemote()
         }
     }

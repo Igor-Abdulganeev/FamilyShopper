@@ -13,6 +13,7 @@
     <string name="label_list_name_short">"наименование"</string>
     <string name="label_list_add_tag">"введите наименование"</string>
     <string name="label_empty_list">Отсутствуют данные</string>
+    <string name="label_results_count">%1$s из %2$s выполнено</string>
 
     <string name="label_icon_all">открыт</string>
     <string name="label_icon_add">отметки</string>
@@ -32,10 +33,8 @@
     <string name="label_other_names">Для: %1$s</string>
     <string name="label_member_name">Участники: </string>
     <string name="toolbar_main_header">Семейные покупки</string>
-    <string name="button_text_positive">Да</string>
-    <string name="button_text_negative">Отмена</string>
-    <string name="text_delete_list">Вы хотите удалить список: \n  %1$s ?</string>
-    <string name="text_delete_local_list">Вы хотите удалить список из локальной базы: \n  %1$s ?</string>
+    <string name="text_delete_list">Вы хотите удалить список? \n      %1$s</string>
+    <string name="text_delete_local_list">Вы хотите удалить список из локальной базы? \n      %1$s</string>
     <string name="warning_caption_text">Внимание!</string>
     <string name="button_save_text">Сохранить</string>
     <string name="label_filter_chip_author_owner">Мои</string>
@@ -54,8 +53,9 @@
     <string name="label_settings_tab_about">О программе</string>
     <string name="label_settings_background">фон списка динамический (выбрано) или статический (не выбрано).</string>
 
+    <string name="error_title_text">Ошибка</string>
     <string name="error_network_text">неизвестная ошибка</string>
-    <string name="error_network_state">Отсутствует подключение к сети.</string>
+    <string name="error_network_state">Проверьте подключение к сети.</string>
 
     <string name="warning_local_changed">Изменения внесены только локально!</string>
 
@@ -69,4 +69,8 @@
     <string name="about_code_name">GitHub</string>
     <string name="about_copyright">© 2026 GorInIh. Все права защищены.</string>
     <string name="label_empty_list_comand_text">Создайте свой список</string>
+
+    <string name="button_text_ok">Ок</string>
+    <string name="button_text_positive">Да</string>
+    <string name="button_text_negative">Отмена</string>
 </resources>

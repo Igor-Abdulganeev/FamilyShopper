@@ -26,7 +26,6 @@ class SynchronizeDictionariesGetAllRemoteUseCaseImpl(
         try {
             // заберем с сервера все ветки словарей
             val remoteDictionaries: Map<String, DictionaryRemoteTag> = remote.getAllDictionaries()
-
             val updatingDictionaries: List<DictionaryLocalVersionTag> =
                 remoteDictionaries.map { dictionary ->
                     DictionaryLocalVersionTag(

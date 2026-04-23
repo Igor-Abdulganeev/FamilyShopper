@@ -49,12 +49,13 @@ fun Modifier.shadow(
     borderRadius: Dp = 8.dp,
     shadowRadius: Dp = 16.dp,
     alphaShadowLight: Float = 0.6f,
+    alphaShadowDark: Float = 0.3f,
     offsetXLight: Dp = 1.dp,
     offsetYLight: Dp = 3.dp,
 ): Modifier {
     val isDark = isSystemInDarkTheme()
     val shadowColor = when (isDark) {
-        true -> colorDark.copy(alpha = 0.3f)
+        true -> colorDark.copy(alpha = alphaShadowDark)
         false -> colorLight.copy(alpha = alphaShadowLight)
     }
     val offsetY: Dp = when (isDark) {
@@ -100,7 +101,6 @@ fun MaterialGroupBox(
     title: String = "",
     color: Color = MaterialTheme.colorScheme.surface,
     brush: Brush? = null,
-    alphaShadow: Float = 1f,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -165,7 +165,6 @@ fun PreviewMaterialGroupBox() {
             MaterialGroupBox(
                 title = "Первая плашка",
                 color = Color.Red.copy(alpha = 0.2f),
-                alphaShadow = 0.18f,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
