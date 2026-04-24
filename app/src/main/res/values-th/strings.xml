@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">รายการครอบครัว</string>
+    <string name="app_name">ช้อปปิ้งครอบครัว</string>
 
     <string name="help_client_key_property">คีย์ผู้ใช้ช่วยให้คุณใช้รายการส่วนตัวและกำหนดสิทธิ์การเข้าถึงรายการที่คุณสร้าง:\n • ไม่มีข้อจำกัด — ทุกคนสามารถแก้ไขรายการได้\n • จำกัดการแก้ไข — ผู้อื่นทำได้เพียงทำเครื่องหมายรายการ\n • อ่านอย่างเดียว — ผู้อื่นดูรายการได้เท่านั้น\n • ส่วนตัว — มีเพียงคุณที่เห็นรายการ\n\nสำคัญ: หากคุณเปลี่ยนคีย์นี้ คุณจะสูญเสียการเข้าถึงรายการส่วนตัวและไม่สามารถแก้ไขสิทธิ์ของรายการที่สร้างไว้ก่อนหน้าได้</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">แชร์กับ: %1$s</string>
     <string name="label_member_name">สมาชิก: </string>
 
-    <string name="toolbar_main_header">รายการครอบครัว</string>
+    <string name="toolbar_main_header">ช้อปปิ้งครอบครัว</string>
 
     <string name="text_delete_list">ลบรายการนี้?\n%1$s</string>
     <string name="text_delete_local_list">ลบรายการนี้จากอุปกรณ์?\n%1$s</string>

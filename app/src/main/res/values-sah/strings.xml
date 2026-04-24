@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Кэргэн тиһиктэрэ</string>
+    <string name="app_name">Кэргэн атыылаһыыта</string>
 
     <string name="help_client_key_property">Кини кылаһа эйиэхэ хаһаайыстыба тиһиктэрин туттарга уонна таһаарыы кыахтарын салайарга көмөлөһөр.\n • Барыта кыахтаах — бары кыттааччылар уларытыахтаах\n • Чопчу кыах — бары бэлиэтээх эрэ\n • Арыйыы — бары көрүөхтээх эрэ\n • Хаһаайыстыба — эйиэхэ эрэ көрдөр\n\nСэрэтии: кылаһы уларыттааххына, эйиэхэ хаһаайыстыба тиһиктэргэ киирии суох буолуо</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">Кытта: %1$s</string>
     <string name="label_member_name">Кыттааччылар:</string>
 
-    <string name="toolbar_main_header">Кэргэн тиһиктэрэ</string>
+    <string name="toolbar_main_header">Кэргэн атыылаһыыта</string>
 
     <string name="text_delete_list">Бу тиһиги сот?\n%1$s</string>
     <string name="text_delete_local_list">Телефонтан сот?\n%1$s</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Породичне листе</string>
+    <string name="app_name">Породична куповина</string>
 
     <string name="help_client_key_property">Кориснички кључ вам омогућава приватне листе и контролу приступа листама које креирате:\n • Без ограничења — сви могу да уређују листу\n • Ограничено уређивање — други могу само да означавају ставке\n • Само преглед — други могу само да виде листу\n • Приватно — листа је видљива само вама\n\nВажно: Ако промените овај кључ, изгубићете приступ приватним листама и нећете моћи да мењате дозволе за раније креиране листе.</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">Дељено са: %1$s</string>
     <string name="label_member_name">Чланови: </string>
 
-    <string name="toolbar_main_header">Породичне листе</string>
+    <string name="toolbar_main_header">Породична куповина</string>
 
     <string name="text_delete_list">Обрисати ову листу?\n%1$s</string>
     <string name="text_delete_local_list">Обрисати ову листу са уређаја?\n%1$s</string>
@@ -88,7 +88,7 @@
 
     <string name="about_version">Верзија %1$s</string>
 
-    <string name="about_description">"%1$s је апликација за дељене листе.\nКреирајте листе, делите их са породицом и синхронизујте измене."</string>
+    <string name="about_description">"%1$s је апликација за дељене листе куповине.\nКреирајте листе, делите их са породицом и синхронизујте измене."</string>
 
     <string name="about_license_description">"Софтвер је лиценциран под "</string>
     <string name="about_license_name">GNU General Public License v3.0</string>

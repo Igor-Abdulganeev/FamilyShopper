@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Family Lists</string>
+    <string name="app_name">Family Shopping</string>
 
     <string name="help_client_key_property">Your user key lets you use private lists and control access to lists you create:\n * No restrictions — anyone can edit the list\n * Limited editing — others can only check off items\n * Read-only — others can only view the list\n * Private — only you can see the list\n\nImportant: Changing this key will revoke access to your private lists and prevent you from updating permissions on previously created restricted lists.</string>
 
@@ -50,7 +50,7 @@
     <string name="label_other_names">Shared with: %1$s</string>
     <string name="label_member_name">Members: </string>
 
-    <string name="toolbar_main_header">Family Lists</string>
+    <string name="toolbar_main_header">Family Shopping</string>
 
     <string name="text_delete_list">Delete this list?\n%1$s</string>
     <string name="text_delete_local_list">Delete this list from this device?\n%1$s</string>
@@ -90,7 +90,7 @@
 
     <string name="about_version">Version %1$s</string>
 
-    <string name="about_description">"%1$s is a shared list app.\nCreate lists, share them with family, and keep everything in sync."</string>
+    <string name="about_description">"%1$s is a shared shopping list app.\nCreate lists, share them with family, and keep everything in sync."</string>
 
     <string name="about_license_description">"This software is licensed under "</string>
     <string name="about_license_name">GNU General Public License v3.0</string>

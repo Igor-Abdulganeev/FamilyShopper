@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Porodične liste</string>
+    <string name="app_name">Porodična kupovina</string>
 
     <string name="help_client_key_property">Korisnički ključ vam omogućava privatne liste i kontrolu pristupa listama koje kreirate:\n • Bez ograničenja — svi mogu da uređuju listu\n • Ograničeno uređivanje — drugi mogu samo da označavaju stavke\n • Samo pregled — drugi mogu samo da vide listu\n • Privatno — lista je vidljiva samo vama\n\nVažno: Ako promenite ovaj ključ, izgubićete pristup privatnim listama i nećete moći da menjate dozvole za ranije kreirane liste.</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">Deljeno sa: %1$s</string>
     <string name="label_member_name">Članovi: </string>
 
-    <string name="toolbar_main_header">Porodične liste</string>
+    <string name="toolbar_main_header">Porodična kupovina</string>
 
     <string name="text_delete_list">Obrisati ovu listu?\n%1$s</string>
     <string name="text_delete_local_list">Obrisati ovu listu sa uređaja?\n%1$s</string>
@@ -88,7 +88,7 @@
 
     <string name="about_version">Verzija %1$s</string>
 
-    <string name="about_description">"%1$s je aplikacija za deljene liste.\nKreirajte liste, delite ih sa porodicom i sinhronizujte izmene."</string>
+    <string name="about_description">"%1$s je aplikacija za deljene liste kupovine.\nKreirajte liste, delite ih sa porodicom i sinhronizujte izmene."</string>
 
     <string name="about_license_description">"Softver je licenciran pod "</string>
     <string name="about_license_name">GNU General Public License v3.0</string>
