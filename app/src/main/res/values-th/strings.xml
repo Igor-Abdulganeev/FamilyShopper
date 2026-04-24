@@ -1,0 +1,110 @@
+<resources>
+    <string name="app_name">รายการครอบครัว</string>
+
+    <string name="help_client_key_property">คีย์ผู้ใช้ช่วยให้คุณใช้รายการส่วนตัวและกำหนดสิทธิ์การเข้าถึงรายการที่คุณสร้าง:\n • ไม่มีข้อจำกัด — ทุกคนสามารถแก้ไขรายการได้\n • จำกัดการแก้ไข — ผู้อื่นทำได้เพียงทำเครื่องหมายรายการ\n • อ่านอย่างเดียว — ผู้อื่นดูรายการได้เท่านั้น\n • ส่วนตัว — มีเพียงคุณที่เห็นรายการ\n\nสำคัญ: หากคุณเปลี่ยนคีย์นี้ คุณจะสูญเสียการเข้าถึงรายการส่วนตัวและไม่สามารถแก้ไขสิทธิ์ของรายการที่สร้างไว้ก่อนหน้าได้</string>
+
+    <string name="help_group_key_property">คีย์นี้ใช้สำหรับเข้าถึงพื้นที่จัดเก็บรายการของคุณ:\n • สร้างคีย์ใหม่ — เริ่มพื้นที่จัดเก็บใหม่\n • ใส่คีย์เดิม — กู้คืนข้อมูลก่อนหน้า\n • ใส่คีย์ของผู้อื่น — เข้าถึงรายการที่แชร์\n\nหากไม่มีคีย์ รายการจะถูกเก็บไว้เฉพาะในอุปกรณ์นี้</string>
+
+    <string name="help_keys_property">แนะนำให้บันทึกคีย์เหล่านี้เพื่อกู้คืนรายการหลังติดตั้งแอปใหม่</string>
+
+    <string name="label_key_group">คีย์กลุ่ม</string>
+    <string name="label_key_client">คีย์ผู้ใช้</string>
+
+    <string name="label_enter_new_tag">ป้อนชื่อ</string>
+
+    <string name="label_lists_header">รายการทั้งหมด</string>
+    <string name="label_sync_header">สินค้าที่บันทึกไว้</string>
+
+    <string name="new_list_name">รายการจาก %s</string>
+
+    <string name="label_list_name">ชื่อรายการ</string>
+    <string name="label_list_name_short">ชื่อ</string>
+    <string name="label_list_add_tag">ป้อนชื่อ</string>
+
+    <string name="label_empty_list">ยังไม่มีข้อมูล</string>
+
+    <string name="label_results_count">%1$s จาก %2$s เสร็จแล้ว</string>
+
+    <string name="label_icon_all">เปิด</string>
+    <string name="label_icon_add">ทำเครื่องหมายเท่านั้น</string>
+    <string name="label_icon_view">อ่านอย่างเดียว</string>
+    <string name="label_icon_private">ส่วนตัว</string>
+
+    <string name="label_full_icon_header">ประเภทรายการเริ่มต้น</string>
+    <string name="label_full_icon_all">ทุกคนสามารถดูและแก้ไขรายการนี้ได้</string>
+    <string name="label_full_icon_add">ผู้อื่นทำได้เพียงทำเครื่องหมายรายการ</string>
+    <string name="label_full_icon_view">ผู้อื่นดูรายการได้เท่านั้น</string>
+    <string name="label_full_icon_private">มีเพียงคุณที่เข้าถึงรายการนี้ได้</string>
+
+    <string name="label_empty_list_name">ไม่มีชื่อ</string>
+
+    <string name="warning_list_not_found_text">ไม่พบรายการนี้</string>
+
+    <string name="help_user_name_property">ป้อนชื่อที่จะแสดงเพื่อให้ผู้อื่นเห็นว่าใครเป็นผู้สร้างรายการ</string>
+
+    <string name="label_user_name">ชื่อผู้ใช้</string>
+
+    <string name="label_owner_name">ผู้สร้าง: %1$s</string>
+    <string name="label_other_names">แชร์กับ: %1$s</string>
+    <string name="label_member_name">สมาชิก: </string>
+
+    <string name="toolbar_main_header">รายการครอบครัว</string>
+
+    <string name="text_delete_list">ลบรายการนี้?\n%1$s</string>
+    <string name="text_delete_local_list">ลบรายการนี้จากอุปกรณ์?\n%1$s</string>
+
+    <string name="warning_caption_text">คำเตือน</string>
+
+    <string name="button_save_text">บันทึก</string>
+
+    <string name="label_filter_chip_author_owner">ของฉัน</string>
+    <string name="label_filter_chip_author_other">ที่แชร์</string>
+    <string name="label_filter_chip_author_all">ทั้งหมด</string>
+
+    <string name="label_sort_chip_date">ตามวันที่</string>
+    <string name="label_sort_chip_type">ตามประเภท</string>
+
+    <string name="warning_text_not_changed">ไม่มีการเปลี่ยนแปลง</string>
+    <string name="warning_text_changed">อัปเดต: %1$s</string>
+    <string name="warning_text_deleted">ลบแล้ว: %1$s</string>
+
+    <string name="label_icon_select_words">แชร์กับ: %1$s</string>
+
+    <string name="label_settings_tab_keys">คีย์</string>
+    <string name="label_settings_tab_users">ผู้ใช้</string>
+
+    <string name="header_other_users">ผู้ใช้ในพื้นที่จัดเก็บ:</string>
+
+    <string name="label_settings_tab_views">ลักษณะ</string>
+    <string name="label_settings_tab_about">เกี่ยวกับ</string>
+
+    <string name="label_settings_background">พื้นหลังรายการแบบไดนามิก (เปิด) หรือแบบคงที่ (ปิด)</string>
+
+    <string name="error_title_text">ข้อผิดพลาด</string>
+    <string name="error_network_text">เกิดข้อผิดพลาด</string>
+    <string name="error_network_state">ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</string>
+
+    <string name="warning_local_changed">บันทึกเฉพาะในอุปกรณ์</string>
+
+    <string name="about_version">เวอร์ชัน %1$s</string>
+
+    <string name="about_description">%1$s เป็นแอปสำหรับรายการที่ใช้ร่วมกัน\nสร้างรายการ แชร์กับครอบครัว และซิงค์ข้อมูล</string>
+
+    <string name="about_license_description">ซอฟต์แวร์นี้ใช้สัญญาอนุญาต </string>
+    <string name="about_license_name">GNU General Public License v3.0</string>
+    <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
+
+    <string name="about_code_description">ซอร์สโค้ดอยู่ที่ </string>
+    <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
+    <string name="about_code_name">GitHub</string>
+
+    <string name="about_copyright">© 2026 GorInIh</string>
+
+    <string name="label_empty_list_comand_text">สร้างรายการแรกของคุณ</string>
+
+    <string name="button_text_ok">ตกลง</string>
+    <string name="button_text_positive">ใช่</string>
+    <string name="button_text_negative">ยกเลิก</string>
+
+    <string name="label_language_selector">ภาษา</string>
+</resources>

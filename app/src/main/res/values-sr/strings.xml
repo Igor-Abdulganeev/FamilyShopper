@@ -1,0 +1,111 @@
+<resources>
+    <string name="app_name">Porodične liste</string>
+
+    <string name="help_client_key_property">Korisnički ključ vam omogućava privatne liste i kontrolu pristupa listama koje kreirate:\n • Bez ograničenja — svi mogu da uređuju listu\n • Ograničeno uređivanje — drugi mogu samo da označavaju stavke\n • Samo pregled — drugi mogu samo da vide listu\n • Privatno — lista je vidljiva samo vama\n\nVažno: Ako promenite ovaj ključ, izgubićete pristup privatnim listama i nećete moći da menjate dozvole za ranije kreirane liste.</string>
+
+    <string name="help_group_key_property">Ovaj ključ se koristi za pristup vašem skladištu lista:\n • Kreirajte novi ključ — započnite novo skladište\n • Unesite postojeći ključ — vratite prethodne podatke\n • Unesite tuđi ključ — pristupite deljenim listama\n\nBez ključa, liste se čuvaju samo na ovom uređaju.</string>
+
+    <string name="help_keys_property">Preporučujemo da sačuvate ove ključeve kako biste mogli da vratite liste nakon reinstalacije aplikacije.</string>
+
+    <string name="label_key_group">Grupni ključ</string>
+    <string name="label_key_client">Korisnički ključ</string>
+
+    <string name="label_enter_new_tag">Unesite naziv</string>
+
+    <string name="label_lists_header">Sve liste</string>
+    <string name="label_sync_header">Sačuvane stavke</string>
+
+    <string name="new_list_name">Lista od %s</string>
+
+    <string name="label_list_name">Naziv liste</string>
+    <string name="label_list_name_short">Naziv</string>
+    <string name="label_list_add_tag">Unesite naziv</string>
+
+    <string name="label_empty_list">Još nema stavki</string>
+
+    <string name="label_results_count">%1$s od %2$s završeno</string>
+
+    <string name="label_icon_all">Otvoreno</string>
+    <string name="label_icon_add">Samo označavanje</string>
+    <string name="label_icon_view">Samo pregled</string>
+    <string name="label_icon_private">Privatno</string>
+
+    <string name="label_full_icon_header">Podrazumevani tip liste</string>
+    <string name="label_full_icon_all">Svi mogu da vide i uređuju ovu listu.</string>
+    <string name="label_full_icon_add">Drugi mogu samo da označavaju stavke. Uređivanje nije dozvoljeno.</string>
+    <string name="label_full_icon_view">Drugi mogu samo da pregledaju listu.</string>
+    <string name="label_full_icon_private">Lista je dostupna samo vama.</string>
+
+    <string name="label_empty_list_name">Bez naziva</string>
+
+    <string name="warning_list_not_found_text">Lista nije pronađena.</string>
+
+    <string name="help_user_name_property">Unesite ime koje će drugi videti kao autora liste i za lakše deljenje.</string>
+
+    <string name="label_user_name">Korisničko ime</string>
+
+    <string name="label_owner_name">Autor: %1$s</string>
+    <string name="label_other_names">Deljeno sa: %1$s</string>
+    <string name="label_member_name">Članovi: </string>
+
+    <string name="toolbar_main_header">Porodične liste</string>
+
+    <string name="text_delete_list">Obrisati ovu listu?\n%1$s</string>
+    <string name="text_delete_local_list">Obrisati ovu listu sa uređaja?\n%1$s</string>
+
+    <string name="warning_caption_text">Upozorenje</string>
+
+    <string name="button_save_text">Sačuvaj</string>
+
+    <string name="label_filter_chip_author_owner">Moje</string>
+    <string name="label_filter_chip_author_other">Deljene</string>
+    <string name="label_filter_chip_author_all">Sve</string>
+
+    <string name="label_sort_chip_date">Po datumu</string>
+    <string name="label_sort_chip_type">Po tipu</string>
+
+    <string name="warning_text_not_changed">Nema izmena</string>
+    <string name="warning_text_changed">Ažurirano: %1$s</string>
+    <string name="warning_text_deleted">Obrisano: %1$s</string>
+
+    <string name="label_icon_select_words">Deljeno sa: %1$s</string>
+
+    <string name="label_settings_tab_keys">Ključevi</string>
+    <string name="label_settings_tab_users">Korisnici</string>
+
+    <string name="header_other_users">Korisnici skladišta:</string>
+
+    <string name="label_settings_tab_views">Izgled</string>
+    <string name="label_settings_tab_about">O aplikaciji</string>
+
+    <string name="label_settings_background">Dinamička pozadina liste (uključeno) ili statička (isključeno).</string>
+
+    <string name="error_title_text">Greška</string>
+    <string name="error_network_text">Došlo je do greške</string>
+    <string name="error_network_state">Proverite internet konekciju.</string>
+
+    <string name="warning_local_changed">Promene su sačuvane samo lokalno</string>
+
+    <string name="about_version">Verzija %1$s</string>
+
+    <string name="about_description">"%1$s je aplikacija za deljene liste.\nKreirajte liste, delite ih sa porodicom i sinhronizujte izmene."</string>
+
+    <string name="about_license_description">"Softver je licenciran pod "</string>
+    <string name="about_license_name">GNU General Public License v3.0</string>
+    <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
+
+    <string name="about_code_description">"Izvorni kod dostupan na "</string>
+    <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
+    <string name="about_code_name">GitHub</string>
+
+    <string name="about_copyright">© 2026 GorInIh. Sva prava zadržana.</string>
+
+    <string name="label_empty_list_comand_text">Kreirajte prvu listu</string>
+
+    <string name="button_text_ok">U redu</string>
+    <string name="button_text_positive">Da</string>
+    <string name="button_text_negative">Otkaži</string>
+
+    <string name="label_language_selector">Jezik</string>
+
+</resources>

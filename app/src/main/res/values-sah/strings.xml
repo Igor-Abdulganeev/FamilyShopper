@@ -1,0 +1,110 @@
+<resources>
+    <string name="app_name">Кэргэн тиһиктэрэ</string>
+
+    <string name="help_client_key_property">Кини кылаһа эйиэхэ хаһаайыстыба тиһиктэрин туттарга уонна таһаарыы кыахтарын салайарга көмөлөһөр.\n • Барыта кыахтаах — бары кыттааччылар уларытыахтаах\n • Чопчу кыах — бары бэлиэтээх эрэ\n • Арыйыы — бары көрүөхтээх эрэ\n • Хаһаайыстыба — эйиэхэ эрэ көрдөр\n\nСэрэтии: кылаһы уларыттааххына, эйиэхэ хаһаайыстыба тиһиктэргэ киирии суох буолуо</string>
+
+    <string name="help_group_key_property">Бу кылас тиһиктэри туттарга туһаныллар:\n • Саҥа кылас — саҥа хранилище\n • Баар кылас — буруннугу қайтар\n • Ат кылаһа — бөлүһүллүбүт тиһиктэр\n\nКылас суох буоллаҕына, тиһиктэр телефонна эрэ баар</string>
+
+    <string name="help_keys_property">Кыластарыгар сактаа, онтон қайтаран сөп</string>
+
+    <string name="label_key_group">Группа кылаһа</string>
+    <string name="label_key_client">Кылас</string>
+
+    <string name="label_enter_new_tag">Аат киллэр</string>
+
+    <string name="label_lists_header">Бары тиһиктэр</string>
+    <string name="label_sync_header">Саккаабыт</string>
+
+    <string name="new_list_name">%s тиһигэ</string>
+
+    <string name="label_list_name">Тиһик аата</string>
+    <string name="label_list_name_short">Аат</string>
+    <string name="label_list_add_tag">Аат киллэр</string>
+
+    <string name="label_empty_list">Суох</string>
+
+    <string name="label_results_count">%1$s / %2$s</string>
+
+    <string name="label_icon_all">Арыйыллыбыт</string>
+    <string name="label_icon_add">Бэлиэтээ</string>
+    <string name="label_icon_view">Көрүү</string>
+    <string name="label_icon_private">Хаһаайыстыба</string>
+
+    <string name="label_full_icon_header">Тиһик төрүт түрү</string>
+    <string name="label_full_icon_all">Бары кыттааччылар уларытыахтаах</string>
+    <string name="label_full_icon_add">Бэлиэтээх эрэ</string>
+    <string name="label_full_icon_view">Көрүү эрэ</string>
+    <string name="label_full_icon_private">Эйиэхэ эрэ</string>
+
+    <string name="label_empty_list_name">Аата суох</string>
+
+    <string name="warning_list_not_found_text">Тиһик табыллыбат</string>
+
+    <string name="help_user_name_property">Ааты киллэр, онон ким оҥорбутун көрдөр</string>
+
+    <string name="label_user_name">Аат</string>
+
+    <string name="label_owner_name">Оҥорбут: %1$s</string>
+    <string name="label_other_names">Кытта: %1$s</string>
+    <string name="label_member_name">Кыттааччылар:</string>
+
+    <string name="toolbar_main_header">Кэргэн тиһиктэрэ</string>
+
+    <string name="text_delete_list">Бу тиһиги сот?\n%1$s</string>
+    <string name="text_delete_local_list">Телефонтан сот?\n%1$s</string>
+
+    <string name="warning_caption_text">Сэрэтии</string>
+
+    <string name="button_save_text">Сактаа</string>
+
+    <string name="label_filter_chip_author_owner">Мин</string>
+    <string name="label_filter_chip_author_other">Бөлүһүллүбүт</string>
+    <string name="label_filter_chip_author_all">Бары</string>
+
+    <string name="label_sort_chip_date">Күннээх</string>
+    <string name="label_sort_chip_type">Түрү</string>
+
+    <string name="warning_text_not_changed">Уларыы суох</string>
+    <string name="warning_text_changed">Саҥартыллыбыт: %1$s</string>
+    <string name="warning_text_deleted">Сотуллубут: %1$s</string>
+
+    <string name="label_icon_select_words">Кытта: %1$s</string>
+
+    <string name="label_settings_tab_keys">Кыластар</string>
+    <string name="label_settings_tab_users">Кыттааччылар</string>
+
+    <string name="header_other_users">Кыттааччылар:</string>
+
+    <string name="label_settings_tab_views">Көрүнүү</string>
+    <string name="label_settings_tab_about">Туһунан</string>
+
+    <string name="label_settings_background">Фон</string>
+
+    <string name="error_title_text">Алҕас</string>
+    <string name="error_network_text">Алҕас</string>
+    <string name="error_network_state">Интернеты көр</string>
+
+    <string name="warning_local_changed">Локальнай эрэ</string>
+
+    <string name="about_version">Версия %1$s</string>
+
+    <string name="about_description">%1$s — тиһиктэргэ аналлаах</string>
+
+    <string name="about_license_description">Лицензия </string>
+    <string name="about_license_name">GNU GPL v3.0</string>
+    <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
+
+    <string name="about_code_description">Код</string>
+    <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
+    <string name="about_code_name">GitHub</string>
+
+    <string name="about_copyright">© 2026 GorInIh</string>
+
+    <string name="label_empty_list_comand_text">Тиһик оҥор</string>
+
+    <string name="button_text_ok">Сөп</string>
+    <string name="button_text_positive">Эйэ</string>
+    <string name="button_text_negative">Суох</string>
+
+    <string name="label_language_selector">Тыл</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="languages_names">
+        <item>ตามระบบ</item>
+        <item>อังกฤษ</item>
+        <item>รัสเซีย</item>
+        <item>เซอร์เบีย (ละติน)</item>
+        <item>เซอร์เบีย (ซีริลลิก)</item>
+        <item>ไทย</item>
+        <item>ยาคุต</item>
+    </string-array>
+</resources>
