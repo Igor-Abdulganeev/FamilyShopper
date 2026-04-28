@@ -95,6 +95,9 @@ class StorageSharedPreference(
     }
 
     companion object {
+        const val WIDGET_FILE_NAME = "family_widget_data"
+        const val WIDGET_LIST = "family_shopper_widget_list"
+
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
         private const val APP_FIRST_TIME = "family_shopper_is_first_time"

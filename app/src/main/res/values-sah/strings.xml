@@ -107,4 +107,7 @@
     <string name="button_text_negative">Суох</string>
 
     <string name="label_language_selector">Тыл</string>
+    <string name="widget_warning_empty_data">Тиһик куурай эбэтэр талыллыбат</string>
+    <string name="label_datetime_today">бүгүн</string>
+    <string name="label_datetime_yesterday">бүгүн иннин</string>
 </resources>

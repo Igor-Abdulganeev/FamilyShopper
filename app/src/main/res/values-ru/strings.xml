@@ -75,4 +75,7 @@
     <string name="button_text_negative">Отмена</string>
 
     <string name="label_language_selector">Язык</string>
+    <string name="widget_warning_empty_data">Список пуст или не выбран</string>
+    <string name="label_datetime_today">сегодня</string>
+    <string name="label_datetime_yesterday">вчера</string>
 </resources>

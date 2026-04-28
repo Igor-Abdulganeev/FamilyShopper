@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Family Lists</string>
+    <string name="app_name">Family Shopping</string>
 
     <string name="help_client_key_property">Your user key lets you use private lists and control access to lists you create:\n * No restrictions — anyone can edit the list\n * Limited editing — others can only check off items\n * Read-only — others can only view the list\n * Private — only you can see the list\n\nImportant: Changing this key will revoke access to your private lists and prevent you from updating permissions on previously created restricted lists.</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">Shared with: %1$s</string>
     <string name="label_member_name">Members: </string>
 
-    <string name="toolbar_main_header">Family Lists</string>
+    <string name="toolbar_main_header">Family Shopping</string>
 
     <string name="text_delete_list">Delete this list?\n%1$s</string>
     <string name="text_delete_local_list">Delete this list from this device?\n%1$s</string>
@@ -107,4 +107,7 @@
     <string name="button_text_negative">Cancel</string>
 
     <string name="label_language_selector">Language</string>
+    <string name="widget_warning_empty_data">List is empty or not selected</string>
+    <string name="label_datetime_today">today</string>
+    <string name="label_datetime_yesterday">yesterday</string>
 </resources>

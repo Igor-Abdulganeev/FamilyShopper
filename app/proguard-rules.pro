@@ -51,3 +51,4 @@
 -keep class ru.gorinih.familyshopper.ui.screens.lists.models.** { *; }
 -keep class ru.gorinih.familyshopper.ui.screens.settings.models.** { *; }
 -keep class ru.gorinih.familyshopper.ui.screens.strikelist.models.** { *; }
+-keep class ru.gorinih.familyshopper.ui.widget.models.** { *; }
