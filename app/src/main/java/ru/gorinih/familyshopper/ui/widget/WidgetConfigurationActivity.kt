@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_VERSION
 import ru.gorinih.familyshopper.di.dataStore
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
@@ -51,19 +53,29 @@ class WidgetConfigurationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
                     ShowListToSelect(listOfProducts, modifier = Modifier.padding(innerPadding)) {
-                        saveListUuid(this, appWidgetId, it)
+                        listId, listVersion ->
+                        saveListUuid(this, appWidgetId, listId, listVersion)
                     }
                 }
             }
         }
     }
 
-    private fun saveListUuid(context: Context, appWidgetId: Int, listUuid: String) {
+    private fun saveListUuid(
+        context: Context,
+        appWidgetId: Int,
+        listUuid: String,
+        version: Int
+    ) {
         val store = context.dataStore
         val listId = stringPreferencesKey(WIDGET_LIST)
+        val listVersion = intPreferencesKey(WIDGET_VERSION)
         lifecycleScope.launch {
             store.updateData {
-                it.toMutablePreferences().apply { set(listId, listUuid) }
+                it.toMutablePreferences().apply {
+                    set(listId, listUuid)
+                    set(listVersion, version)
+                }
             }
             withContext(Dispatchers.Main.immediate) {
                 val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -79,7 +91,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
 fun ShowListToSelect(
     listOfProducts: State<List<UiListObject>>,
     modifier: Modifier = Modifier,
-    onListSelected: (String) -> Unit,
+    onListSelected: (String, Int) -> Unit,
 ) {
     val stateList = rememberLazyListState()
     Column(

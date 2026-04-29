@@ -29,8 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.glance.appwidget.updateAll
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.navigation.NavigationActions
@@ -39,12 +42,16 @@ import ru.gorinih.familyshopper.navigation.NavigationKey
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.views.LocaleHelper
 import ru.gorinih.familyshopper.ui.views.getLocaleFromPreference
+import ru.gorinih.familyshopper.ui.widget.WidgetLists
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        lifecycleScope.launch {
+            WidgetLists().updateAll(application.applicationContext)
+        }
         setContent {
             FamilyShopperTheme {
                 val navController = rememberNavController()

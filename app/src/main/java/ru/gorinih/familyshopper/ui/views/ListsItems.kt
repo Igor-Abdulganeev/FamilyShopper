@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.views
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -386,6 +387,7 @@ fun TagItem(
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun Users(
     list: List<UiListUser>,
@@ -685,7 +687,7 @@ fun PreviewTagItem() {
 @Composable
 fun CardListSimpleItem(
     item: UiListObject,
-    onClick: (String) -> Unit,
+    onClick: (String, Int) -> Unit,
 ) {
     val title = item.listName.takeIf { it.isNotBlank() }
         ?: stringResource(R.string.label_empty_list_name)
@@ -772,7 +774,7 @@ fun CardListSimpleItem(
 
         MaterialGroupBox(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onClick(item.listId) },
+            onClick = { onClick(item.listId, item.listVersion) },
             color = MaterialTheme.colorScheme.primary,
             brush = brush,
         ) {
@@ -914,5 +916,5 @@ fun PreviewShowListToSelect() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-    ) {}
+    ) {_,_ -> }
 }

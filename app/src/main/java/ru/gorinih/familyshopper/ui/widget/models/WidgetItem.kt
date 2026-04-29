@@ -12,6 +12,7 @@ data class WidgetItem(
     val tagName: String = "",
     val isStrike: Boolean = false,
     val tagComment: String = "",
+    val listVersion: Int,
 )
 
 fun ShoppedList.toListWidgetItem(): List<WidgetItem> =
@@ -21,7 +22,8 @@ fun ShoppedList.toListWidgetItem(): List<WidgetItem> =
             tagId = it.tagId,
             tagName = it.tagName,
             isStrike = it.isStrike,
-            tagComment = it.tagComment
+            tagComment = it.tagComment,
+            listVersion = this.listVersion,
         )
     }
 

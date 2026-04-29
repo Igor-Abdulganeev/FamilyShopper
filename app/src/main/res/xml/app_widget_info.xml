@@ -2,8 +2,9 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="ru.gorinih.familyshopper.ui.widget.WidgetConfigurationActivity"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:minWidth="100dp"
-    android:minHeight="100dp"
+    android:minWidth="210dp"
+    android:minHeight="70dp"
+    android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="64000000">
 
 </appwidget-provider>
