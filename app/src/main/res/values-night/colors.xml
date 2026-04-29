@@ -10,7 +10,5 @@
 
     <color name="widget_text_active">#FF1C1C1E</color>
     <color name="widget_text_passive">#FF6B7280</color>
-    <color name="widget_back_gradient_start">#FFB5E1AD</color>
-    <color name="widget_back_gradient_end">#FF6B7280</color>
-
+    <color name="widget_background">#FFEDEFF3</color>
 </resources>

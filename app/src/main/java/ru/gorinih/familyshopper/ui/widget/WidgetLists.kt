@@ -14,6 +14,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionParametersOf
@@ -22,6 +23,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
@@ -78,27 +80,28 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
         }.distinctUntilChanged()
 
         provideContent {
+            GlanceTheme {
+                val data by store.collectAsState(initial = null to 0)
+                val listUuid = data.first ?: ""
+                val version = data.second ?: 0
 
-            val data by store.collectAsState(initial = null to 0)
-            val listUuid = data.first ?: ""
-            val version = data.second ?: 0
+                val list = produceState(initialValue = WidgetItem(), listUuid, version) {
+                    value = if (listUuid.isNotBlank()) {
+                        val data = database.takeList(listUuid)
+                            .toListWidgetItem()
+                        val tags = data.tags.sortedBy { it.tagName }
+                        data.copy(tags = tags)
+                    } else WidgetItem()
+                }
 
-            val list = produceState(initialValue = WidgetItem(), listUuid, version) {
-                value = if (listUuid.isNotBlank()) {
-                    val data = database.takeList(listUuid)
-                        .toListWidgetItem()
-                    val tags = data.tags.sortedBy { it.tagName }
-                    data.copy(tags = tags)
-                } else WidgetItem()
+                val emptyText = context.getString(R.string.widget_warning_empty_data)
+                val intent = Intent(context, WidgetConfigurationActivity::class.java).apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+
+                WidgetListScreen(intent, list.value, emptyText)
             }
-
-            val emptyText = context.getString(R.string.widget_warning_empty_data)
-            val intent = Intent(context, WidgetConfigurationActivity::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-
-            WidgetListScreen(intent, list.value, emptyText)
         }
     }
 }
@@ -112,7 +115,8 @@ fun WidgetListScreen(
 ) {
     Column(
         modifier = GlanceModifier.fillMaxSize()
-            .background(R.drawable.widget_background)
+            .background(R.color.widget_background)
+            .cornerRadius(8.dp)
     ) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
@@ -129,7 +133,7 @@ fun WidgetListScreen(
                 modifier = GlanceModifier.padding(horizontal = 16.dp, vertical = 4.dp),
             ) {
                 Image(
-                    provider = ImageProvider(R.drawable.ic_repeat_24),
+                    provider = ImageProvider(R.drawable.ic_edit_24),
                     contentDescription = null,
                     modifier = GlanceModifier
                         .clickable(
