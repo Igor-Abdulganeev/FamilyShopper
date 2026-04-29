@@ -68,12 +68,12 @@ class WidgetConfigurationActivity : ComponentActivity() {
         version: Int
     ) {
         val store = context.dataStore
-        val listId = stringPreferencesKey(WIDGET_LIST)
-        val listVersion = intPreferencesKey(WIDGET_VERSION)
+        val listIdKey = stringPreferencesKey("${WIDGET_LIST}_$appWidgetId")
+        val listVersion = intPreferencesKey("${WIDGET_VERSION}_$appWidgetId")
         lifecycleScope.launch {
             store.updateData {
                 it.toMutablePreferences().apply {
-                    set(listId, listUuid)
+                    set(listIdKey, listUuid)
                     set(listVersion, version)
                 }
             }

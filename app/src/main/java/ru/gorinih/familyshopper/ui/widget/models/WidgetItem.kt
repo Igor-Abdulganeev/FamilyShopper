@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.widget.models
 
+import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 /**
@@ -8,23 +9,35 @@ import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 data class WidgetItem(
     val listUuid: String = "",
+    val listVersion: Int = 0,
+    val listName: String = "",
+    val tags: List<WidgetTagItem> = emptyList()
+)
+
+data class WidgetTagItem(
     val tagId: String = "",
     val tagName: String = "",
     val isStrike: Boolean = false,
     val tagComment: String = "",
-    val listVersion: Int,
 )
 
-fun ShoppedList.toListWidgetItem(): List<WidgetItem> =
-    this.tagNames.map {
+fun ShoppedItem.toWidgetTagItem() =
+    WidgetTagItem(
+        tagId = this.tagId,
+        tagName = this.tagName,
+        isStrike = this.isStrike,
+        tagComment = this.tagComment
+    )
+
+fun ShoppedList.toListWidgetItem(): WidgetItem =
         WidgetItem(
             listUuid = this.listId,
-            tagId = it.tagId,
-            tagName = it.tagName,
-            isStrike = it.isStrike,
-            tagComment = it.tagComment,
             listVersion = this.listVersion,
+            listName = this.listName,
+            tags = this.tagNames.map {
+                it.toWidgetTagItem()
+            },
         )
-    }
+
 
 
