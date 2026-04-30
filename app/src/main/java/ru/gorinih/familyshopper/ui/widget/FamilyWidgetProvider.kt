@@ -6,16 +6,15 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.RemoteViews
-import ru.gorinih.familyshopper.R
 import androidx.core.graphics.toColorInt
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import ru.gorinih.familyshopper.domain.StorageRepository
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.domain.StorageRepository
 
 /**
  * Created by Igor Abdulganeev on 30.04.2026
@@ -67,7 +66,6 @@ class FamilyWidgetProvider : AppWidgetProvider(), KoinComponent {
         )
         widgetView.setOnClickPendingIntent(R.id.btn_edit, pendingConfigIntent)
 
-/*
         val itemActionIntent = Intent(context, FamilyWidgetProvider::class.java).apply {
             action = ACTION_CLICK_ITEM
         }
@@ -78,7 +76,6 @@ class FamilyWidgetProvider : AppWidgetProvider(), KoinComponent {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
         widgetView.setPendingIntentTemplate(R.id.widget_list, pendingItemClickIntent)
-*/
 
         appWidgetManager.updateAppWidget(appWidgetId, widgetView)
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list)
@@ -92,6 +89,7 @@ class FamilyWidgetProvider : AppWidgetProvider(), KoinComponent {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
+        val pendingResult = goAsync()
         super.onReceive(context, intent)
         when (intent?.action) {
             ACTION_CLICK_EDIT -> {
@@ -107,7 +105,7 @@ class FamilyWidgetProvider : AppWidgetProvider(), KoinComponent {
                 }
                 context.startActivity(configIntent)
             }
-/*
+
             ACTION_CLICK_ITEM -> {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastClickTimeItem < PERIODIC_CLICK) return
@@ -127,8 +125,8 @@ class FamilyWidgetProvider : AppWidgetProvider(), KoinComponent {
                 @Suppress("DEPRECATION")
                 manager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list)
             }
-            */
         }
+        pendingResult.finish()
     }
 
     companion object {

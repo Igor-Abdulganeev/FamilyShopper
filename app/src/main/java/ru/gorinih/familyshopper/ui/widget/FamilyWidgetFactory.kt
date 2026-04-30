@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.text.Html
 import android.util.Log
-import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.core.graphics.toColorInt
@@ -41,10 +40,8 @@ class FamilyWidgetFactory(
     private val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
 
     private var tagItems = listOf<WidgetTagItem>()
-/*
     private var isEdit = false
     private var version = 0
-*/
 
 
     override fun getCount(): Int = tagItems.count()
@@ -71,12 +68,10 @@ class FamilyWidgetFactory(
                             val list = database.takeList(listUuid)
                                 .toListWidgetItem()
                             val tags = list.tags.sortedBy { it.tagName }
-/*
                             val user = pref.getClientUUID()
                             isEdit =
                                 (user == list.listOwner && list.listLegend != TypeLegendList.VIEW.listId) || (list.listLegend == TypeLegendList.ALL.listId || list.listLegend == TypeLegendList.ADD.listId)
                             version = list.listVersion
-*/
                             list.copy(tags = tags)
                         }
                     }
@@ -114,42 +109,26 @@ class FamilyWidgetFactory(
             context.packageName,
             R.layout.widget_item_tag
         )
-        Log.e("GINES","tagItems = ${currentItems.count()} / $position")
-
         val tag = currentItems[position]
         val rv = RemoteViews(context.packageName, R.layout.widget_item_tag)
-/*
-        val listUuid = pref.getWidget(appWidgetId)
-        val intent = Intent().apply {
-            putExtra(EXTRA_TAG_ID, tag.tagName)
-            putExtra(EXTRA_TAG_STRIKE, tag.isStrike)
-            putExtra(EXTRA_LIST_ID, listUuid)
-            putExtra(EXTRA_LIST_VERSION, version)
-        }
-
-        rv.setOnClickFillInIntent(R.id.item_checkbox, intent)
-        rv.setOnClickFillInIntent(R.id.item_text, intent)
-*/
-
-/*
         when(isEdit){
             true -> {
+                val listUuid = pref.getWidget(appWidgetId)
+                val intent = Intent().apply {
+                    putExtra(EXTRA_TAG_ID, tag.tagName)
+                    putExtra(EXTRA_TAG_STRIKE, tag.isStrike)
+                    putExtra(EXTRA_LIST_ID, listUuid)
+                    putExtra(EXTRA_LIST_VERSION, version)
+                }
+
                 rv.setOnClickFillInIntent(R.id.item_checkbox, intent)
                 rv.setOnClickFillInIntent(R.id.item_text, intent)
             }
             false -> {
-                rv.setOnClickFillInIntent(R.id.item_checkbox, Intent())
-                rv.setOnClickFillInIntent(R.id.item_text, Intent())
+                rv.setOnClickFillInIntent(R.id.item_checkbox, null)
+                rv.setOnClickFillInIntent(R.id.item_text, null)
             }
         }
-
-        rv.setViewVisibility(R.id.item_checkbox, if (isEdit) View.VISIBLE else View.GONE)
-        rv.setBoolean(R.id.item_checkbox, "setEnabled", isEdit)
-        rv.setBoolean(R.id.item_checkbox, "setClickable", isEdit)
-        rv.setBoolean(R.id.item_text, "setEnabled", isEdit)
-        rv.setBoolean(R.id.item_text, "setClickable", isEdit)
-*/
-
         when (tag.isStrike) {
             true -> {
                 rv.setTextColor(R.id.item_text, "#FF6B7280".toColorInt())

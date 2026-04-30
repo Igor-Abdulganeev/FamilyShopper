@@ -100,12 +100,6 @@ fun koinModule(): Module = module {
     }
 
     single<JsonApi> {
-        val retrofit: Retrofit = get()
-        val api: JsonApi = retrofit.create(JsonApi::class.java)
-        api
-    }
-
-    single<JsonApi> {
         get<Retrofit>().create(JsonApi::class.java)
     }
 

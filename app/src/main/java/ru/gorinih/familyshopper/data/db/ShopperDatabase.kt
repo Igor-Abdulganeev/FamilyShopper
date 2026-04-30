@@ -41,11 +41,11 @@ abstract class ShopperDatabase : RoomDatabase() {
 
 fun shopperDatabaseBuilder(context: Context): ShopperDatabase {
     val contextApplication = context.applicationContext
-    val dbFile = contextApplication.getDatabasePath("family_shopper.db")
     return Room.databaseBuilder(
         context = contextApplication,
         klass = ShopperDatabase::class.java,
-        name = dbFile.absolutePath
-    ).setQueryCoroutineContext(Dispatchers.IO)
+        name = "family_shopper.db"
+    )
+        .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 }
