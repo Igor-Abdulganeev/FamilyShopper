@@ -28,14 +28,14 @@ import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCase
 import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCaseImpl
-import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
-import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCaseImpl
-import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCase
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCase
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
@@ -46,6 +46,7 @@ import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
+import ru.gorinih.familyshopper.ui.widget.FamilyWidgetViewModel
 import java.util.concurrent.TimeUnit
 
 /**
@@ -146,4 +147,5 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
+    viewModel { FamilyWidgetViewModel(database = get(), pref = get()) }
 }

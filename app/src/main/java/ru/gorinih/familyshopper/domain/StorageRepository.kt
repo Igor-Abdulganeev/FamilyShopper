@@ -40,4 +40,10 @@ interface StorageRepository {
     fun getAuthorFilter(): AuthorFilter
 
     fun setAuthorFilter(filter: AuthorFilter)
+
+    fun setWidget(appWidgetId: Int, listId: String)
+
+    fun removeWidget(appWidgetId: Int)
+
+    fun getWidget(appWidgetId: Int): String
 }

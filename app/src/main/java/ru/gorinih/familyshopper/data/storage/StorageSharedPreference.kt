@@ -94,6 +94,21 @@ class StorageSharedPreference(
         }
     }
 
+    override fun setWidget(appWidgetId: Int, listId: String) {
+        preference.edit {
+            putString("${WIDGET_LIST}_$appWidgetId", listId)
+        }
+    }
+
+    override fun removeWidget(appWidgetId: Int) {
+        preference.edit {
+            remove("${WIDGET_LIST}_$appWidgetId")
+        }
+    }
+
+    override fun getWidget(appWidgetId: Int): String =
+        preference.getString("${WIDGET_LIST}_$appWidgetId", "") ?: ""
+
     companion object {
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
@@ -104,6 +119,8 @@ class StorageSharedPreference(
         private const val SORT_DIRECTION = "family_shopper_sort_direction"
         private const val SORT_TYPE = "family_shopper_sort_type"
         private const val FILTER_AUTHOR = "family_shopper_filter_author"
+
+        const val WIDGET_LIST = "family_shopper_widget_list"
 
         private const val SETTING_FILE_NAME = "family_settings"
     }

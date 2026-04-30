@@ -218,4 +218,14 @@ class DatabaseRepositoryImpl(
     override suspend fun deleteList(listId: String) {
         listsDao.deleteList(listId = listId)
     }
+
+    override suspend fun strikeTag(
+        listId: String,
+        tagName: String,
+        tagStrike: Boolean,
+        listVersion : Int
+    ) {
+        listsDao.strikeTag(listId = listId, tagName=tagName, tagStrike = tagStrike, version = listVersion)
+    }
+
 }

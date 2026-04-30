@@ -8,7 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,20 +49,37 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.toShowDate
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
@@ -655,6 +675,203 @@ fun PreviewTagItem() {
                 onClearCurrentField = {},
             )
 
+        }
+    }
+}
+
+@Composable
+fun CardListSimpleItem(
+    item: UiListObject,
+ //   onClick: (String, Int, TypeLegendList, String) -> Unit,
+    onClick: (String) -> Unit,
+) {
+    val title = item.listName.takeIf { it.isNotBlank() }
+        ?: stringResource(R.string.label_empty_list_name)
+    val isDark = isSystemInDarkTheme()
+    val progress =
+        (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp, horizontal = 16.dp)
+            .shadow(
+                borderRadius = 16.dp,
+                shadowRadius = 8.dp,
+                alphaShadowLight = 0.3f,
+                offsetXLight = 0.dp,
+                offsetYLight = 0.dp
+            )
+            .border(
+                1.dp,
+                Color.White.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(16.dp)
+            )
+    ) {
+        val colorBrush = MaterialTheme.colorScheme.background
+        val brush = Brush.horizontalGradient(
+            colors = if (isDark) {
+                when (item.listLegend) {
+                    TypeLegendList.ALL -> listOf(
+                        ListDarkGreen,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        ListDarkBlue,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        ListDarkYellow,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        ListDarkRed,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        colorBrush,
+                    )
+                }
+            } else {
+                when (item.listLegend) {
+                    TypeLegendList.ALL -> listOf(
+                        ListLightGreen,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        ListLightBlue,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        ListLightYellow,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        ListLightRed,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        colorBrush,
+                    )
+                }
+            },
+            startX = 0.0f,
+            endX = 550f
+        )
+
+        MaterialGroupBox(
+            modifier = Modifier.fillMaxWidth(),
+        //    onClick = { onClick(item.listId, item.listVersion, item.listLegend, item.listOwner) },
+            onClick = { onClick(item.listId) },
+            color = MaterialTheme.colorScheme.primary,
+            brush = brush,
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    //наименование
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.TopStart
+                    ) {
+                        if (!isDark) {
+                            Text(
+                                text = title,
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    drawStyle = Stroke(
+                                        width = 4f,
+                                        join = StrokeJoin.Round
+                                    )
+                                ),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                        Text(
+                            text = title,
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    // время изменения
+                    Text(
+                        text = item.listDatetimeValue.toShowDate(
+                            todayName = stringResource(R.string.label_datetime_today),
+                            yesterdayName = stringResource(R.string.label_datetime_yesterday)),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            baselineShift = BaselineShift.Subscript
+                        ),
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .weight(0.4f),
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (progress != 0f) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp)
+                                .padding(start = 32.dp),
+                            progress = { progress },
+                            color = MaterialTheme.colorScheme.tertiary,
+                            trackColor = MaterialTheme.colorScheme.primary,
+                            gapSize = 0.dp,
+                            strokeCap = StrokeCap.Butt,
+                            drawStopIndicator = {}
+                        )
+                        if (progress == 1f)
+                            Icon(
+                                Icons.Default.Done, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                                    .padding(horizontal = 4.dp)
+                            )
+                        else Spacer(modifier = Modifier.weight(0.3f))
+                    }
+                }
+                Text(
+                    text = stringResource(
+                        R.string.label_results_count,
+                        item.countStrikes.toString(),
+                        item.countTags.toString()
+                    ),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 32.dp, top = 4.dp)
+                )
+            }
         }
     }
 }

@@ -46,6 +46,17 @@ interface ListsDao {
     @Query("DELETE FROM lists_ver WHERE list_id=:listId")
     suspend fun deleteList(listId: String)
 
+    @Query("UPDATE list_tags SET tag_strike=:tagStrike WHERE list_id=:listId AND tag_name=:tagName")
+    suspend fun updateTag(listId: String, tagName: String, tagStrike: Boolean)
+
+    @Query("UPDATE lists_ver SET list_version=:version WHERE list_id=:listId")
+    suspend fun updateVersion(listId: String, version: Int)
+
+    @Transaction
+    suspend fun strikeTag(listId: String, tagName: String, tagStrike: Boolean, version: Int) {
+        updateTag(listId = listId, tagName = tagName, tagStrike = tagStrike)
+        updateVersion(listId = listId, version = version)
+    }
     //endregion
 
 

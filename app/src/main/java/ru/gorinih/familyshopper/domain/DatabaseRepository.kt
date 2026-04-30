@@ -57,4 +57,6 @@ interface DatabaseRepository {
     suspend fun deleteDictionaryVersion(tagId: String)
 
     suspend fun deleteList(listId: String)
+
+    suspend fun strikeTag(listId: String, tagName: String, tagStrike: Boolean, listVersion: Int)
 }
