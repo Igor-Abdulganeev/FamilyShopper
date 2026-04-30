@@ -92,6 +92,7 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.toShowDate
 import ru.gorinih.familyshopper.ui.views.ChipPanel
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
@@ -583,7 +584,9 @@ fun CardListItem(
                         }
                         // время изменения
                         Text(
-                            text = item.listDatetime,
+                            text = item.listDatetimeValue.toShowDate(
+                                todayName = stringResource(R.string.label_datetime_today),
+                                yesterdayName = stringResource(R.string.label_datetime_yesterday)),
                             style = TextStyle(
                                 fontSize = 12.sp,
                                 baselineShift = BaselineShift.Subscript
@@ -689,7 +692,6 @@ fun PreviewMat() {
                             isSelected = false
                         ),
                     ),
-                    listDatetime = "10.04.2026",
                     countTags = 10,
                     countStrikes = 2,
                     userName = "Иван",
@@ -709,7 +711,6 @@ fun PreviewMat() {
                     listLegend = TypeLegendList.ADD,
                     listOwner = "asdas0,",
                     listTo = emptyList(),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 5,
                     countStrikes = 3,
                     userName = "",
@@ -735,7 +736,6 @@ fun PreviewMat() {
                             isSelected = false
                         )
                     ),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 4,
                     countStrikes = 4,
                     userName = "Олег",
@@ -761,7 +761,6 @@ fun PreviewMat() {
                             isSelected = true
                         )
                     ),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 0,
                     countStrikes = 0,
                     userName = "Игорь",

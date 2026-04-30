@@ -109,4 +109,7 @@
     <string name="button_text_negative">Cancel</string>
 
     <string name="label_language_selector">Language</string>
+    <string name="widget_warning_empty_data">List is empty or not selected</string>
+    <string name="label_datetime_today">today</string>
+    <string name="label_datetime_yesterday">yesterday</string>
 </resources>

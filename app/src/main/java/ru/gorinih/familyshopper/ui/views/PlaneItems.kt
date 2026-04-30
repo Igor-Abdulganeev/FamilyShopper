@@ -172,7 +172,7 @@ fun PreviewMaterialGroupBox() {
             ) {}
             MaterialGroupBox(
                 title = "Вторая плашка",
-                color = MaterialTheme.colorScheme.primary,//.copy(alpha = 0.8f),//Color.Red.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
