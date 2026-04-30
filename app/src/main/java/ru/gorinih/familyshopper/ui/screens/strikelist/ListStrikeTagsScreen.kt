@@ -30,8 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
@@ -49,6 +51,8 @@ import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
+import ru.gorinih.familyshopper.ui.widget.WidgetScope
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -69,6 +73,7 @@ fun ListStrikeTagsScreen(
         backPressed()
     }
 
+    val context = LocalContext.current.applicationContext
     val state = viewModel.shoppedList
     var isClicked by remember { mutableStateOf(false) }
 
@@ -79,6 +84,14 @@ fun ListStrikeTagsScreen(
         navigationActions(NavigationActions(onNavigationClick = handleExit))
 
         onDispose {
+            WidgetScope.scope.launch {
+                notifyWidgetAboutChanged(
+                    context,
+                    state.listId,
+                    false
+                )
+            }
+
             navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }

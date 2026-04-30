@@ -11,4 +11,10 @@
     <color name="widget_text_active">#FF1C1C1E</color>
     <color name="widget_text_passive">#FF6B7280</color>
     <color name="widget_background">#FFEDEFF3</color>
+
+    <color name="widget_header_legend_all">#FF1F3A33</color>
+    <color name="widget_header_legend_add">#FF1F2A44</color>
+    <color name="widget_header_legend_view">#FF3A3420</color>
+    <color name="widget_header_legend_private">#FF3A2626</color>
+
 </resources>

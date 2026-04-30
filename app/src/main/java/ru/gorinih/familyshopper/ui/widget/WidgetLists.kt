@@ -4,13 +4,24 @@ import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -19,6 +30,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.actionRunCallback
@@ -26,6 +38,7 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
+import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -42,11 +55,17 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_EDIT
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_VERSION
 import ru.gorinih.familyshopper.di.dataStore
@@ -66,6 +85,7 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
         context: Context,
         id: GlanceId
     ) {
+        Log.e("GINES", "PROVIDEGlance")
         val manager = GlanceAppWidgetManager(context)
         val appWidgetId = try {
             manager.getAppWidgetId(id)
@@ -74,24 +94,40 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
         }
         val listIdKey = stringPreferencesKey("${WIDGET_LIST}_$appWidgetId")
         val listVersion = intPreferencesKey("${WIDGET_VERSION}_$appWidgetId")
+        val listEdit = booleanPreferencesKey("${WIDGET_EDIT}_$appWidgetId")
+        val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
+        var isEdit = false
+        var time = 0L
 
         val store = context.dataStore.data.map { pref ->
+            isEdit = pref[listEdit] ?: false
+            time = pref[listForceUpdate] ?: 0
             pref[listIdKey] to pref[listVersion]
         }.distinctUntilChanged()
 
         provideContent {
+            Log.e("GINES", "PROVIDEContent")
             GlanceTheme {
                 val data by store.collectAsState(initial = null to 0)
                 val listUuid = data.first ?: ""
                 val version = data.second ?: 0
 
-                val list = produceState(initialValue = WidgetItem(), listUuid, version) {
-                    value = if (listUuid.isNotBlank()) {
-                        val data = database.takeList(listUuid)
-                            .toListWidgetItem()
-                        val tags = data.tags.sortedBy { it.tagName }
-                        data.copy(tags = tags)
-                    } else WidgetItem()
+                val list = produceState(initialValue = WidgetItem(), listUuid, version, time) {
+                    value = try {
+                        if (listUuid.isNotBlank()) {
+                            withTimeout(3000) {
+                                withContext(Dispatchers.IO) {
+                                    val data = database.takeList(listUuid)
+                                        .toListWidgetItem()
+                                    val tags = data.tags.sortedBy { it.tagName }
+                                    data.copy(tags = tags)
+                                }
+                            }
+                        } else WidgetItem()
+                    } catch (ex: Throwable) {
+                        Log.e("GINES", "ОШИБКА ${ex.localizedMessage}")
+                        WidgetItem()
+                    }
                 }
 
                 val emptyText = context.getString(R.string.widget_warning_empty_data)
@@ -99,8 +135,8 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
-
-                WidgetListScreen(intent, list.value, emptyText)
+                if (listUuid.isNotEmpty()) // иногда кэшированные пустышки мигают, отсеим их
+                    WidgetListScreen(intent, list.value, emptyText, isEdit)
             }
         }
     }
@@ -112,14 +148,29 @@ fun WidgetListScreen(
     intent: Intent,
     dataWidget: WidgetItem,
     emptyText: String,
+    isEdit: Boolean,
 ) {
+    var listTag by remember { mutableStateOf(dataWidget.tags) }
+    val colorHeader = when (dataWidget.listLegend) {
+        1 -> ColorProvider(Color(0xFFD7F7E7))
+        2 -> ColorProvider(Color(0xFFDDE9FF))
+        3 -> ColorProvider(Color(0xFFFFF6DB))
+        else -> ColorProvider(Color(0xFFFFEBEB))
+    }
+
+    LaunchedEffect(dataWidget) {
+        Log.d("GINES", "color = ${dataWidget.listLegend}")
+        Log.d("GINES", "tags = ${dataWidget.tags.map { it.tagName }}")
+        listTag = dataWidget.tags
+    }
+
     Column(
         modifier = GlanceModifier.fillMaxSize()
             .background(R.color.widget_background)
             .cornerRadius(8.dp)
     ) {
         Row(
-            modifier = GlanceModifier.fillMaxWidth(),
+            modifier = GlanceModifier.fillMaxWidth().background(colorHeader),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -144,11 +195,11 @@ fun WidgetListScreen(
         }
 
         Box(
-            modifier = GlanceModifier.fillMaxWidth().height(2.dp)
+            modifier = GlanceModifier.fillMaxWidth().height(1.dp)
                 .background(R.color.widget_text_passive)
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {}
-        when (dataWidget.tags.isEmpty()) {
+        when (listTag.isEmpty()) {
             true -> {
                 Box(
                     modifier = GlanceModifier.fillMaxSize(),
@@ -165,8 +216,24 @@ fun WidgetListScreen(
                 LazyColumn(
                     modifier = GlanceModifier.fillMaxSize().padding(4.dp)
                 ) {
-                    items(dataWidget.tags) { tag ->
-                        WidgetItemView(tag, dataWidget.listUuid, dataWidget.listVersion)
+                    itemsIndexed(
+                        listTag,
+                        itemId = { index, tag ->
+                            (dataWidget.listUuid.hashCode()
+                                .toLong() * 31 + tag.tagName.hashCode() + index)
+                        }) { index, tag ->
+                        WidgetItemView(
+                            item = tag,
+                            listId = dataWidget.listUuid,
+                            listVersion = dataWidget.listVersion,
+                            isEdit,
+                            onClick = { select ->
+                                val mutableList = listTag.toMutableList()
+                                val newTag = tag.copy(isStrike = select)
+                                mutableList.remove(tag)
+                                mutableList.add(index, newTag)
+                                listTag = mutableList
+                            })
                     }
                 }
             }
@@ -179,12 +246,17 @@ fun WidgetListScreen(
 fun WidgetItemView(
     item: WidgetTagItem,
     listId: String,
-    listVersion: Int
+    listVersion: Int,
+    isEdit: Boolean,
+    onClick: (Boolean) -> Unit,
 ) {
-    Row(
-        modifier = GlanceModifier.fillMaxWidth()
+    var edit by remember { mutableStateOf(item.isStrike) }
+    val modifier = if (isEdit) {
+        GlanceModifier.fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable(
+            .clickable {
+                edit = !edit
+                onClick(edit)
                 actionRunCallback<StrikeToggleAction>(
                     actionParametersOf(
                         StrikeToggleAction.KEY_LIST_ID to listId,
@@ -194,21 +266,37 @@ fun WidgetItemView(
                         StrikeToggleAction.KEY_ACTION_TYPE to StrikeToggleAction.ACTION_STRIKE
                     )
                 )
-            )
+            }
+     } else {
+        GlanceModifier.fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    }
+    Row(
+        modifier = modifier
     ) {
+        if (isEdit) {
+            CheckBox(
+                checked = edit,
+                onCheckedChange = {
+                    edit = !edit
+                    onClick(edit)
+                },
+                modifier = GlanceModifier.padding(horizontal = 4.dp)
+            )
+        }
         Text(
             text = item.tagName,
             modifier = GlanceModifier,
             maxLines = 1,
             style = TextStyle(
                 color = ColorProvider(
-                    if (item.isStrike) R.color.widget_text_passive
+                    if (edit) R.color.widget_text_passive
                     else R.color.widget_text_active
                 ),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Start,
-                textDecoration = if (item.isStrike) TextDecoration.LineThrough else TextDecoration.None
+                textDecoration = if (edit) TextDecoration.LineThrough else TextDecoration.None
             )
         )
     }

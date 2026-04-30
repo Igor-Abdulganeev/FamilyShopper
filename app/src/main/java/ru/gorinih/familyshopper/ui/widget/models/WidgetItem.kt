@@ -11,6 +11,7 @@ data class WidgetItem(
     val listUuid: String = "",
     val listVersion: Int = 0,
     val listName: String = "",
+    val listLegend: Int = 1,
     val tags: List<WidgetTagItem> = emptyList()
 )
 
@@ -34,6 +35,7 @@ fun ShoppedList.toListWidgetItem(): WidgetItem =
             listUuid = this.listId,
             listVersion = this.listVersion,
             listName = this.listName,
+            listLegend = this.listLegend,
             tags = this.tagNames.map {
                 it.toWidgetTagItem()
             },

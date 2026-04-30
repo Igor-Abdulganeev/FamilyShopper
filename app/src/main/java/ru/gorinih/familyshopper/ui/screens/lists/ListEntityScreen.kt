@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -72,6 +74,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
@@ -99,6 +102,7 @@ import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.QueryDialog
 import ru.gorinih.familyshopper.ui.views.shadow
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 import kotlin.math.roundToInt
 
 /**
@@ -115,6 +119,8 @@ fun ListEntityScreen(
 ) {
 
     val state = viewModel.listsState
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current.applicationContext
     val stateLazy = rememberLazyListState()
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var isClicked by remember { mutableStateOf(false) }
@@ -358,7 +364,16 @@ fun ListEntityScreen(
                 state.deleting.queryText,
                 state.lists.firstOrNull { it.listId == state.deleting.deletedId }?.listName ?: ""
             ),
-            onDone = { viewModel.deleteList(state.deleting.deletedId) },
+            onDone = {
+                scope.launch {
+                    notifyWidgetAboutChanged(
+                        context,
+                        state.deleting.deletedId,
+                        true
+                    )
+                }
+                viewModel.deleteList(state.deleting.deletedId)
+                     },
             onCancel = { viewModel.stopDeleteList() }
         )
     }

@@ -153,5 +153,5 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
-    viewModel { WidgetViewModel(database = get()) }
+    viewModel { WidgetViewModel(database = get(), pref = get()) }
 }

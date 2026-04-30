@@ -11,4 +11,9 @@
     <color name="widget_text_active">#FF1C1C1E</color>
     <color name="widget_text_passive">#FF6B7280</color>
     <color name="widget_background">#FFEDEFF3</color>
+
+    <color name="widget_header_legend_all">#FFD7F7E7</color>
+    <color name="widget_header_legend_add">#FFDDE9FF</color>
+    <color name="widget_header_legend_view">#FFFFF6DB</color>
+    <color name="widget_header_legend_private">#FFFFEBEB</color>
 </resources>

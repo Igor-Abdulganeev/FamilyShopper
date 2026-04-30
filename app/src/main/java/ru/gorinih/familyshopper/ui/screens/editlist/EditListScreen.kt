@@ -55,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,10 +63,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.appwidget.updateAll
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
@@ -82,6 +86,8 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.TagsList
 import ru.gorinih.familyshopper.ui.views.shadow
+import ru.gorinih.familyshopper.ui.widget.WidgetLists
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 07.04.2026
@@ -99,6 +105,8 @@ fun EditListScreen(
     )
 ) {
     val state = viewModel.shoppedList
+    val context = LocalContext.current.applicationContext
+    val scope = rememberCoroutineScope()
     var addedTag by rememberSaveable { mutableStateOf("") }
     val keyboardManager = LocalFocusManager.current
     val screen = rememberScreenConfiguration()
@@ -611,7 +619,16 @@ fun EditListScreen(
             ) { viewModel.onDismissSaved() }
         }
     }
-    if (state.saved) onBack()
+    if (state.saved) {
+        scope.launch {
+            notifyWidgetAboutChanged(
+                context,
+                state.listUuid,
+                false
+            )
+        }
+        onBack()
+    }
 }
 
 @Composable

@@ -687,7 +687,7 @@ fun PreviewTagItem() {
 @Composable
 fun CardListSimpleItem(
     item: UiListObject,
-    onClick: (String, Int) -> Unit,
+    onClick: (String, Int, TypeLegendList, String) -> Unit,
 ) {
     val title = item.listName.takeIf { it.isNotBlank() }
         ?: stringResource(R.string.label_empty_list_name)
@@ -774,7 +774,7 @@ fun CardListSimpleItem(
 
         MaterialGroupBox(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onClick(item.listId, item.listVersion) },
+            onClick = { onClick(item.listId, item.listVersion, item.listLegend, item.listOwner) },
             color = MaterialTheme.colorScheme.primary,
             brush = brush,
         ) {
@@ -916,5 +916,5 @@ fun PreviewShowListToSelect() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-    ) {_,_ -> }
+    ) {_,_,_,_ -> }
 }
