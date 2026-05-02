@@ -366,11 +366,7 @@ fun ListEntityScreen(
             ),
             onDone = {
                 scope.launch {
-                    notifyWidgetAboutChanged(
-                        context,
-                        state.deleting.deletedId,
-                        true
-                    )
+                    notifyWidgetAboutChanged(context)
                 }
                 viewModel.deleteList(state.deleting.deletedId)
                      },
@@ -383,7 +379,12 @@ fun ListEntityScreen(
                 state.localDeleting.queryText,
                 state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName ?: ""
             ),
-            onDone = { viewModel.localDeleteList(state.localDeleting.deletedId) },
+            onDone = {
+                scope.launch {
+                    notifyWidgetAboutChanged(context)
+                }
+                viewModel.localDeleteList(state.localDeleting.deletedId)
+                     },
             onCancel = { viewModel.stopDeleteList() }
         )
     }

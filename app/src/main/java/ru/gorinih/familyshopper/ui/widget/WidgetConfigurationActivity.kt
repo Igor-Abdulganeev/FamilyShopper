@@ -79,19 +79,26 @@ class WidgetConfigurationActivity : ComponentActivity() {
         listUuid: String,
         isEdit: Boolean,
     ) {
-        val listIdKey = stringPreferencesKey("${WIDGET_LIST}_$appWidgetId")
-        val listEdit = booleanPreferencesKey("${WIDGET_EDIT}_$appWidgetId")
-        val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
+        val listIdKey = stringPreferencesKey(WIDGET_LIST)
+        val listEdit = booleanPreferencesKey(WIDGET_EDIT)
+        val listForceUpdate = longPreferencesKey(WIDGET_FORCE_UPDATE)
         lifecycleScope.launch {
             val manager = GlanceAppWidgetManager(context)
             val glanceIds = manager.getGlanceIds(WidgetLists::class.java)
             glanceIds.forEach { glanceId ->
-                updateAppWidgetState(context, glanceId) { updateState->
-                    updateState[listIdKey] = listUuid
-                    updateState[listEdit] = isEdit
-                    updateState[listForceUpdate] = System.currentTimeMillis()
+                val appId = try {
+                    manager.getAppWidgetId(glanceId)
+                } catch (_: IllegalArgumentException) {
+                    AppWidgetManager.INVALID_APPWIDGET_ID
                 }
-                WidgetLists().update(context, glanceId)
+                if(appWidgetId == appId) {
+                    updateAppWidgetState(context, glanceId) { updateState ->
+                        updateState[listIdKey] = listUuid
+                        updateState[listEdit] = isEdit
+                        updateState[listForceUpdate] = System.currentTimeMillis()
+                    }
+                    WidgetLists().update(context, glanceId)
+                }
                 withContext(Dispatchers.Main.immediate) {
                     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     setResult(RESULT_OK, result)

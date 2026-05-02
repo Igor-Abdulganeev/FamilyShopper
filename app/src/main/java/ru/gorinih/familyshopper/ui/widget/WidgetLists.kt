@@ -78,9 +78,9 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
         } catch (_: IllegalArgumentException) {
             AppWidgetManager.INVALID_APPWIDGET_ID
         }
-        val listIdKey = stringPreferencesKey("${WIDGET_LIST}_$appWidgetId")
-        val listEdit = booleanPreferencesKey("${WIDGET_EDIT}_$appWidgetId")
-        val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
+        val listIdKey = stringPreferencesKey(WIDGET_LIST)
+        val listEdit = booleanPreferencesKey(WIDGET_EDIT)
+        val listForceUpdate = longPreferencesKey(WIDGET_FORCE_UPDATE)
         val emptyText = context.getString(R.string.widget_warning_empty_data)
         val intent = Intent(context, WidgetConfigurationActivity::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -200,6 +200,7 @@ fun WidgetListScreen(
     }
 }
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun WidgetItemView(
     item: WidgetTagItem,

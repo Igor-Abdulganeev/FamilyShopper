@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.widget
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
@@ -35,12 +34,6 @@ class StrikeToggleAction : ActionCallback, KoinComponent {
         val action = parameters[KEY_ACTION_TYPE] ?: return
 
         val manager = GlanceAppWidgetManager(context)
-        val appWidgetId = try {
-            manager.getAppWidgetId(glanceId)
-        } catch (_: IllegalArgumentException) {
-            AppWidgetManager.INVALID_APPWIDGET_ID
-        }
-
         val nextVersion = version + 1
 
         when(action){
@@ -58,7 +51,7 @@ class StrikeToggleAction : ActionCallback, KoinComponent {
             }
         }
 
-        val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
+        val listForceUpdate = longPreferencesKey(WIDGET_FORCE_UPDATE)
         val glanceIds = manager.getGlanceIds(WidgetLists::class.java)
         glanceIds.forEach { glanceId ->
             updateAppWidgetState(context, glanceId) { updateState->

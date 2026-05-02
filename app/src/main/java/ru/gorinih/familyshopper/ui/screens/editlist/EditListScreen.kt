@@ -68,7 +68,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -86,14 +85,13 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.TagsList
 import ru.gorinih.familyshopper.ui.views.shadow
-import ru.gorinih.familyshopper.ui.widget.WidgetLists
 import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 07.04.2026
  */
 
-@SuppressLint("ConfigurationScreenWidthHeight")
+@SuppressLint("ConfigurationScreenWidthHeight", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreen(
@@ -621,11 +619,7 @@ fun EditListScreen(
     }
     if (state.saved) {
         scope.launch {
-            notifyWidgetAboutChanged(
-                context,
-                state.listUuid,
-                false
-            )
+            notifyWidgetAboutChanged(context)
         }
         onBack()
     }

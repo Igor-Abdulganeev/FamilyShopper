@@ -100,8 +100,6 @@ class StorageSharedPreference(
         const val WIDGET_EDIT = "family_shopper_widget_list_edit"
         const val WIDGET_FORCE_UPDATE = "family_shopper_widget_force_update"
 
-        const val WIDGET_VERSION = "family_shopper_widget_list_version"
-
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
         private const val APP_FIRST_TIME = "family_shopper_is_first_time"
