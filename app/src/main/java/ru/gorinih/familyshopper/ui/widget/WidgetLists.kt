@@ -135,8 +135,10 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
-                if (listUuid.isNotEmpty()) // иногда кэшированные пустышки мигают, отсеим их
+                if (listUuid.isNotBlank()) {// иногда кэшированные пустышки мигают, отсеим их
+                    Log.e("GINES", "start= ${listUuid.isNotBlank()} / list = ${listUuid}")
                     WidgetListScreen(intent, list.value, emptyText, isEdit)
+                }
             }
         }
     }
@@ -150,13 +152,20 @@ fun WidgetListScreen(
     emptyText: String,
     isEdit: Boolean,
 ) {
-    var listTag by remember { mutableStateOf(dataWidget.tags) }
+    Log.e("GINES", "RECOMPOSE = ${dataWidget.listUuid} / ${dataWidget.tags.map { it.tagName }}")
+    var listId by rememberSaveable { mutableStateOf(dataWidget.listUuid) }
+
+    if (listId != dataWidget.listUuid && dataWidget.listUuid.isNotBlank() && dataWidget.tags.isNotEmpty())
+        listId = dataWidget.listUuid
+
+    var listTag by remember { mutableStateOf<List<WidgetTagItem>>( emptyList()) }
     val colorHeader = when (dataWidget.listLegend) {
         1 -> ColorProvider(Color(0xFFD7F7E7))
         2 -> ColorProvider(Color(0xFFDDE9FF))
         3 -> ColorProvider(Color(0xFFFFF6DB))
         else -> ColorProvider(Color(0xFFFFEBEB))
     }
+    Log.i("GINES", "listSAVE = $listId / list = ${dataWidget.listUuid} / $listTag")
 
     LaunchedEffect(dataWidget) {
         Log.d("GINES", "color = ${dataWidget.listLegend}")
@@ -164,76 +173,78 @@ fun WidgetListScreen(
         listTag = dataWidget.tags
     }
 
-    Column(
-        modifier = GlanceModifier.fillMaxSize()
-            .background(R.color.widget_background)
-            .cornerRadius(8.dp)
-    ) {
-        Row(
-            modifier = GlanceModifier.fillMaxWidth().background(colorHeader),
-            verticalAlignment = Alignment.CenterVertically,
+    if (dataWidget.listUuid.isNotBlank()) {
+        Column(
+            modifier = GlanceModifier.fillMaxSize()
+                .background(R.color.widget_background)
+                .cornerRadius(8.dp)
         ) {
-            Text(
-                text = dataWidget.listName,
-                style = TextStyle(color = ColorProvider(R.color.widget_text_active)),
-                modifier = GlanceModifier.defaultWeight()
-                    .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 8.dp)
-
-            )
-            Box(
-                modifier = GlanceModifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            Row(
+                modifier = GlanceModifier.fillMaxWidth().background(colorHeader),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    provider = ImageProvider(R.drawable.ic_edit_24),
-                    contentDescription = null,
-                    modifier = GlanceModifier
-                        .clickable(
-                            actionStartActivity(intent)
-                        )
-                )
-            }
-        }
+                Text(
+                    text = dataWidget.listName,
+                    style = TextStyle(color = ColorProvider(R.color.widget_text_active)),
+                    modifier = GlanceModifier.defaultWeight()
+                        .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 8.dp)
 
-        Box(
-            modifier = GlanceModifier.fillMaxWidth().height(1.dp)
-                .background(R.color.widget_text_passive)
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-        ) {}
-        when (listTag.isEmpty()) {
-            true -> {
+                )
                 Box(
-                    modifier = GlanceModifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = GlanceModifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 ) {
-                    Text(
-                        text = emptyText,
-                        style = TextStyle(color = ColorProvider(R.color.widget_text_active))
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_edit_24),
+                        contentDescription = null,
+                        modifier = GlanceModifier
+                            .clickable(
+                                actionStartActivity(intent)
+                            )
                     )
                 }
             }
 
-            false -> {
-                LazyColumn(
-                    modifier = GlanceModifier.fillMaxSize().padding(4.dp)
-                ) {
-                    itemsIndexed(
-                        listTag,
-                        itemId = { index, tag ->
-                            (dataWidget.listUuid.hashCode()
-                                .toLong() * 31 + tag.tagName.hashCode() + index)
-                        }) { index, tag ->
-                        WidgetItemView(
-                            item = tag,
-                            listId = dataWidget.listUuid,
-                            listVersion = dataWidget.listVersion,
-                            isEdit,
-                            onClick = { select ->
-                                val mutableList = listTag.toMutableList()
-                                val newTag = tag.copy(isStrike = select)
-                                mutableList.remove(tag)
-                                mutableList.add(index, newTag)
-                                listTag = mutableList
-                            })
+            Box(
+                modifier = GlanceModifier.fillMaxWidth().height(1.dp)
+                    .background(R.color.widget_text_passive)
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            ) {}
+            when (listTag.isEmpty()) {
+                true -> {
+                    Box(
+                        modifier = GlanceModifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = emptyText,
+                            style = TextStyle(color = ColorProvider(R.color.widget_text_active))
+                        )
+                    }
+                }
+
+                false -> {
+                    LazyColumn(
+                        modifier = GlanceModifier.fillMaxSize().padding(4.dp)
+                    ) {
+                        itemsIndexed(
+                            listTag,
+                            itemId = { index, tag ->
+                                (dataWidget.listUuid.hashCode()
+                                    .toLong() * 31 + tag.tagName.hashCode() + index)
+                            }) { index, tag ->
+                            WidgetItemView(
+                                item = tag,
+                                listId = dataWidget.listUuid,
+                                listVersion = dataWidget.listVersion,
+                                isEdit,
+                                onClick = { select ->
+                                    val mutableList = listTag.toMutableList()
+                                    val newTag = tag.copy(isStrike = select)
+                                    mutableList.remove(tag)
+                                    mutableList.add(index, newTag)
+                                    listTag = mutableList
+                                })
+                        }
                     }
                 }
             }

@@ -9,6 +9,7 @@ import ru.gorinih.familyshopper.data.db.dao.UserDao
 import ru.gorinih.familyshopper.data.db.models.DbDeletedTags
 import ru.gorinih.familyshopper.data.db.models.DbDictionary
 import ru.gorinih.familyshopper.data.db.models.DbDictionaryVersions
+import ru.gorinih.familyshopper.data.db.models.DbList
 import ru.gorinih.familyshopper.data.db.models.DbListTags
 import ru.gorinih.familyshopper.data.db.models.DbListVersions
 import ru.gorinih.familyshopper.data.db.models.toDbDictionary
@@ -129,31 +130,10 @@ class DatabaseRepositoryImpl(
      * получение подробного списка
      */
     override suspend fun takeList(listId: String): ShoppedList =
-        listsDao.takeList(listId = listId).groupBy { dbList -> dbList.listId }
-            .map { (_, values) ->
-                val firstItem = values.first()
-                ShoppedList(
-                    listId = firstItem.listId,
-                    listName = firstItem.listName,
-                    ownerUuid = firstItem.listOwner,
-                    listVersion = firstItem.listVersion,
-                    listLegend = firstItem.listLegend,
-                    usersUuid = firstItem.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
-                    dateTime = firstItem.listDatetime,
-                    tagNames = values.mapNotNull { value ->
-                        if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
-                            ShoppedItem(
-                                tagId = value.tagName.first().uppercase(),
-                                tagName = value.tagName,
-                                isStrike = value.tagStrike,
-                                tagComment = value.tagComment
-                            )
-                    },
-                    countTags = values.mapNotNull { value -> value.tagName }.size,
-                    countStrikes = values.filter { value -> value.tagStrike == true }.size,
-                    userName = firstItem.userName
-                )
-            }.first()
+        convertListFromDb(listsDao.takeList(listId = listId))
+
+    override suspend fun takeUpdatedList(listId: String): ShoppedList =
+        convertListFromDb(listsDao.takeUpdatedList(listUuid = listId))
 
     override fun observeList(listId: String): Flow<ShoppedList> =
         listsDao.flowList(listId = listId).map { listsDao ->
@@ -227,5 +207,32 @@ class DatabaseRepositoryImpl(
     ) {
         listsDao.strikeTag(listId = listId, tagName=tagName, tagStrike = tagStrike, version = listVersion)
     }
+
+    private fun convertListFromDb(list: List<DbList>): ShoppedList =
+        list.groupBy { dbList -> dbList.listId }
+            .map { (_, values) ->
+                val firstItem = values.first()
+                ShoppedList(
+                    listId = firstItem.listId,
+                    listName = firstItem.listName,
+                    ownerUuid = firstItem.listOwner,
+                    listVersion = firstItem.listVersion,
+                    listLegend = firstItem.listLegend,
+                    usersUuid = firstItem.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
+                    dateTime = firstItem.listDatetime,
+                    tagNames = values.mapNotNull { value ->
+                        if (value.tagName == null || value.tagStrike == null || value.tagComment == null) null else
+                            ShoppedItem(
+                                tagId = value.tagName.first().uppercase(),
+                                tagName = value.tagName,
+                                isStrike = value.tagStrike,
+                                tagComment = value.tagComment
+                            )
+                    },
+                    countTags = values.mapNotNull { value -> value.tagName }.size,
+                    countStrikes = values.filter { value -> value.tagStrike == true }.size,
+                    userName = firstItem.userName
+                )
+            }.first()
 
 }

@@ -25,6 +25,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
@@ -55,6 +56,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
             FamilyShopperTheme {
                 val viewModel: WidgetViewModel = koinViewModel()
                 val listOfProducts = viewModel.stateList.collectAsState(emptyList())
+                val selected = viewModel.selectedList
                 val uuid = viewModel.takeUserUuid()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -62,10 +64,14 @@ class WidgetConfigurationActivity : ComponentActivity() {
                     ShowListToSelect(
                         listOfProducts,
                         modifier = Modifier.padding(innerPadding)
-                    ) { listId, listVersion, listLegend, listOwner ->
-                        val isEdit =
-                            (uuid == listOwner && listLegend != TypeLegendList.VIEW) || (listLegend == TypeLegendList.ALL || listLegend == TypeLegendList.ADD)
-                        saveListUuid(this, appWidgetId, listId, listVersion, isEdit)
+                    ) { listId ->
+                        viewModel.prepareList(listUuid = listId)
+          //              saveListUuid(this, appWidgetId, listId, listVersion, isEdit)
+                    }
+                    if (selected.list != null) {
+                        with(selected.list) {
+                            saveListUuid(this@WidgetConfigurationActivity, appWidgetId, listId, listVersion, isEdit)
+                        }
                     }
                 }
             }
@@ -97,6 +103,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
             withContext(Dispatchers.Main.immediate) {
                 val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 setResult(RESULT_OK, result)
+                delay(500)
                 finishAfterTransition()
             }
         }
@@ -108,7 +115,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
 fun ShowListToSelect(
     listOfProducts: State<List<UiListObject>>,
     modifier: Modifier = Modifier,
-    onListSelected: (String, Int, TypeLegendList, String) -> Unit,
+    onListSelected: (String) -> Unit,
 ) {
     val stateList = rememberLazyListState()
     Column(

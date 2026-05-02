@@ -57,6 +57,14 @@ interface ListsDao {
         updateTag(listId = listId, tagName = tagName, tagStrike = tagStrike)
         updateVersion(listId = listId, version = version)
     }
+
+    @Transaction
+    suspend fun takeUpdatedList(listUuid: String): List<DbList>  {
+        val lists = selectLists().firstOrNull {it.listId == listUuid} ?: return emptyList()
+        val version = lists.listVersion +1
+        updateVersion(listId = listUuid, version = version)
+        return takeList(listUuid)
+    }
     //endregion
 
 
