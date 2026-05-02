@@ -2,18 +2,17 @@ package ru.gorinih.familyshopper.ui.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.state.updateAppWidgetState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_VERSION
-import ru.gorinih.familyshopper.di.dataStore
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 
 /**
@@ -59,15 +58,11 @@ class StrikeToggleAction : ActionCallback, KoinComponent {
             }
         }
 
-
-
-        val store = context.dataStore
-        val listVersion = intPreferencesKey("${WIDGET_VERSION}_$appWidgetId")
-        WidgetScope.scope.launch {
-            store.updateData {
-                it.toMutablePreferences().apply {
-                    if (action == ACTION_STRIKE) set(listVersion, nextVersion)
-                }
+        val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
+        val glanceIds = manager.getGlanceIds(WidgetLists::class.java)
+        glanceIds.forEach { glanceId ->
+            updateAppWidgetState(context, glanceId) { updateState->
+                updateState[listForceUpdate] = System.currentTimeMillis()
             }
         }
         WidgetLists().update(context, glanceId)

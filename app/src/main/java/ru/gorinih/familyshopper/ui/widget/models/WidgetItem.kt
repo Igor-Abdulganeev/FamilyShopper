@@ -11,7 +11,7 @@ data class WidgetItem(
     val listUuid: String = "",
     val listVersion: Int = 0,
     val listName: String = "",
-    val listLegend: Int = 1,
+    val listLegend: Int = 0,
     val tags: List<WidgetTagItem> = emptyList()
 )
 

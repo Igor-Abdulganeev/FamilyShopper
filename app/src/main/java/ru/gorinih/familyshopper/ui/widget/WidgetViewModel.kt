@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.widget
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,16 +27,13 @@ class WidgetViewModel(
     var selectedList by mutableStateOf(WidgetState())
         private set
 
-    private var timePause = 700L
+    private var timePause = 500L
     private var clickTime = 0L
-
-    fun takeUserUuid(): String = pref.getClientUUID()
 
     fun prepareList(listUuid: String) {
         val currentTime = System.currentTimeMillis()
         if (currentTime - clickTime > timePause) {
             clickTime = currentTime
-            Log.i("GINES","SELECT!")
             viewModelScope.launch(Dispatchers.IO) {
                 val data = database.takeUpdatedList(listId = listUuid).toUiListObject()
                 val clientUuid = pref.getClientUUID()

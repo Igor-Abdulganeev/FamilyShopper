@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,9 +19,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -32,9 +32,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_EDIT
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_VERSION
-import ru.gorinih.familyshopper.di.dataStore
-import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.views.CardListSimpleItem
@@ -57,7 +54,6 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 val viewModel: WidgetViewModel = koinViewModel()
                 val listOfProducts = viewModel.stateList.collectAsState(emptyList())
                 val selected = viewModel.selectedList
-                val uuid = viewModel.takeUserUuid()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
@@ -66,11 +62,10 @@ class WidgetConfigurationActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) { listId ->
                         viewModel.prepareList(listUuid = listId)
-          //              saveListUuid(this, appWidgetId, listId, listVersion, isEdit)
                     }
                     if (selected.list != null) {
                         with(selected.list) {
-                            saveListUuid(this@WidgetConfigurationActivity, appWidgetId, listId, listVersion, isEdit)
+                            saveListUuid(this@WidgetConfigurationActivity, appWidgetId, listId, isEdit)
                         }
                     }
                 }
@@ -82,29 +77,27 @@ class WidgetConfigurationActivity : ComponentActivity() {
         context: Context,
         appWidgetId: Int,
         listUuid: String,
-        version: Int,
         isEdit: Boolean,
     ) {
-        val store = context.dataStore
         val listIdKey = stringPreferencesKey("${WIDGET_LIST}_$appWidgetId")
-        val listVersion = intPreferencesKey("${WIDGET_VERSION}_$appWidgetId")
         val listEdit = booleanPreferencesKey("${WIDGET_EDIT}_$appWidgetId")
         val listForceUpdate = longPreferencesKey("${WIDGET_FORCE_UPDATE}_$appWidgetId")
         lifecycleScope.launch {
-            store.updateData {
-                it.toMutablePreferences().apply {
-                    set(listIdKey, listUuid)
-                    set(listVersion, version)
-                    set(listEdit, isEdit)
-                    set(listForceUpdate, System.currentTimeMillis())
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(WidgetLists::class.java)
+            glanceIds.forEach { glanceId ->
+                updateAppWidgetState(context, glanceId) { updateState->
+                    updateState[listIdKey] = listUuid
+                    updateState[listEdit] = isEdit
+                    updateState[listForceUpdate] = System.currentTimeMillis()
                 }
-            }
-            Log.i("GINES","UP listIdKey=$listUuid  listVersion=$version  listEdit=$isEdit")
-            withContext(Dispatchers.Main.immediate) {
-                val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                setResult(RESULT_OK, result)
-                delay(500)
-                finishAfterTransition()
+                WidgetLists().update(context, glanceId)
+                withContext(Dispatchers.Main.immediate) {
+                    val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    setResult(RESULT_OK, result)
+                    delay(300) // дать виджету отрисоваться
+                    finishAfterTransition()
+                }
             }
         }
     }
