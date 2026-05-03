@@ -107,7 +107,11 @@
     <string name="button_text_negative">Cancel</string>
 
     <string name="label_language_selector">Language</string>
-    <string name="widget_warning_empty_data">List is empty or not selected</string>
     <string name="label_datetime_today">today</string>
     <string name="label_datetime_yesterday">yesterday</string>
+
+    <string name="widget_warning_empty_data">List is empty or not selected</string>
+    <string name="widget_header_preview">Shopping list</string>
+    <string name="widget_first_strikethrough_text"><s>milk</s></string>
+    <string name="widget_second_text">bread</string>
 </resources>

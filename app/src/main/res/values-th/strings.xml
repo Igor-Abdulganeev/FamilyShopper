@@ -107,7 +107,11 @@
     <string name="button_text_negative">ยกเลิก</string>
 
     <string name="label_language_selector">ภาษา</string>
-    <string name="widget_warning_empty_data">รายการว่างเปล่าหรือยังไม่ได้เลือก</string>
     <string name="label_datetime_today">วันนี้</string>
     <string name="label_datetime_yesterday">เมื่อวาน</string>
+
+    <string name="widget_warning_empty_data">รายการว่างเปล่าหรือยังไม่ได้เลือก</string>
+    <string name="widget_header_preview">รายการซื้อของ</string>
+    <string name="widget_first_strikethrough_text"><s>นม</s></string>
+    <string name="widget_second_text">ขนมปัง</string>
 </resources>

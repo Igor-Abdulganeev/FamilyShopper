@@ -107,7 +107,11 @@
     <string name="button_text_negative">Откажи</string>
 
     <string name="label_language_selector">Језик</string>
-    <string name="widget_warning_empty_data">Листа је празна или није изабрана</string>
     <string name="label_datetime_today">данас</string>
     <string name="label_datetime_yesterday">јуче</string>
+
+    <string name="widget_warning_empty_data">Листа је празна или није изабрана</string>
+    <string name="widget_header_preview">Листа за куповину</string>
+    <string name="widget_first_strikethrough_text"><s>млеко</s></string>
+    <string name="widget_second_text">хлеб</string>
 </resources>

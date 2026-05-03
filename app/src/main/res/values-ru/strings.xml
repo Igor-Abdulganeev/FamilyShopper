@@ -75,7 +75,12 @@
     <string name="button_text_negative">Отмена</string>
 
     <string name="label_language_selector">Язык</string>
-    <string name="widget_warning_empty_data">Список пуст или не выбран</string>
     <string name="label_datetime_today">сегодня</string>
     <string name="label_datetime_yesterday">вчера</string>
+
+    <string name="widget_warning_empty_data">Список пуст или не выбран</string>
+    <string name="widget_header_preview">Список покупок</string>
+    <string name="widget_first_strikethrough_text"><s>молоко</s></string>
+    <string name="widget_second_text">хлеб</string>
+
 </resources>
