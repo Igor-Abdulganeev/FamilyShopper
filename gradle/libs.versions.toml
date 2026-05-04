@@ -16,6 +16,7 @@ firebaseBom = "34.11.0"
 roomVersion = "2.8.4"
 glanceVersion = "1.1.1"
 dataStoreVersion = "1.0.0"
+splashVersion = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -61,6 +62,7 @@ androidx-glance-appwidget = {group = "androidx.glance", name = "glance-appwidget
 androidx-glance-material = {group="androidx.glance", name="glance-material3", version.ref="glanceVersion"}
 
 androidx-datastore = {group="androidx.datastore", name="datastore-preferences", version.ref="dataStoreVersion"}
+androidx-splashscreen = {group="androidx.core", name="core-splashscreen", version.ref="splashVersion"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

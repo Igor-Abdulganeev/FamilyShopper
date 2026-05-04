@@ -187,6 +187,8 @@ dependencies {
     implementation(libs.androidx.glance.material)
     implementation(libs.androidx.datastore)
 
+    implementation(libs.androidx.splashscreen)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
