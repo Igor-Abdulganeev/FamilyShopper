@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,10 +36,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationHost
 import ru.gorinih.familyshopper.navigation.NavigationKey
+import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.views.LocaleHelper
 import ru.gorinih.familyshopper.ui.views.getLocaleFromPreference
@@ -53,7 +56,11 @@ class MainActivity : ComponentActivity() {
             WidgetLists().updateAll(application.applicationContext)
         }
         setContent {
-            FamilyShopperTheme {
+            val viewModel: FamilyShopperViewModel = koinViewModel()
+            val isDynamicColor by viewModel.dynamicColor.collectAsState(initial = false)
+            FamilyShopperTheme(
+                dynamicColor = isDynamicColor
+            ) {
                 val navController = rememberNavController()
                 var navigationActions by remember { mutableStateOf(NavigationActions(onNavigationClick = { navController.popBackStack()})) }
                 val backStackEntry by navController.currentBackStackEntryAsState()

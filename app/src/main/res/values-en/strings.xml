@@ -81,6 +81,8 @@
     <string name="label_settings_tab_about">About</string>
 
     <string name="label_settings_background">Dynamic list background (on) or static (off).</string>
+    <string name="label_settings_dynamic_color_text">Dynamic colors</string>
+    <string name="label_settings_dynamic_color_description">Use your wallpaper colors for the app theme.</string>
 
     <string name="error_title_text">Error</string>
     <string name="error_network_text">Something went wrong</string>

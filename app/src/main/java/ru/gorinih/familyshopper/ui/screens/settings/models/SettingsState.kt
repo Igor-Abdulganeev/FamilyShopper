@@ -20,4 +20,5 @@ data class SettingsState(
     val isSharing: Boolean = false, //шаринг данных запущен
     val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
     val warning: WarningState = WarningState(), // обработка исключений
+    val dynamicColor: Boolean = false, // динамический или нет цвет приложения
 ): Parcelable

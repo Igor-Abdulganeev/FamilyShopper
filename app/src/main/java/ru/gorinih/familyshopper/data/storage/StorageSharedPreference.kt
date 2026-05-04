@@ -3,6 +3,11 @@ package ru.gorinih.familyshopper.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import ru.gorinih.familyshopper.di.dataStore
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
@@ -14,7 +19,7 @@ import java.util.UUID
  */
 
 class StorageSharedPreference(
-    context: Context
+    private val context: Context
 ) : StorageRepository {
     private val preference: SharedPreferences =
         context.getSharedPreferences(SETTING_FILE_NAME, Context.MODE_PRIVATE)
@@ -94,11 +99,24 @@ class StorageSharedPreference(
         }
     }
 
+    override fun dynamicColorFlow(): Flow<Boolean> =
+        context.dataStore.data.map { pref ->
+            pref[booleanPreferencesKey(DYNAMIC_COLOR)] ?: false
+        }
+
+    override suspend fun setDynamicColor(isDynamicColor: Boolean) {
+        context.dataStore.edit { pref ->
+            pref[booleanPreferencesKey(DYNAMIC_COLOR)]=isDynamicColor
+        }
+    }
+
     companion object {
-        const val WIDGET_FILE_NAME = "family_widget_data"
         const val WIDGET_LIST = "family_shopper_widget_list"
         const val WIDGET_EDIT = "family_shopper_widget_list_edit"
         const val WIDGET_FORCE_UPDATE = "family_shopper_widget_force_update"
+
+        const val SETTINGS_DATA_STORE = "family_shopper_settings"
+        const val DYNAMIC_COLOR = "family_shopper_dynamic_color"
 
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"

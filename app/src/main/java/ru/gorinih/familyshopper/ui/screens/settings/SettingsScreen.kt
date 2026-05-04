@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -535,6 +534,10 @@ fun SettingsScreen(
                         ,
                         verticalArrangement = Arrangement.Top,
                     ) {
+                        LanguageSelector(
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             Row(
                                 modifier = Modifier
@@ -551,18 +554,39 @@ fun SettingsScreen(
                                     modifier = Modifier.padding(start = 8.dp)
                                 )
                             }
-                            Spacer(
+                             DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(16.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = state.dynamicColor,
+                                    onCheckedChange = {
+                                        viewModel.updateColor()
+                                    },
+                                )
+                                Text(
+                                    text = stringResource(R.string.label_settings_dynamic_color_text),
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                            Text(
+                                text = stringResource(R.string.label_settings_dynamic_color_description),
+                                fontSize = 12.sp,
+                                style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                textAlign = TextAlign.Justify,
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp, horizontal = 8.dp)
+                                    .alpha(0.8f)
                             )
 
-                            DividerHorizontalTransparent()
+                            DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
                         }
-                        LanguageSelector(
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
-                        LazyColumn(
+                            LazyColumn(
                             modifier = Modifier.padding(top = 16.dp).height(300.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->

@@ -25,7 +25,7 @@ import ru.gorinih.familyshopper.data.remote.interceptors.LoggerInterceptor
 import ru.gorinih.familyshopper.data.services.JsonService
 import ru.gorinih.familyshopper.data.services.JsonServiceImpl
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FILE_NAME
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.SETTINGS_DATA_STORE
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -45,6 +45,7 @@ import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
+import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
@@ -57,7 +58,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by Igor Abdulganeev on 01.04.2026
  */
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = WIDGET_FILE_NAME)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS_DATA_STORE)
 
 fun koinModule(): Module = module {
 
@@ -154,4 +155,5 @@ fun koinModule(): Module = module {
         )
     }
     viewModel { WidgetViewModel(database = get(), pref = get()) }
+    viewModel { FamilyShopperViewModel(pref = get()) }
 }

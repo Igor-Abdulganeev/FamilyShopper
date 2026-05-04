@@ -79,6 +79,8 @@
     <string name="label_settings_tab_about">O aplikaciji</string>
 
     <string name="label_settings_background">Dinamička pozadina liste (uključeno) ili statička (isključeno).</string>
+    <string name="label_settings_dynamic_color_text">Dinamičke boje</string>
+    <string name="label_settings_dynamic_color_description">Koristi boje pozadine za temu aplikacije.</string>
 
     <string name="error_title_text">Greška</string>
     <string name="error_network_text">Došlo je do greške</string>

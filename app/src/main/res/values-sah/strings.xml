@@ -79,6 +79,9 @@
     <string name="label_settings_tab_about">Туһунан</string>
 
     <string name="label_settings_background">Фон</string>
+    <string name="label_settings_dynamic_color_text">Динамикалаах өнгөлөр</string>
+    <string name="label_settings_dynamic_color_description">Приложение көрүҥүн обойкаҕын өнгөлөрүнэн туһан.</string>
+
 
     <string name="error_title_text">Алҕас</string>
     <string name="error_network_text">Алҕас</string>

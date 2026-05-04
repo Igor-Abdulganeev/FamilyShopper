@@ -79,6 +79,8 @@
     <string name="label_settings_tab_about">เกี่ยวกับ</string>
 
     <string name="label_settings_background">พื้นหลังรายการแบบไดนามิก (เปิด) หรือแบบคงที่ (ปิด)</string>
+    <string name="label_settings_dynamic_color_text">สีแบบไดนามิก</string>
+    <string name="label_settings_dynamic_color_description">ใช้สีจากวอลเปเปอร์ของคุณสำหรับธีมแอป</string>
 
     <string name="error_title_text">ข้อผิดพลาด</string>
     <string name="error_network_text">เกิดข้อผิดพลาด</string>
