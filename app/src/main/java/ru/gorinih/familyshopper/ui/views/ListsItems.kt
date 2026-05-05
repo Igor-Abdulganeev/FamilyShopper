@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -59,14 +60,12 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
@@ -82,13 +81,13 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
 import ru.gorinih.familyshopper.ui.toShowDate
 import ru.gorinih.familyshopper.ui.widget.ShowListToSelect
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
  */
-
 
 @Composable
 fun TagsList(
@@ -114,6 +113,8 @@ fun TagsList(
     if (list.isEmpty()) {
         Text(
             stringResource(R.string.label_empty_list),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -171,12 +172,14 @@ fun TagItem(
                         onClearCurrentField()
                         onClick(it)
                     },
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
                     onTextLayout = { textLayoutResult = it },
@@ -240,7 +243,10 @@ fun TagItem(
                         onDelete()
                     },
                 ) {
-                    Icon(Icons.Default.Clear, null)
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -254,8 +260,7 @@ fun TagItem(
             ) {
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     onTextLayout = { textLayoutResult = it },
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
@@ -294,14 +299,16 @@ fun TagItem(
                                         cap = StrokeCap.Round
                                     )
                                 }
-                             }
+                            }
                         }
                 )
                 if (tag.tagComment.isNotBlank()) {
                     Text(
                         text = "(${tag.tagComment})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .padding(end = 16.dp)
+                            .padding(end = 8.dp)
                             .weight(0.7f)
                     )
                 }
@@ -327,12 +334,14 @@ fun TagItem(
                         onClearCurrentField()
                         onClick(it)
                     },
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     onTextLayout = { textLayoutResult = it },
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
@@ -377,8 +386,10 @@ fun TagItem(
                 if (tag.tagComment.isNotBlank()) {
                     Text(
                         text = "(${tag.tagComment})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .padding(end = 16.dp)
+                            .padding(end = 8.dp)
                             .weight(0.7f)
                     )
                 }
@@ -397,20 +408,20 @@ fun Users(
 ) {
     val stateList = rememberLazyListState()
 
-        LazyColumn(
-            modifier = modifier,
-            state = stateList,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center
-        ) {
-            items(list, key = {it.userUuid; it.userName}) { item ->
-                User(
-                    item = item,
-                    onEdit = { onEdit(it) },
-                    onDelete = { onDelete(item) }
-                )
-            }
+    LazyColumn(
+        modifier = modifier,
+        state = stateList,
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
+    ) {
+        items(list, key = { it.userUuid; it.userName }) { item ->
+            User(
+                item = item,
+                onEdit = { onEdit(it) },
+                onDelete = { onDelete(item) }
+            )
         }
+    }
 }
 
 @Composable
@@ -442,12 +453,20 @@ fun User(
             },
             modifier = Modifier.weight(0.1f)
         ) {
-            Icon(Icons.Default.Clear, null)
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
         AnimatedContent(
             targetState = editable,
-            transitionSpec = { fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(clip = false) },
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(
+                    clip = false
+                )
+            },
             modifier = Modifier.weight(1.0f)
         )
         { isEdit ->
@@ -460,7 +479,7 @@ fun User(
                         },
                         modifier = Modifier
                             .focusRequester(focusRequest)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -475,18 +494,17 @@ fun User(
                 }
 
                 false -> {
-                    Box(modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ){
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
                         Text(
                             text = editName,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
-                 }
+                }
             }
         }
         IconButton(
@@ -495,11 +513,13 @@ fun User(
             },
             modifier = Modifier.weight(0.1f)
         ) {
-            Icon(Icons.Default.EditNote, null)
+            Icon(
+                imageVector = Icons.Default.EditNote,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
-
     }
-
 }
 
 @Preview(showBackground = true)
@@ -736,7 +756,7 @@ fun CardListSimpleItem(
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.surfaceVariant,
+                        colorBrush,
                         colorBrush,
                     )
                 }
@@ -763,7 +783,7 @@ fun CardListSimpleItem(
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.surfaceVariant,
+                        colorBrush,
                         colorBrush,
                     )
                 }
@@ -775,7 +795,6 @@ fun CardListSimpleItem(
         MaterialGroupBox(
             modifier = Modifier.fillMaxWidth(),
             onClick = { onClick(item.listId) },
-            color = MaterialTheme.colorScheme.primary,
             brush = brush,
         ) {
             Column {
@@ -796,23 +815,19 @@ fun CardListSimpleItem(
                         if (!isDark) {
                             Text(
                                 text = title,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    drawStyle = Stroke(
-                                        width = 4f,
-                                        join = StrokeJoin.Round
-                                    )
+                                style = MaterialTheme.typography.bodyLarge.copy(drawStyle = Stroke(
+                                    width = 4f,
+                                    join = StrokeJoin.Round
+                                )
                                 ),
+                                color = White,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onSecondary
                             )
                         }
                         Text(
                             text = title,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                            ),
+                            style = MaterialTheme.typography.bodyLarge,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -822,16 +837,16 @@ fun CardListSimpleItem(
                     Text(
                         text = item.listDatetimeValue.toShowDate(
                             todayName = stringResource(R.string.label_datetime_today),
-                            yesterdayName = stringResource(R.string.label_datetime_yesterday)),
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            baselineShift = BaselineShift.Subscript
+                            yesterdayName = stringResource(R.string.label_datetime_yesterday)
+                        ),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            baselineShift = BaselineShift.Subscript,
+                            textAlign = TextAlign.End,
                         ),
                         maxLines = 1,
                         modifier = Modifier
                             .padding(end = 8.dp)
                             .weight(0.4f),
-                        textAlign = TextAlign.End,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -855,7 +870,8 @@ fun CardListSimpleItem(
                         )
                         if (progress == 1f)
                             Icon(
-                                Icons.Default.Done, contentDescription = null,
+                                imageVector = Icons.Default.Done,
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier
                                     .weight(0.3f)
@@ -870,7 +886,7 @@ fun CardListSimpleItem(
                         item.countStrikes.toString(),
                         item.countTags.toString()
                     ),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 32.dp, top = 4.dp)
                 )

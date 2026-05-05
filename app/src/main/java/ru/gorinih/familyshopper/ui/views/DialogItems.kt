@@ -66,7 +66,6 @@ fun ErrorDialog(
     AlertDialog(
         modifier = modifier.shadow(alphaShadowLight = 0.3f, alphaShadowDark = 0.2f),
         onDismissRequest = onDismiss,
-
         properties = DialogProperties(
             dismissOnBackPress = true,
             dismissOnClickOutside = true
@@ -105,7 +104,10 @@ fun ErrorDialog(
                 ),
                 shape = MaterialTheme.shapes.medium
             ) {
-                Text(text = stringResource(R.string.button_text_ok))
+                Text(
+                    text = stringResource(R.string.button_text_ok),
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -141,7 +143,8 @@ fun QueryDialog(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
@@ -161,7 +164,10 @@ fun QueryDialog(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text(positiveButtonText)
+                Text(
+                    text = positiveButtonText,
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         },
         dismissButton = {
@@ -172,7 +178,10 @@ fun QueryDialog(
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
-                Text(negativeButtonText)
+                Text(
+                    text = negativeButtonText,
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -195,9 +204,10 @@ fun PreviewDayQueryDialog() {
         }
     }
 }
+
 @Preview(showSystemUi = true, showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewNightQueryDialog(){
+fun PreviewNightQueryDialog() {
     FamilyShopperTheme {
         Column(modifier = Modifier.fillMaxSize()) {
             QueryDialog(
@@ -217,7 +227,7 @@ fun PreviewDayErrorDialog() {
             ErrorDialog(
                 errorText = "Ошибка обновления, проверьте сетевое соединение",
                 onDismiss = {}
-                )
+            )
         }
     }
 }
@@ -230,7 +240,7 @@ fun PreviewNightErrorDialog() {
             ErrorDialog(
                 errorText = "Ошибка обновления, проверьте сетевое соединение",
                 onDismiss = {}
-                )
+            )
         }
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +39,7 @@ import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.theme.Black
 import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
 import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
 import ru.gorinih.familyshopper.ui.theme.ListDarkRed
@@ -48,7 +48,9 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
 import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
@@ -98,61 +100,61 @@ fun ListStrikeTagsScreen(
             colors = if (isSystemInDarkTheme()) {
                 when (state.listLegend) {// цвета статика темная тема
                     TypeLegendList.ALL -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkGreen.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkBlue.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkYellow.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkRed.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
                 }
             } else { // цвета статика светлая тема
                 when (state.listLegend) {
                     TypeLegendList.ALL -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                         ListLightGreen.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                         ListLightBlue.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                         ListLightYellow.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                         ListLightRed.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
                 }
             }
@@ -240,7 +242,10 @@ fun ListStrikeTagsScreen(
                             route(listUuid)
                         },
                     ) {
-                        Icon(Icons.Default.EditNote, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.EditNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface)
                     }
                 } else IconButton(
                     enabled = false,
@@ -248,7 +253,11 @@ fun ListStrikeTagsScreen(
                 ) {
                     Spacer(Modifier.width(48.dp))
                 }
-                Text(text = state.listName)
+                Text(
+                    text = state.listName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
                 if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
                             || state.isEditable)
                 ) {
@@ -268,18 +277,19 @@ fun ListStrikeTagsScreen(
                             enabled = !state.hiddenUpdate,
                             onClick = { viewModel.updateList() },
                         ) {
-                            Icon(Icons.Default.Repeat, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 } else Spacer(Modifier.width(48.dp))
             }
-            HorizontalDivider(
-                thickness = 1.dp,
+            DividerHorizontalTransparent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 8.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
+                )
             TagsList(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -36,6 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -61,7 +62,8 @@ class MainActivity : ComponentActivity() {
             val viewModel: FamilyShopperViewModel = koinViewModel()
             val isDynamicColor by viewModel.dynamicColor.collectAsState(initial = false)
             FamilyShopperTheme(
-                dynamicColor = isDynamicColor
+                dynamicColor = isDynamicColor,
+                dataStoreRepository = getKoin().get()
             ) {
                 val navController = rememberNavController()
                 var navigationActions by remember { mutableStateOf(NavigationActions(onNavigationClick = { navController.popBackStack()})) }
@@ -75,7 +77,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text(stringResource(R.string.toolbar_main_header)) },
+                            title = { Text(
+                                stringResource(R.string.toolbar_main_header),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface) },
                             navigationIcon = {
                                 IconButton(
                                     onClick = {

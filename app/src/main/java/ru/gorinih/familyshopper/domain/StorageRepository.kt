@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 
 /**
  * Created by Igor Abdulganeev on 04.04.2026
@@ -42,7 +43,8 @@ interface StorageRepository {
 
     fun setAuthorFilter(filter: AuthorFilter)
 
-    suspend fun setDynamicColor(isDynamicColor: Boolean)
+    suspend fun updatePalette(palette: PaletteScheme)
 
-    fun dynamicColorFlow(): Flow<Boolean>
+    fun paletteFlow(): Flow<PaletteScheme>
+
 }

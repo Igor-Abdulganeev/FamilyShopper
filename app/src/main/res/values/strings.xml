@@ -78,7 +78,9 @@
     <string name="label_settings_tab_views">Appearance</string>
     <string name="label_settings_tab_about">About</string>
 
-    <string name="label_settings_background">Dynamic list background (on) or static (off).</string>
+    <string name="label_settings_background">List background:</string>
+    <string name="label_settings_background_description">dynamic (selected)\nstatic (not selected)</string>
+
     <string name="label_settings_dynamic_color_text">Dynamic colors</string>
     <string name="label_settings_dynamic_color_description">Use your wallpaper colors for the app theme.</string>
 
@@ -116,4 +118,7 @@
     <string name="widget_header_preview">Shopping list</string>
     <string name="widget_first_strikethrough_text"><s>milk</s></string>
     <string name="widget_second_text">bread</string>
+
+    <string name="label_palette_select">Color scheme selection:</string>
+    <string name="label_settings_tab_default">Presets</string>
 </resources>

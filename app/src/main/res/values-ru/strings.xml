@@ -51,7 +51,8 @@
     <string name="header_other_users">Пользователи хранилища:</string>
     <string name="label_settings_tab_views">Внешний вид</string>
     <string name="label_settings_tab_about">О программе</string>
-    <string name="label_settings_background">фон списка динамический (выбрано) или статический (не выбрано).</string>
+    <string name="label_settings_background">Фон списка:</string>
+    <string name="label_settings_background_description">динамический (выбрано)\nстатический (не выбрано)</string>
     <string name="label_settings_dynamic_color_text">Динамические цвета</string>
     <string name="label_settings_dynamic_color_description">Использовать цвета ваших обоев для оформления приложения.</string>
 
@@ -84,5 +85,8 @@
     <string name="widget_header_preview">Список покупок</string>
     <string name="widget_first_strikethrough_text"><s>молоко</s></string>
     <string name="widget_second_text">хлеб</string>
+
+    <string name="label_palette_select">Выбор цветовой схемы:</string>
+    <string name="label_settings_tab_default">Предустановки</string>
 
 </resources>

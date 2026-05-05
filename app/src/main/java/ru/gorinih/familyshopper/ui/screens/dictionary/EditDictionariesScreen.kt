@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
@@ -102,7 +102,11 @@ fun EditDictionariesScreen(
                         viewModel.refreshDictionaries()
                     }
                 ) {
-                    Icon(Icons.Default.Repeat, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Repeat,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
             RoundedTextField(
@@ -164,7 +168,11 @@ fun EmptyAlphabet(
             .fillMaxSize()
             .padding(2.dp)
     ) {
-        Text(stringResource(R.string.label_empty_list), modifier = Modifier.padding(16.dp))
+        Text(
+            text = stringResource(R.string.label_empty_list),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(16.dp))
     }
 }
 
@@ -218,9 +226,10 @@ private fun WordListTab(
         Text(
             text = data.tagId,
             style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        HorizontalDivider(thickness = 1.dp)
+        DividerHorizontalTransparent()
         LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
             items(data.tagNames, key = { item -> data.tagId to item.tagName }) { item ->
                 Row(
@@ -233,11 +242,16 @@ private fun WordListTab(
                             onClick(item.tagName)
                         }
                     ) {
-                        Icon(Icons.Default.Clear, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     Text(
                         text = item.tagName,
                         style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)

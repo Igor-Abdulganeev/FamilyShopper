@@ -1,6 +1,8 @@
 package ru.gorinih.familyshopper.ui
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.domain.StorageRepository
 
 /**
@@ -11,6 +13,6 @@ class FamilyShopperViewModel(
     pref: StorageRepository
 ) : ViewModel() {
 
-    val dynamicColor = pref.dynamicColorFlow()
+    val dynamicColor: Flow<Boolean> = pref.paletteFlow().map { it.isDynamic() }
 
 }
