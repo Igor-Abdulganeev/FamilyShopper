@@ -59,6 +59,12 @@ class SettingsViewModel(
                 }.stateIn(
                     viewModelScope
                 )
+            pref.dynamicColorFlow()
+                .catch { }
+                .onEach {
+                    stateSettings = stateSettings.copy(dynamicColor = it)
+                }
+                .stateIn(viewModelScope)
         }
     }
 
@@ -97,6 +103,13 @@ class SettingsViewModel(
     fun updateUsers(replace: Boolean) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             updater(replace)
+        }
+    }
+
+    fun updateColor() {
+        stateSettings = stateSettings.copy(dynamicColor = !stateSettings.dynamicColor)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            pref.setDynamicColor(stateSettings.dynamicColor)
         }
     }
 

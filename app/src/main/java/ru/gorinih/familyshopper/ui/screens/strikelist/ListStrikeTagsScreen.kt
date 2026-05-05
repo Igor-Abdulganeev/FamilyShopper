@@ -26,12 +26,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
@@ -49,6 +52,7 @@ import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -69,8 +73,10 @@ fun ListStrikeTagsScreen(
         backPressed()
     }
 
+    val context = LocalContext.current.applicationContext
     val state = viewModel.shoppedList
     var isClicked by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     BackHandler(enabled = true) {
         handleExit()
@@ -79,6 +85,10 @@ fun ListStrikeTagsScreen(
         navigationActions(NavigationActions(onNavigationClick = handleExit))
 
         onDispose {
+            scope.launch {
+                notifyWidgetAboutChanged(context)
+            }
+
             navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }
@@ -94,7 +104,7 @@ fun ListStrikeTagsScreen(
                     )
 
                     TypeLegendList.ADD -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.background,
                         ListDarkBlue.copy(alpha = 0.6f),
                         MaterialTheme.colorScheme.background,
                     )
@@ -106,7 +116,7 @@ fun ListStrikeTagsScreen(
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.background,
                         ListDarkRed.copy(alpha = 0.7f),
                         MaterialTheme.colorScheme.background,
                     )
@@ -119,18 +129,18 @@ fun ListStrikeTagsScreen(
                 when (state.listLegend) {
                     TypeLegendList.ALL -> listOf(
                         MaterialTheme.colorScheme.background,
-                         ListLightGreen.copy(alpha = 0.5f),
-                                MaterialTheme.colorScheme.background,
+                        ListLightGreen.copy(alpha = 0.5f),
+                        MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.background,
                         ListLightBlue.copy(alpha = 0.5f),
                         MaterialTheme.colorScheme.background,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.background,
                         ListLightYellow.copy(alpha = 0.7f),
                         MaterialTheme.colorScheme.background,
                     )
@@ -185,7 +195,7 @@ fun ListStrikeTagsScreen(
             TypeLegendList.ADD -> listOf(
                 MaterialTheme.colorScheme.onSecondary,
                 ListLightBlue,
-             )
+            )
 
             TypeLegendList.VIEW -> listOf(
                 MaterialTheme.colorScheme.onSecondary,
@@ -240,14 +250,18 @@ fun ListStrikeTagsScreen(
                 }
                 Text(text = state.listName)
                 if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
-                    || state.isEditable)
+                            || state.isEditable)
                 ) {
-                    Box(Modifier.width(48.dp).align(Alignment.CenterVertically)){
+                    Box(Modifier
+                        .width(48.dp)
+                        .align(Alignment.CenterVertically)) {
                         if (state.hiddenUpdate) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
                                 strokeWidth = 2.dp,
-                                modifier = Modifier.padding(start = 4.dp, top = 4.dp).size(36.dp)
+                                modifier = Modifier
+                                    .padding(start = 4.dp, top = 4.dp)
+                                    .size(36.dp)
                             )
                         }
                         IconButton(

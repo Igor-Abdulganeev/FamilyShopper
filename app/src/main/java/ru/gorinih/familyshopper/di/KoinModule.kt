@@ -1,5 +1,9 @@
 package ru.gorinih.familyshopper.di
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import okhttp3.OkHttpClient
@@ -21,6 +25,7 @@ import ru.gorinih.familyshopper.data.remote.interceptors.LoggerInterceptor
 import ru.gorinih.familyshopper.data.services.JsonService
 import ru.gorinih.familyshopper.data.services.JsonServiceImpl
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.SETTINGS_DATA_STORE
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -40,17 +45,20 @@ import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
+import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
+import ru.gorinih.familyshopper.ui.widget.WidgetViewModel
 import java.util.concurrent.TimeUnit
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
  */
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS_DATA_STORE)
 
 fun koinModule(): Module = module {
 
@@ -146,4 +154,6 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
+    viewModel { WidgetViewModel(database = get(), pref = get()) }
+    viewModel { FamilyShopperViewModel(pref = get()) }
 }

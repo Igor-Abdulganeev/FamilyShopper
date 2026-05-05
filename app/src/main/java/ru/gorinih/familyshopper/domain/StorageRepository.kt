@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.domain
 
+import kotlinx.coroutines.flow.Flow
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
@@ -40,4 +41,8 @@ interface StorageRepository {
     fun getAuthorFilter(): AuthorFilter
 
     fun setAuthorFilter(filter: AuthorFilter)
+
+    suspend fun setDynamicColor(isDynamicColor: Boolean)
+
+    fun dynamicColorFlow(): Flow<Boolean>
 }

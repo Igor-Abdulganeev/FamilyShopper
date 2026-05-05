@@ -20,4 +20,5 @@ data class UiStrikeState(
     val background: Boolean = false,
     val isUpdate: Boolean = true,
     val hiddenUpdate: Boolean = false,
+    val listId: String = "",
 )

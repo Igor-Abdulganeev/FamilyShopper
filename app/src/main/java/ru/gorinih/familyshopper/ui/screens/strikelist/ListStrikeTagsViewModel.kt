@@ -42,6 +42,7 @@ class ListStrikeTagsViewModel(
         UiStrikeState(
             background = pref.getBackgroundState(),
             isUpdate = pref.getGroupUUID().isNotBlank(),
+            listId = listUuid
         )
     )
         private set
