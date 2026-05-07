@@ -208,6 +208,14 @@ class DatabaseRepositoryImpl(
         listsDao.strikeTag(listId = listId, tagName=tagName, tagStrike = tagStrike, version = listVersion)
     }
 
+    override suspend fun updateTag(
+        listId: String,
+        tagName: String,
+        tagStrike: Boolean
+    ) {
+        listsDao.updateTag(listId = listId, tagName = tagName, tagStrike = tagStrike)
+    }
+
     private fun convertListFromDb(list: List<DbList>): ShoppedList =
         list.groupBy { dbList -> dbList.listId }
             .map { (_, values) ->

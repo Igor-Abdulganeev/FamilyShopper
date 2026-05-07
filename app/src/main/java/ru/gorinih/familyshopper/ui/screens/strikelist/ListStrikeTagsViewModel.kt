@@ -135,9 +135,20 @@ class ListStrikeTagsViewModel(
 
             ActionTag.STRIKE -> {
                 if (isExists) {
+                    var strike = false
                     val listTags = shoppedList.tagNames.map {
-                        if (it.tagName == tName) it.copy(isStrike = !it.isStrike) else it
+                        if (it.tagName == tName) {
+                            strike = !it.isStrike
+                            it.copy(isStrike = strike)
+                        } else it
                     }.toMutableList()
+                    viewModelScope.launch {
+                        database.updateTag(
+                            listId = shoppedList.listId,
+                            tagName = tName,
+                            tagStrike = strike
+                        )
+                    }
 //                    listTags.sortBy { it.isStrike }
                     shoppedList = shoppedList.copy(tagNames = listTags)
                 }
@@ -161,7 +172,7 @@ class ListStrikeTagsViewModel(
         shoppedList = shoppedList.copy(warning = WarningState())
     }
 
-    fun updateList() {
+    fun updatingList() {
         if (!shoppedList.loading) {
             shoppedList = shoppedList.copy(loading = true)
             viewModelScope.launch(Dispatchers.IO) {

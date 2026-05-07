@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -70,12 +71,12 @@ fun ListStrikeTagsScreen(
         parameters = { parametersOf(listUuid) }
     )
 ) {
+    val context = LocalContext.current
     val handleExit = {
         viewModel.updateIfChanged()
         backPressed()
     }
 
-    val context = LocalContext.current.applicationContext
     val state = viewModel.shoppedList
     var isClicked by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -87,7 +88,7 @@ fun ListStrikeTagsScreen(
         navigationActions(NavigationActions(onNavigationClick = handleExit))
 
         onDispose {
-            scope.launch {
+            scope.launch(NonCancellable) {
                 notifyWidgetAboutChanged(context)
             }
 
@@ -275,7 +276,7 @@ fun ListStrikeTagsScreen(
                         }
                         IconButton(
                             enabled = !state.hiddenUpdate,
-                            onClick = { viewModel.updateList() },
+                            onClick = { viewModel.updatingList() },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Repeat,

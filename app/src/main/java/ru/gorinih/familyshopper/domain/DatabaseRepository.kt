@@ -61,4 +61,6 @@ interface DatabaseRepository {
     suspend fun deleteList(listId: String)
 
     suspend fun strikeTag(listId: String, tagName: String, tagStrike: Boolean, listVersion: Int)
+
+    suspend fun updateTag(listId: String, tagName: String, tagStrike: Boolean)
 }
