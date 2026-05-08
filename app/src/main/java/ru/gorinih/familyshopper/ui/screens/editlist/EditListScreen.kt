@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -42,7 +43,6 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
@@ -55,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,10 +63,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
@@ -82,12 +85,13 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.TagsList
 import ru.gorinih.familyshopper.ui.views.shadow
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 07.04.2026
  */
 
-@SuppressLint("ConfigurationScreenWidthHeight")
+@SuppressLint("ConfigurationScreenWidthHeight", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreen(
@@ -99,6 +103,8 @@ fun EditListScreen(
     )
 ) {
     val state = viewModel.shoppedList
+    val context = LocalContext.current.applicationContext
+    val scope = rememberCoroutineScope()
     var addedTag by rememberSaveable { mutableStateOf("") }
     val keyboardManager = LocalFocusManager.current
     val screen = rememberScreenConfiguration()
@@ -123,7 +129,7 @@ fun EditListScreen(
     }
 
     val tintIcon = when (isDictionary) {
-        false -> LocalContentColor.current
+        false -> MaterialTheme.colorScheme.onSurface
         true -> MaterialTheme.colorScheme.primary
     }
     val typeColorTexts = listOf(
@@ -218,7 +224,8 @@ fun EditListScreen(
                                     R.string.label_icon_select_words,
                                     state.usersUuid.count()
                                 ),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1
                             )
                         },
@@ -301,6 +308,8 @@ fun EditListScreen(
                                 text = {
                                     Text(
                                         text = word,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.padding(
                                             horizontal = 4.dp,
                                             vertical = 4.dp
@@ -362,7 +371,7 @@ fun EditListScreen(
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
                     .shadow(
                         colorLight = MaterialTheme.colorScheme.primary,
                         shadowRadius = 4.dp,
@@ -371,12 +380,19 @@ fun EditListScreen(
                         offsetXLight = 3.dp,
                         alphaShadowLight = 0.3f
                     ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 onClick = {
                     viewModel.clearCurrentField()
                     viewModel.saveList()
                 }
             ) {
-                Text(stringResource(R.string.button_save_text))
+                Text(
+                    text = stringResource(R.string.button_save_text),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
 
@@ -483,6 +499,8 @@ fun EditListScreen(
                                         text = {
                                             Text(
                                                 text = word,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface,
                                                 modifier = Modifier.padding(
                                                     horizontal = 4.dp,
                                                     vertical = 4.dp
@@ -517,7 +535,8 @@ fun EditListScreen(
                                             R.string.label_icon_select_words,
                                             state.usersUuid.count()
                                         ),
-                                        fontSize = 12.sp,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1
                                     )
                                 },
@@ -525,7 +544,6 @@ fun EditListScreen(
                         }
                         Button(
                             modifier = Modifier
-                                // .weight(0.2f)
                                 .padding(horizontal = 4.dp)
                                 .shadow(
                                     colorLight = MaterialTheme.colorScheme.primary,
@@ -535,12 +553,16 @@ fun EditListScreen(
                                     offsetXLight = 3.dp,
                                     alphaShadowLight = 0.3f
                                 ),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
                             onClick = {
                                 viewModel.clearCurrentField()
                                 viewModel.saveList()
                             }
                         ) {
-                            Text("Сохранить")
+                            Text(text = stringResource(R.string.button_save_text))
                         }
                     }
                 }
@@ -611,7 +633,12 @@ fun EditListScreen(
             ) { viewModel.onDismissSaved() }
         }
     }
-    if (state.saved) onBack()
+    if (state.saved) {
+        scope.launch {
+            notifyWidgetAboutChanged(context)
+        }
+        onBack()
+    }
 }
 
 @Composable
@@ -644,6 +671,8 @@ fun UserRow(
         ) {
             Text(
                 text = userName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(start = 12.dp)
             )
         }

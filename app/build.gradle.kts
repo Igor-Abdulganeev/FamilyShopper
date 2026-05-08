@@ -25,8 +25,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 11
-val vName = "1.0"
+val vCode = 14
+val vName = "1.1"
 
 android {
     namespace = "ru.gorinih.familyshopper"
@@ -182,6 +182,12 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
+
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material)
+    implementation(libs.androidx.datastore)
+
+    implementation(libs.androidx.splashscreen)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

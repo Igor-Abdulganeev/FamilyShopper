@@ -78,7 +78,10 @@
     <string name="label_settings_tab_views">ลักษณะ</string>
     <string name="label_settings_tab_about">เกี่ยวกับ</string>
 
-    <string name="label_settings_background">พื้นหลังรายการแบบไดนามิก (เปิด) หรือแบบคงที่ (ปิด)</string>
+    <string name="label_settings_background">พื้นหลังรายการ:</string>
+    <string name="label_settings_background_description">ไดนามิก (เลือก)\nคงที่ (ไม่ได้เลือก)</string>
+    <string name="label_settings_dynamic_color_text">สีแบบไดนามิก</string>
+    <string name="label_settings_dynamic_color_description">ใช้สีจากวอลเปเปอร์ของคุณสำหรับธีมแอป</string>
 
     <string name="error_title_text">ข้อผิดพลาด</string>
     <string name="error_network_text">เกิดข้อผิดพลาด</string>
@@ -107,4 +110,16 @@
     <string name="button_text_negative">ยกเลิก</string>
 
     <string name="label_language_selector">ภาษา</string>
+    <string name="label_datetime_today">วันนี้</string>
+    <string name="label_datetime_yesterday">เมื่อวาน</string>
+
+    <string name="widget_warning_empty_data">รายการว่างเปล่าหรือยังไม่ได้เลือก</string>
+    <string name="widget_header_preview">รายการซื้อของ</string>
+    <string name="widget_first_strikethrough_text"><s>นม</s></string>
+    <string name="widget_second_text">ขนมปัง</string>
+    <string name="widget_header_select_list">เลือกรายการสำหรับวิดเจ็ต</string>
+
+    <string name="label_palette_select">เลือกชุดสี:</string>
+    <string name="label_settings_tab_default">ค่าเริ่มต้น</string>
+
 </resources>

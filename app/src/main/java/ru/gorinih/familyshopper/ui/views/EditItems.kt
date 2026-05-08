@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -77,11 +80,12 @@ fun RoundedTextField(
             if (value != it.text) onValueChange(it.text)
             onClearCurrentField?.invoke()
         },
+        textStyle = MaterialTheme.typography.bodyLarge,
         label = if (label.isNotEmpty()) {
             {
                 Text(
                     text = label,
-                    modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         } else null,
@@ -89,7 +93,7 @@ fun RoundedTextField(
             {
                 Text(
                     text = placeholder,
-                    modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         } else null,
@@ -100,10 +104,10 @@ fun RoundedTextField(
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(24.dp)
-            ).onFocusChanged { focus ->
+            )
+            .onFocusChanged { focus ->
                 if (focus.isFocused) onClearCurrentField?.invoke()
-            }
-        ,
+            },
         colors = OutlinedTextFieldDefaults.colors(
 
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -113,6 +117,12 @@ fun RoundedTextField(
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
             disabledTextColor = MaterialTheme.colorScheme.onSurface,
+
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
 
             focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
@@ -171,7 +181,8 @@ fun BracketTextField(
     ) {
         Text(
             text = startBracket.toString(),
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 2.dp)
         )
         TextField(
@@ -179,6 +190,7 @@ fun BracketTextField(
             onValueChange = { str ->
                 onChange(str)
             },
+            textStyle = MaterialTheme.typography.bodyMedium,
             modifier = Modifier
                 .width(
                     when (width) {
@@ -193,11 +205,23 @@ fun BracketTextField(
                         }
                     }
                 ),
-            placeholder = { Text(text = emptyText) },
+            placeholder = {
+                Text(
+                    text = emptyText,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = backgroundColor,
                 unfocusedContainerColor = backgroundColor,
                 disabledContainerColor = backgroundColor,
+
+                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
 
                 focusedIndicatorColor = backgroundColor,
                 unfocusedIndicatorColor = backgroundColor,
@@ -216,7 +240,8 @@ fun BracketTextField(
         )
         Text(
             text = endBracket.toString(),
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(end = 2.dp)
         )
     }
@@ -226,13 +251,62 @@ fun BracketTextField(
 @Composable
 fun PreviewRoundedTextField() {
     FamilyShopperTheme {
-        Column(Modifier.padding(8.dp)) {
+        Column(
+            Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(8.dp)
+        ) {
             RoundedTextField(
                 value = "",
                 onValueChange = {},
                 placeholder = "тестовый",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+            RoundedTextField(
+                value = "текст введен",
+                onValueChange = {},
+                placeholder = "",
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            RoundedTextField(
+                value = "текст введен с меткой",
+                label = "Метка ввода",
+                onValueChange = {},
+                placeholder = "",
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            RoundedTextField(
+                value = "текст с иконками",
+                label = "Метка ввода",
+                onValueChange = {},
+                placeholder = "",
+                modifier = Modifier.padding(bottom = 16.dp),
+                leadingIcon = {
+                    Icon(
+                        contentDescription = null,
+                        imageVector = Icons.Default.EditNote
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        contentDescription = null,
+                        imageVector = Icons.Default.EditNote
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Preview(showSystemUi = false)
+@Composable
+fun PreviewBracketTextField() {
+    FamilyShopperTheme {
+        Column(
+            Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(8.dp)
+        ) {
             BracketTextField(
                 comment = "",
                 emptyText = "...",

@@ -78,7 +78,10 @@
     <string name="label_settings_tab_views">Izgled</string>
     <string name="label_settings_tab_about">O aplikaciji</string>
 
-    <string name="label_settings_background">Dinamička pozadina liste (uključeno) ili statička (isključeno).</string>
+    <string name="label_settings_background">Pozadina liste:</string>
+    <string name="label_settings_background_description">dinamička (izabrano)\nstatička (nije izabrano)</string>
+    <string name="label_settings_dynamic_color_text">Dinamičke boje</string>
+    <string name="label_settings_dynamic_color_description">Koristi boje pozadine za temu aplikacije.</string>
 
     <string name="error_title_text">Greška</string>
     <string name="error_network_text">Došlo je do greške</string>
@@ -107,5 +110,16 @@
     <string name="button_text_negative">Otkaži</string>
 
     <string name="label_language_selector">Jezik</string>
+    <string name="label_datetime_today">danas</string>
+    <string name="label_datetime_yesterday">juče</string>
+
+    <string name="widget_warning_empty_data">Lista je prazna ili nije izabrana</string>
+    <string name="widget_header_preview">Lista za kupovinu</string>
+    <string name="widget_first_strikethrough_text"><s>mleko</s></string>
+    <string name="widget_second_text">hleb</string>
+    <string name="widget_header_select_list">Izaberite listu za vidžet</string>
+
+    <string name="label_palette_select">Izbor šeme boja:</string>
+    <string name="label_settings_tab_default">Podrazumevano</string>
 
 </resources>

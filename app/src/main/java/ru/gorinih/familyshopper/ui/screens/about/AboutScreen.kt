@@ -48,7 +48,7 @@ fun AboutScreen(
             val versionCode = packageInfo.longVersionCode
             appVersion.value = "$versionName ($versionCode)"
         } catch (_: PackageManager.NameNotFoundException) {
-            appVersion.value = "Неизвестно"
+            appVersion.value = ""
         }
     }
 
@@ -72,6 +72,7 @@ fun AboutScreen(
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
 
@@ -111,6 +112,7 @@ fun AboutScreen(
                 append(".")
             },
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Justify
         )
 
@@ -131,10 +133,11 @@ fun AboutScreen(
                 append(".")
             },
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
 
-        // Можно также добавить информацию об авторе или годе выпуска
+        // информация об авторе или годе выпуска
         Text(
             text = stringResource(R.string.about_copyright),
             style = MaterialTheme.typography.bodySmall,

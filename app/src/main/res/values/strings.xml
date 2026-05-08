@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Family Lists</string>
+    <string name="app_name">Family Shopping</string>
 
     <string name="help_client_key_property">Your user key lets you use private lists and control access to lists you create:\n * No restrictions — anyone can edit the list\n * Limited editing — others can only check off items\n * Read-only — others can only view the list\n * Private — only you can see the list\n\nImportant: Changing this key will revoke access to your private lists and prevent you from updating permissions on previously created restricted lists.</string>
 
@@ -48,7 +48,7 @@
     <string name="label_other_names">Shared with: %1$s</string>
     <string name="label_member_name">Members: </string>
 
-    <string name="toolbar_main_header">Family Lists</string>
+    <string name="toolbar_main_header">Family Shopping</string>
 
     <string name="text_delete_list">Delete this list?\n%1$s</string>
     <string name="text_delete_local_list">Delete this list from this device?\n%1$s</string>
@@ -78,7 +78,11 @@
     <string name="label_settings_tab_views">Appearance</string>
     <string name="label_settings_tab_about">About</string>
 
-    <string name="label_settings_background">Dynamic list background (on) or static (off).</string>
+    <string name="label_settings_background">List background:</string>
+    <string name="label_settings_background_description">dynamic (selected)\nstatic (not selected)</string>
+
+    <string name="label_settings_dynamic_color_text">Dynamic colors</string>
+    <string name="label_settings_dynamic_color_description">Use your wallpaper colors for the app theme.</string>
 
     <string name="error_title_text">Error</string>
     <string name="error_network_text">Something went wrong</string>
@@ -107,4 +111,15 @@
     <string name="button_text_negative">Cancel</string>
 
     <string name="label_language_selector">Language</string>
+    <string name="label_datetime_today">today</string>
+    <string name="label_datetime_yesterday">yesterday</string>
+
+    <string name="widget_warning_empty_data">List is empty or not selected</string>
+    <string name="widget_header_preview">Shopping list</string>
+    <string name="widget_first_strikethrough_text"><s>milk</s></string>
+    <string name="widget_second_text">bread</string>
+    <string name="widget_header_select_list">Select a list for the widget</string>
+
+    <string name="label_palette_select">Color scheme selection:</string>
+    <string name="label_settings_tab_default">Presets</string>
 </resources>

@@ -78,7 +78,11 @@
     <string name="label_settings_tab_views">Көрүнүү</string>
     <string name="label_settings_tab_about">Туһунан</string>
 
-    <string name="label_settings_background">Фон</string>
+    <string name="label_settings_background">Тиһик фона:</string>
+    <string name="label_settings_background_description">динамикалаах (талыллыбыт)\nтуруктаах (талыллыбат)</string>
+
+    <string name="label_settings_dynamic_color_text">Динамикалаах өнгөлөр</string>
+    <string name="label_settings_dynamic_color_description">Приложение көрүҥүн обойкаҕын өнгөлөрүнэн туһан.</string>
 
     <string name="error_title_text">Алҕас</string>
     <string name="error_network_text">Алҕас</string>
@@ -107,4 +111,16 @@
     <string name="button_text_negative">Суох</string>
 
     <string name="label_language_selector">Тыл</string>
+    <string name="label_datetime_today">бүгүн</string>
+    <string name="label_datetime_yesterday">бүгүн иннин</string>
+
+    <string name="widget_warning_empty_data">Тиһик куурай эбэтэр талыллыбат</string>
+    <string name="widget_header_preview">Атыылаһар тиһик</string>
+    <string name="widget_first_strikethrough_text"><s>үөт</s></string>
+    <string name="widget_second_text">хлеб</string>
+    <string name="widget_header_select_list">Виджет иһин тиһиги тал</string>
+
+    <string name="label_palette_select">Өҥ схематын тал:</string>
+    <string name="label_settings_tab_default">Бэлэм туруоруу</string>
+
 </resources>

@@ -1,5 +1,7 @@
 package ru.gorinih.familyshopper.ui.views
 
+import android.annotation.SuppressLint
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
@@ -8,12 +10,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,8 +32,10 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,25 +53,41 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
+import ru.gorinih.familyshopper.ui.toShowDate
+import ru.gorinih.familyshopper.ui.widget.ShowListToSelect
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
  */
-
 
 @Composable
 fun TagsList(
@@ -90,6 +113,8 @@ fun TagsList(
     if (list.isEmpty()) {
         Text(
             stringResource(R.string.label_empty_list),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -147,12 +172,14 @@ fun TagItem(
                         onClearCurrentField()
                         onClick(it)
                     },
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
                     onTextLayout = { textLayoutResult = it },
@@ -216,7 +243,10 @@ fun TagItem(
                         onDelete()
                     },
                 ) {
-                    Icon(Icons.Default.Clear, null)
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -230,8 +260,7 @@ fun TagItem(
             ) {
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     onTextLayout = { textLayoutResult = it },
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
@@ -270,14 +299,16 @@ fun TagItem(
                                         cap = StrokeCap.Round
                                     )
                                 }
-                             }
+                            }
                         }
                 )
                 if (tag.tagComment.isNotBlank()) {
                     Text(
                         text = "(${tag.tagComment})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .padding(end = 16.dp)
+                            .padding(end = 8.dp)
                             .weight(0.7f)
                     )
                 }
@@ -303,12 +334,14 @@ fun TagItem(
                         onClearCurrentField()
                         onClick(it)
                     },
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = tag.tagName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     onTextLayout = { textLayoutResult = it },
                     color = if (tag.isStrike) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onSurface,
@@ -353,8 +386,10 @@ fun TagItem(
                 if (tag.tagComment.isNotBlank()) {
                     Text(
                         text = "(${tag.tagComment})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .padding(end = 16.dp)
+                            .padding(end = 8.dp)
                             .weight(0.7f)
                     )
                 }
@@ -363,6 +398,7 @@ fun TagItem(
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun Users(
     list: List<UiListUser>,
@@ -372,20 +408,20 @@ fun Users(
 ) {
     val stateList = rememberLazyListState()
 
-        LazyColumn(
-            modifier = modifier,
-            state = stateList,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center
-        ) {
-            items(list, key = {it.userUuid; it.userName}) { item ->
-                User(
-                    item = item,
-                    onEdit = { onEdit(it) },
-                    onDelete = { onDelete(item) }
-                )
-            }
+    LazyColumn(
+        modifier = modifier,
+        state = stateList,
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
+    ) {
+        items(list, key = { it.userUuid; it.userName }) { item ->
+            User(
+                item = item,
+                onEdit = { onEdit(it) },
+                onDelete = { onDelete(item) }
+            )
         }
+    }
 }
 
 @Composable
@@ -417,12 +453,20 @@ fun User(
             },
             modifier = Modifier.weight(0.1f)
         ) {
-            Icon(Icons.Default.Clear, null)
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
         AnimatedContent(
             targetState = editable,
-            transitionSpec = { fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(clip = false) },
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 300)) using SizeTransform(
+                    clip = false
+                )
+            },
             modifier = Modifier.weight(1.0f)
         )
         { isEdit ->
@@ -435,7 +479,7 @@ fun User(
                         },
                         modifier = Modifier
                             .focusRequester(focusRequest)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -450,18 +494,17 @@ fun User(
                 }
 
                 false -> {
-                    Box(modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ){
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
                         Text(
                             text = editName,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
-                 }
+                }
             }
         }
         IconButton(
@@ -470,11 +513,13 @@ fun User(
             },
             modifier = Modifier.weight(0.1f)
         ) {
-            Icon(Icons.Default.EditNote, null)
+            Icon(
+                imageVector = Icons.Default.EditNote,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
-
     }
-
 }
 
 @Preview(showBackground = true)
@@ -657,4 +702,235 @@ fun PreviewTagItem() {
 
         }
     }
+}
+
+@Composable
+fun CardListSimpleItem(
+    item: UiListObject,
+    onClick: (String) -> Unit,
+) {
+    val title = item.listName.takeIf { it.isNotBlank() }
+        ?: stringResource(R.string.label_empty_list_name)
+    val isDark = isSystemInDarkTheme()
+    val progress =
+        (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp, horizontal = 16.dp)
+            .shadow(
+                borderRadius = 16.dp,
+                shadowRadius = 8.dp,
+                alphaShadowLight = 0.3f,
+                offsetXLight = 0.dp,
+                offsetYLight = 0.dp
+            )
+            .border(
+                1.dp,
+                Color.White.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(16.dp)
+            )
+    ) {
+        val colorBrush = MaterialTheme.colorScheme.background
+        val brush = Brush.horizontalGradient(
+            colors = if (isDark) {
+                when (item.listLegend) {
+                    TypeLegendList.ALL -> listOf(
+                        ListDarkGreen,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        ListDarkBlue,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        ListDarkYellow,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        ListDarkRed,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        colorBrush,
+                        colorBrush,
+                    )
+                }
+            } else {
+                when (item.listLegend) {
+                    TypeLegendList.ALL -> listOf(
+                        ListLightGreen,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        ListLightBlue,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        ListLightYellow,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        ListLightRed,
+                        colorBrush,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        colorBrush,
+                        colorBrush,
+                    )
+                }
+            },
+            startX = 0.0f,
+            endX = 550f
+        )
+
+        MaterialGroupBox(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onClick(item.listId) },
+            brush = brush,
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    //наименование
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.TopStart
+                    ) {
+                        if (!isDark) {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodyLarge.copy(drawStyle = Stroke(
+                                    width = 4f,
+                                    join = StrokeJoin.Round
+                                )
+                                ),
+                                color = White,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    // время изменения
+                    Text(
+                        text = item.listDatetimeValue.toShowDate(
+                            todayName = stringResource(R.string.label_datetime_today),
+                            yesterdayName = stringResource(R.string.label_datetime_yesterday)
+                        ),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            baselineShift = BaselineShift.Subscript,
+                            textAlign = TextAlign.End,
+                        ),
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .weight(0.4f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (progress != 0f) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp)
+                                .padding(start = 32.dp),
+                            progress = { progress },
+                            color = MaterialTheme.colorScheme.tertiary,
+                            trackColor = MaterialTheme.colorScheme.primary,
+                            gapSize = 0.dp,
+                            strokeCap = StrokeCap.Butt,
+                            drawStopIndicator = {}
+                        )
+                        if (progress == 1f)
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                                    .padding(horizontal = 4.dp)
+                            )
+                        else Spacer(modifier = Modifier.weight(0.3f))
+                    }
+                }
+                Text(
+                    text = stringResource(
+                        R.string.label_results_count,
+                        item.countStrikes.toString(),
+                        item.countTags.toString()
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 32.dp, top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
+@Composable
+fun PreviewShowListToSelect() {
+    val state = remember {
+        mutableStateOf(
+            listOf<UiListObject>(
+                UiListObject(
+                    listId = "uuidList1",
+                    listName = "Список покупок",
+                    listOwner = "uuid1",
+                    listVersion = 1,
+                    listLegend = TypeLegendList.ADD,
+                    listTo = emptyList(),
+                    listDatetimeValue = 17,
+                    countTags = 4,
+                    countStrikes = 0,
+                    userName = ""
+                ),
+                UiListObject(
+                    listId = "uuidList2",
+                    listName = "Фильмы",
+                    listOwner = "uuid2",
+                    listVersion = 1,
+                    listLegend = TypeLegendList.ALL,
+                    listDatetimeValue = 15,
+                    countTags = 15,
+                    countStrikes = 7,
+                    userName = ""
+                ),
+            )
+        )
+    }
+    ShowListToSelect(
+        listOfProducts = state,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) { }
 }

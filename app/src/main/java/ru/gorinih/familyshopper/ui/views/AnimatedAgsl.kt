@@ -20,7 +20,7 @@ fun AnimatedAgsl(
     isAnimate: Boolean = true,
     brush: Brush = Brush.linearGradient(),
     startedColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    endedColor: Color = MaterialTheme.colorScheme.secondary,
+    endedColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isAnimate) {

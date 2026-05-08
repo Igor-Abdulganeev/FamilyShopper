@@ -2,9 +2,9 @@ package ru.gorinih.familyshopper.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Светло-зелёный (кардиган)
+// Светло-зелёный (кардиган) PRIMARY LIGHT
 val LightGreen = Color(0xFFB5E1AD)
-// Средне-зелёный
+// Средне-зелёный PRIMARY DARK
 val MediumGreen = Color(0xFF4B8D73)
 
 // Тёмно-синий
@@ -28,6 +28,9 @@ val LightGrayText = Color(0xFF9AA3B2)
 val ErrorRed = Color(0xFFFF5A5F)
 val ErrorPink = Color(0xFFFF7A7A)
 
+val OutlineDark = Color(0xFF2F3542)
+val OutlineLight = Color(0xFFD1D5DB)
+
 val ListLightGreen = Color(0xFFD7F7E7)
 val ListLightBlue = Color(0xFFDDE9FF)
 val ListLightYellow = Color(0xFFFFF6DB)
@@ -43,5 +46,4 @@ val ListHeaderBlue = Color(0xFF6EA8FF)
 val ListHeaderYellow = Color(0xFFFFD76A)
 val ListHeaderRed = Color(0xFFFF7A7A)
 
-val OutlineDark = Color(0xFF2F3542)
-val OutlineLight = Color(0xFFD1D5DB)
+

@@ -40,12 +40,31 @@ interface ListsDao {
     @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
     suspend fun takeList(listId: String): List<DbList>
 
-    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_strike, B.tag_name")
+    @Query("SELECT A.*, B.tag_name, B.tag_strike, B.tag_comment, COALESCE(C.user_name,\"\") AS \"user_name\" FROM lists_ver AS A LEFT JOIN list_tags AS B ON B.list_id = A.list_id LEFT JOIN users_list AS C ON C.user_uuid = A.list_owner WHERE A.list_id=:listId ORDER BY B.tag_name")
     fun flowList(listId: String): Flow<List<DbList>>
 
     @Query("DELETE FROM lists_ver WHERE list_id=:listId")
     suspend fun deleteList(listId: String)
 
+    @Query("UPDATE list_tags SET tag_strike=:tagStrike WHERE list_id=:listId AND tag_name=:tagName")
+    suspend fun updateTag(listId: String, tagName: String, tagStrike: Boolean)
+
+    @Query("UPDATE lists_ver SET list_version=:version WHERE list_id=:listId")
+    suspend fun updateVersion(listId: String, version: Int)
+
+    @Transaction
+    suspend fun strikeTag(listId: String, tagName: String, tagStrike: Boolean, version: Int) {
+        updateTag(listId = listId, tagName = tagName, tagStrike = tagStrike)
+        updateVersion(listId = listId, version = version)
+    }
+
+    @Transaction
+    suspend fun takeUpdatedList(listUuid: String): List<DbList>  {
+        val lists = selectLists().firstOrNull {it.listId == listUuid} ?: return emptyList()
+        val version = lists.listVersion +1
+        updateVersion(listId = listUuid, version = version)
+        return takeList(listUuid)
+    }
     //endregion
 
 

@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,16 +63,16 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
@@ -92,12 +93,15 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
+import ru.gorinih.familyshopper.ui.toShowDate
 import ru.gorinih.familyshopper.ui.views.ChipPanel
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.QueryDialog
 import ru.gorinih.familyshopper.ui.views.shadow
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 import kotlin.math.roundToInt
 
 /**
@@ -114,6 +118,8 @@ fun ListEntityScreen(
 ) {
 
     val state = viewModel.listsState
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current.applicationContext
     val stateLazy = rememberLazyListState()
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var isClicked by remember { mutableStateOf(false) }
@@ -149,7 +155,11 @@ fun ListEntityScreen(
                         },
                         modifier = Modifier.weight(0.3f)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     ChipPanel(
                         modifier = Modifier.weight(1f),
@@ -165,7 +175,11 @@ fun ListEntityScreen(
                             onClick = { viewModel.updateList() },
                             modifier = Modifier.weight(0.3f)
                         ) {
-                            Icon(Icons.Default.Repeat, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
@@ -175,7 +189,13 @@ fun ListEntityScreen(
                         AssistChip(
                             modifier = Modifier.padding(16.dp),
                             onClick = { addList() },
-                            label = { Text(text = stringResource(R.string.label_empty_list_comand_text)) },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.label_empty_list_comand_text),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
                             border = BorderStroke(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.surfaceVariant
@@ -194,6 +214,8 @@ fun ListEntityScreen(
                         {
                             Text(
                                 text = stringResource(R.string.label_empty_list),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(8.dp)
                             )
                         }
@@ -249,14 +271,22 @@ fun ListEntityScreen(
                         },
                         modifier = Modifier.weight(0.3f)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     if (state.isUpdate) {
                         IconButton(
                             onClick = { viewModel.updateList() },
                             modifier = Modifier.weight(0.3f)
                         ) {
-                            Icon(Icons.Default.Repeat, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
@@ -266,7 +296,13 @@ fun ListEntityScreen(
                         if (state.filterRule != AuthorFilter.OTHERS)
                             AssistChip(
                                 onClick = { addList() },
-                                label = { Text(text = stringResource(R.string.label_empty_list_comand_text)) },
+                                label = {
+                                    Text(
+                                        text = stringResource(R.string.label_empty_list_comand_text),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
                                 border = BorderStroke(
                                     width = 1.dp,
                                     color = MaterialTheme.colorScheme.surfaceVariant
@@ -285,6 +321,8 @@ fun ListEntityScreen(
                             {
                                 Text(
                                     text = stringResource(R.string.label_empty_list),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(8.dp)
                                 )
                             }
@@ -357,7 +395,12 @@ fun ListEntityScreen(
                 state.deleting.queryText,
                 state.lists.firstOrNull { it.listId == state.deleting.deletedId }?.listName ?: ""
             ),
-            onDone = { viewModel.deleteList(state.deleting.deletedId) },
+            onDone = {
+                scope.launch {
+                    notifyWidgetAboutChanged(context)
+                }
+                viewModel.deleteList(state.deleting.deletedId)
+            },
             onCancel = { viewModel.stopDeleteList() }
         )
     }
@@ -365,9 +408,15 @@ fun ListEntityScreen(
         QueryDialog(
             text = stringResource(
                 state.localDeleting.queryText,
-                state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName ?: ""
+                state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName
+                    ?: ""
             ),
-            onDone = { viewModel.localDeleteList(state.localDeleting.deletedId) },
+            onDone = {
+                scope.launch {
+                    notifyWidgetAboutChanged(context)
+                }
+                viewModel.localDeleteList(state.localDeleting.deletedId)
+            },
             onCancel = { viewModel.stopDeleteList() }
         )
     }
@@ -427,17 +476,28 @@ fun CardListItem(
                 },
             ) {
                 if (item.isDelete)
-                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 else
-                    Icon(Icons.Default.DeleteOutline, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.DeleteOutline,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
             }
             IconButton(
                 onClick = { onEdit() },
                 enabled = item.isEdit
             ) {
-                Icon(Icons.Default.Edit, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
-
         }
 
         Column(
@@ -559,23 +619,20 @@ fun CardListItem(
                             if (!isDark) {
                                 Text(
                                     text = title,
-                                    style = TextStyle(
-                                        fontSize = 16.sp,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
                                         drawStyle = Stroke(
                                             width = 4f,
                                             join = StrokeJoin.Round
                                         )
                                     ),
+                                    color = White,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
-                                    color = MaterialTheme.colorScheme.onSecondary
                                 )
                             }
                             Text(
                                 text = title,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                ),
+                                style = MaterialTheme.typography.bodyLarge,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -583,17 +640,19 @@ fun CardListItem(
                         }
                         // время изменения
                         Text(
-                            text = item.listDatetime,
-                            style = TextStyle(
-                                fontSize = 12.sp,
-                                baselineShift = BaselineShift.Subscript
+                            text = item.listDatetimeValue.toShowDate(
+                                todayName = stringResource(R.string.label_datetime_today),
+                                yesterdayName = stringResource(R.string.label_datetime_yesterday)
                             ),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                baselineShift = BaselineShift.Subscript,
+                                textAlign = TextAlign.End,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             modifier = Modifier
                                 .padding(end = 8.dp)
                                 .weight(0.4f),
-                            textAlign = TextAlign.End,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -615,14 +674,16 @@ fun CardListItem(
                     Text(
                         text = names,
                         modifier = Modifier.padding(start = 32.dp),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         overflow = TextOverflow.Ellipsis
                     )
 
                     if (progress != 0f) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -640,7 +701,8 @@ fun CardListItem(
                             )
                             if (progress == 1f)
                                 Icon(
-                                    Icons.Default.Done, contentDescription = null,
+                                    imageVector = Icons.Default.Done,
+                                    contentDescription = null,
                                     tint = MaterialTheme.colorScheme.tertiary,
                                     modifier = Modifier
                                         .weight(0.3f)
@@ -650,10 +712,14 @@ fun CardListItem(
                         }
                     }
                     Text(
-                        text = stringResource(R.string.label_results_count, item.countStrikes.toString(), item.countTags.toString()),
-                        fontSize = 12.sp,
+                        text = stringResource(
+                            R.string.label_results_count,
+                            item.countStrikes.toString(),
+                            item.countTags.toString()
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 32.dp)
+                        modifier = Modifier.padding(start = 32.dp, top = 8.dp)
                     )
                 }
             }
@@ -663,7 +729,7 @@ fun CardListItem(
 
 @Preview(showSystemUi = true, showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
-fun PreviewMat() {
+fun PreviewCardListItem() {
     FamilyShopperTheme {
         Column(
             Modifier
@@ -689,7 +755,6 @@ fun PreviewMat() {
                             isSelected = false
                         ),
                     ),
-                    listDatetime = "10.04.2026",
                     countTags = 10,
                     countStrikes = 2,
                     userName = "Иван",
@@ -709,7 +774,6 @@ fun PreviewMat() {
                     listLegend = TypeLegendList.ADD,
                     listOwner = "asdas0,",
                     listTo = emptyList(),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 5,
                     countStrikes = 3,
                     userName = "",
@@ -735,7 +799,6 @@ fun PreviewMat() {
                             isSelected = false
                         )
                     ),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 4,
                     countStrikes = 4,
                     userName = "Олег",
@@ -761,7 +824,6 @@ fun PreviewMat() {
                             isSelected = true
                         )
                     ),
-                    listDatetime = "10.04.2026 12:09",
                     countTags = 0,
                     countStrikes = 0,
                     userName = "Игорь",

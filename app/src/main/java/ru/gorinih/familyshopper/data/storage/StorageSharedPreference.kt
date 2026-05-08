@@ -3,10 +3,18 @@ package ru.gorinih.familyshopper.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import ru.gorinih.familyshopper.di.dataStore
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
+import ru.gorinih.familyshopper.ui.theme.ThemeType
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+import ru.gorinih.familyshopper.ui.theme.models.Palettes
 import java.util.UUID
 
 /**
@@ -14,7 +22,7 @@ import java.util.UUID
  */
 
 class StorageSharedPreference(
-    context: Context
+    private val context: Context
 ) : StorageRepository {
     private val preference: SharedPreferences =
         context.getSharedPreferences(SETTING_FILE_NAME, Context.MODE_PRIVATE)
@@ -94,7 +102,30 @@ class StorageSharedPreference(
         }
     }
 
+    override suspend fun updatePalette(palette: PaletteScheme) {
+        context.dataStore.edit { pref->
+            pref[stringPreferencesKey(COLOR_NAME_SCHEME)]= palette.themeType.name
+        }
+    }
+
+    override fun paletteFlow(): Flow<PaletteScheme> =
+        context.dataStore.data.map { pref ->
+            val themeType = ThemeType.entries.firstOrNull {
+                it.name == (pref[stringPreferencesKey(
+                    COLOR_NAME_SCHEME
+                )])
+            } ?: ThemeType.MAIN
+            Palettes.palettes.firstOrNull {it.themeType == themeType} ?: Palettes.instance()
+        }
+
     companion object {
+        const val WIDGET_LIST = "family_shopper_widget_list"
+        const val WIDGET_EDIT = "family_shopper_widget_list_edit"
+        const val WIDGET_FORCE_UPDATE = "family_shopper_widget_force_update"
+
+        const val SETTINGS_DATA_STORE = "family_shopper_settings"
+        private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
+
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
         private const val APP_FIRST_TIME = "family_shopper_is_first_time"

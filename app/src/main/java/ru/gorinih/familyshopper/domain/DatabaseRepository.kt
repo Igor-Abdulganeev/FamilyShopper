@@ -40,6 +40,8 @@ interface DatabaseRepository {
 
     suspend fun takeList(listId: String): ShoppedList
 
+    suspend fun takeUpdatedList(listId: String): ShoppedList
+
     fun observeList(listId: String): Flow<ShoppedList>
 
     fun takeUsers(): Flow<List<ShoppedUsers>>
@@ -57,4 +59,8 @@ interface DatabaseRepository {
     suspend fun deleteDictionaryVersion(tagId: String)
 
     suspend fun deleteList(listId: String)
+
+    suspend fun strikeTag(listId: String, tagName: String, tagStrike: Boolean, listVersion: Int)
+
+    suspend fun updateTag(listId: String, tagName: String, tagStrike: Boolean)
 }

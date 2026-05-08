@@ -29,11 +29,9 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.ui.GlassCircleImage
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
@@ -130,8 +128,7 @@ fun MaterialGroupBox(
 
                     Text(
                         text = title,
-                        style = TextStyle(
-                            fontSize = 16.sp,
+                        style = MaterialTheme.typography.bodyLarge.copy(
                             drawStyle = Stroke(
                                 width = 4f,
                                 join = StrokeJoin.Round
@@ -141,9 +138,7 @@ fun MaterialGroupBox(
                     )
                     Text(
                         text = title,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                        ),
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
@@ -170,9 +165,10 @@ fun PreviewMaterialGroupBox() {
                     .padding(16.dp)
 
             ) {}
+            DividerHorizontalTransparent()
             MaterialGroupBox(
                 title = "Вторая плашка",
-                color = MaterialTheme.colorScheme.primary,//.copy(alpha = 0.8f),//Color.Red.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -188,7 +184,6 @@ fun PreviewMaterialGroupBox() {
     }
 }
 
-
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewMaterialGroupBoxNight() {
@@ -200,7 +195,6 @@ fun PreviewMaterialGroupBoxNight() {
         ) {
             MaterialGroupBox(
                 title = "Вторая плашка",
-                color = Color(0xFF8FB1FF),//.copy(alpha = 0.2f),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -229,16 +223,18 @@ fun PreviewMaterialGroupBoxNight() {
 }
 
 @Composable
-fun DividerHorizontalTransparent(modifier: Modifier = Modifier){
+fun DividerHorizontalTransparent(modifier: Modifier = Modifier) {
     val brush = Brush.linearGradient(
         colors = listOf(
             Color.Transparent,
-            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.outlineVariant,
             Color.Transparent,
         )
     )
     Box(
-        modifier = modifier.fillMaxWidth().height(2.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(2.dp)
             .background(brush = brush)
             .padding(horizontal = 32.dp)
     )
@@ -246,18 +242,20 @@ fun DividerHorizontalTransparent(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun DividerVerticalTransparent(modifier: Modifier = Modifier){
+fun DividerVerticalTransparent(modifier: Modifier = Modifier) {
     val brush = Brush.verticalGradient(
         colors = listOf(
             Color.Transparent,
-            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.outlineVariant,
             Color.Transparent,
         ),
         startY = 0f,
         endY = Float.POSITIVE_INFINITY
     )
     Box(
-        modifier = modifier.fillMaxHeight().width(2.dp)
+        modifier = modifier
+            .fillMaxHeight()
+            .width(2.dp)
             .background(brush = brush)
             .padding(vertical = 32.dp)
     )

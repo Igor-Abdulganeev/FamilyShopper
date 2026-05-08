@@ -4,6 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -20,4 +21,5 @@ data class SettingsState(
     val isSharing: Boolean = false, //шаринг данных запущен
     val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
     val warning: WarningState = WarningState(), // обработка исключений
-): Parcelable
+    val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
+) : Parcelable

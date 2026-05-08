@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -50,12 +51,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**
@@ -77,9 +78,9 @@ fun ChipPanelSelectTypeList(
         textChips.forEachIndexed { index, text ->
             val colorTypeTextButton = when {
                 index + 1 == legend && isOwner -> MaterialTheme.colorScheme.onSurface
-                index + 1 == legend && !isOwner -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                index + 1 == legend && !isOwner -> MaterialTheme.colorScheme.onSurfaceVariant
                 isOwner -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
             val select = index + 1 == legend
             FilterChip(
@@ -87,11 +88,14 @@ fun ChipPanelSelectTypeList(
                 onClick = { onClick(index) },
                 label = {
                     if (showText) {
-                        Text(text)
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
                 },
                 leadingIcon = {
-                   if (select) Icon(Icons.Default.Done, contentDescription = null)
+                    if (select) Icon(Icons.Default.Done, contentDescription = null)
                 },
                 enabled = isOwner,
                 selected = select,
@@ -109,6 +113,21 @@ fun ChipPanelSelectTypeList(
             )
         }
 
+    }
+}
+
+@Preview
+@Composable
+fun PreviewChipPanelSelectTypeList() {
+    val listChips = listOf("первый", "второй", "третий")
+    FamilyShopperTheme() {
+        ChipPanelSelectTypeList(
+            legend = TypeLegendList.ADD.listId,
+            isOwner = true,
+            textChips = listChips,
+            onClick = {},
+            showText = true
+        )
     }
 }
 
@@ -141,8 +160,9 @@ fun ChipPanel(
                     selected = startSelectedAuthorFilter == filter,
                     onClick = {
                         onSelectAuthorFilter(filter)
-                    }
-                )
+                    },
+
+                    )
             }
         }
         FlowRow(
@@ -192,11 +212,19 @@ fun FilterChipItem(
 ) {
     FilterChip(
         onClick = onClick,
-        label = { Text(label) },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+            )
+        },
         selected = selected,
         colors = FilterChipDefaults.filterChipColors(
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            labelColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = Color.Transparent,
+
             selectedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
         ),
         border = null
     )
@@ -210,10 +238,19 @@ fun SorterChipItem(
 ) {
     AssistChip(
         onClick = onClick,
-        label = { Text(label) },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                )
+                },
         trailingIcon = {
             icon?.let {
-                Icon(it, contentDescription = null)
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary)
             }
         },
         border = null
@@ -372,7 +409,6 @@ fun EditableCommentChip(
                             Icon(
                                 imageVector = Icons.Default.Done,
                                 contentDescription = null,
-//                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -388,15 +424,14 @@ fun EditableCommentChip(
                             onClick = { isEdit = true }
                         ),
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
                 ) {
                     val displayText = comment.ifBlank { "+" }
                     Text(
                         text = displayText,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        textAlign = TextAlign.Center,
                         maxLines = 1,
                         softWrap = false,
                         overflow = TextOverflow.Ellipsis

@@ -10,10 +10,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,11 +33,13 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
@@ -61,7 +61,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,6 +75,7 @@ import ru.gorinih.familyshopper.navigation.ScreenLayoutType
 import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
+import ru.gorinih.familyshopper.ui.views.ColorSchemeItems
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
@@ -141,6 +141,7 @@ fun SettingsScreen(
         stringResource(R.string.label_settings_tab_keys),
         stringResource(R.string.label_settings_tab_users),
         stringResource(R.string.label_settings_tab_views),
+        stringResource(R.string.label_settings_tab_default),
         stringResource(R.string.label_settings_tab_about)
     )
     var expandedGroupKey by rememberSaveable { mutableStateOf(false) }
@@ -176,8 +177,18 @@ fun SettingsScreen(
                                 }
                             },
                             label = {
-                                Text(text = header, overflow = TextOverflow.Ellipsis)
-                            }
+                                Text(
+                                    text = header,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                labelColor = if (index == pagerState.currentPage) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface,
+                                containerColor = if (index == pagerState.currentPage) MaterialTheme.colorScheme.primary
+                                else Color.Transparent
+                            )
                         )
                     }
                 )
@@ -209,13 +220,8 @@ fun SettingsScreen(
                             },
                             label = stringResource(R.string.label_key_group),
                             isEditable = groupIdEditable,
-                            /*
-                                                        leadingIcon = {
-                                                            Icon(Icons.Default.VpnKey, contentDescription = null)
-                                                        },
-                            */
                             trailingIcon = {
-                                Row() {
+                                Row {
                                     if (groupIdEditable) {
                                         IconButton(
                                             onClick = {
@@ -268,12 +274,11 @@ fun SettingsScreen(
                             when (expandedGroupKey) {
                                 true -> Text(
                                     text = stringResource(R.string.help_group_key_property),
-                                    fontSize = 12.sp,
-                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
                                     modifier = Modifier
                                         .padding(vertical = 4.dp)
-                                        .alpha(0.8f)
                                         .clickable(
                                             onClick = { expandedGroupKey = !expandedGroupKey }
                                         ),
@@ -281,12 +286,11 @@ fun SettingsScreen(
 
                                 false -> Text(
                                     text = stringResource(R.string.help_group_key_property),
-                                    fontSize = 12.sp,
-                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
                                     modifier = Modifier
                                         .padding(vertical = 4.dp)
-                                        .alpha(0.8f)
                                         .clickable(
                                             onClick = { expandedGroupKey = !expandedGroupKey }
                                         ),
@@ -303,13 +307,8 @@ fun SettingsScreen(
                             },
                             label = stringResource(R.string.label_key_client),
                             isEditable = clientIdEditable,
-                            /*
-                                                        leadingIcon = {
-                                                                      Icon(Icons.Default.AccountCircle, contentDescription = null)
-                                                               },
-                            */
                             trailingIcon = {
-                                Row() {
+                                Row {
                                     if (clientIdEditable) {
                                         IconButton(
                                             onClick = {
@@ -356,12 +355,11 @@ fun SettingsScreen(
                             when (expandedUserKey) {
                                 true -> Text(
                                     text = stringResource(R.string.help_client_key_property),
-                                    fontSize = 12.sp,
-                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
                                     modifier = Modifier
                                         .padding(vertical = 4.dp)
-                                        .alpha(0.8f)
                                         .clickable(
                                             onClick = { expandedUserKey = !expandedUserKey }
                                         ),
@@ -369,12 +367,11 @@ fun SettingsScreen(
 
                                 false -> Text(
                                     text = stringResource(R.string.help_client_key_property),
-                                    fontSize = 12.sp,
-                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
                                     modifier = Modifier
                                         .padding(vertical = 4.dp)
-                                        .alpha(0.8f)
                                         .clickable(
                                             onClick = { expandedUserKey = !expandedUserKey }
                                         ),
@@ -389,16 +386,19 @@ fun SettingsScreen(
                         Text(
                             text = stringResource(R.string.help_keys_property),
                             autoSize = TextAutoSize.StepBased(maxFontSize = TextAutoSizeDefaults.MaxFontSize * 0.15),
-                            style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                lineHeight = TextUnit.Unspecified,
+                                fontWeight = FontWeight.Bold
+                            ),
                             textAlign = TextAlign.Justify,
-                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 16.dp)
                         )
                     }
                 }
 
                 1 -> {
-                    when(screen) {
+                    when (screen) {
                         ScreenLayoutType.SINGLE_PANE -> Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -415,14 +415,13 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = stringResource(R.string.help_user_name_property),
-                                fontSize = 12.sp,
-                                style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Justify,
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
                                     .alpha(0.8f)
                             )
-
 
                             DividerHorizontalTransparent(modifier = Modifier.padding(vertical = 16.dp))
 
@@ -433,11 +432,19 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
-                                Text(text = stringResource(R.string.header_other_users))
+                                Text(
+                                    text = stringResource(R.string.header_other_users),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
                                 IconButton(
                                     onClick = { viewModel.updateUsers(true) },
                                 ) {
-                                    Icon(Icons.Default.Repeat, null)
+                                    Icon(
+                                        imageVector = Icons.Default.Repeat,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
 
                             }
@@ -457,8 +464,10 @@ fun SettingsScreen(
                                 )
                             }
                         }
+
                         ScreenLayoutType.TWO_PANE -> Row(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(vertical = 8.dp, horizontal = 8.dp),
                         ) {
                             Column(
@@ -475,8 +484,8 @@ fun SettingsScreen(
                                 )
                                 Text(
                                     text = stringResource(R.string.help_user_name_property),
-                                    fontSize = 12.sp,
-                                    style = LocalTextStyle.current.copy(lineHeight = TextUnit.Unspecified),
+                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
                                     modifier = Modifier
                                         .padding(vertical = 4.dp)
@@ -497,11 +506,19 @@ fun SettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {
-                                    Text(text = stringResource(R.string.header_other_users))
+                                    Text(
+                                        text = stringResource(R.string.header_other_users),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
                                     IconButton(
                                         onClick = { viewModel.updateUsers(true) },
                                     ) {
-                                        Icon(Icons.Default.Repeat, null)
+                                        Icon(
+                                            imageVector = Icons.Default.Repeat,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
                                     }
 
                                 }
@@ -531,39 +548,73 @@ fun SettingsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp, horizontal = 4.dp)
-                            .verticalScroll(scrollAppearancePage)
-                        ,
+                            .verticalScroll(scrollAppearancePage),
                         verticalArrangement = Arrangement.Top,
                     ) {
+                        LanguageSelector(
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+
+                        Text(
+                            stringResource(R.string.label_palette_select),
+                            modifier = Modifier.padding(start = 8.dp, top = 16.dp),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+
+                        ColorSchemeItems(
+                            currentPalette = state.palette,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        ) {
+                            viewModel.updatePalette(it)
+                        }
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
+                            Text(
+                                stringResource(R.string.label_settings_background),
+                                modifier = Modifier.padding(start = 8.dp, top = 16.dp),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(top = 8.dp)
                             ) {
                                 Checkbox(
                                     checked = state.rainbow,
                                     onCheckedChange = {
                                         viewModel.updateBackground()
                                     },
+                                    colors = CheckboxDefaults.colors(
+                                        uncheckedColor = MaterialTheme.colorScheme.primary
+                                    )
                                 )
                                 Text(
-                                    stringResource(R.string.label_settings_background),
-                                    modifier = Modifier.padding(start = 8.dp)
+                                    stringResource(R.string.label_settings_background_description),
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(16.dp)
-                            )
-
-                            DividerHorizontalTransparent()
                         }
-                        LanguageSelector(
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
+                    }
+                }
+
+                3 -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start
+                    ) {
                         LazyColumn(
-                            modifier = Modifier.padding(top = 16.dp).height(300.dp)
+                            modifier = Modifier
+                                .padding(top = 16.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->
                                 if (index == 0) {
@@ -574,7 +625,9 @@ fun SettingsScreen(
                                             end = 8.dp,
                                             bottom = 8.dp
                                         ),
-                                        textAlign = TextAlign.Center
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                                 Row(
@@ -612,12 +665,11 @@ fun SettingsScreen(
                                         }
                                     )
                                     Text(
-                                        text = stringResource(label), modifier = Modifier
+                                        text = stringResource(label),
+                                        modifier = Modifier
                                             .padding(start = 8.dp),
-                                        style = TextStyle(
-                                            fontSize = 14.sp,
-                                               lineHeight = 18.sp
-                                        )
+                                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 18.sp),
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             }
@@ -625,7 +677,7 @@ fun SettingsScreen(
                     }
                 }
 
-                3 -> {
+                4 -> {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -634,7 +686,7 @@ fun SettingsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         AboutScreen()
-                     }
+                    }
                 }
             }
         }

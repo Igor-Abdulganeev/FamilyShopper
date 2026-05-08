@@ -25,6 +25,7 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import java.util.UUID
 
 /**
@@ -59,6 +60,12 @@ class SettingsViewModel(
                 }.stateIn(
                     viewModelScope
                 )
+            pref.paletteFlow()
+                .catch {
+                    stateSettings = stateSettings.copy(palette = PaletteScheme()) }
+                .onEach {
+                    stateSettings = stateSettings.copy(palette = it) }
+                .stateIn(viewModelScope)
         }
     }
 
@@ -72,11 +79,6 @@ class SettingsViewModel(
 
     fun updateUserName(name: String) {
         stateSettings = stateSettings.copy(userName = name)
-    }
-
-    fun updateBackground() {
-        stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
-        pref.setBackgroundState(stateSettings.rainbow)
     }
 
     fun updateTypeList(type: Int) {
@@ -98,6 +100,18 @@ class SettingsViewModel(
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             updater(replace)
         }
+    }
+
+    fun updatePalette(palette: PaletteScheme) {
+        stateSettings = stateSettings.copy(palette = palette)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            pref.updatePalette(palette)
+        }
+    }
+
+    fun updateBackground() {
+        stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
+        pref.setBackgroundState(stateSettings.rainbow)
     }
 
     fun saveUserName() {

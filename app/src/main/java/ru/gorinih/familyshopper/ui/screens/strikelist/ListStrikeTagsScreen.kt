@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,17 +25,22 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.theme.Black
 import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
 import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
 import ru.gorinih.familyshopper.ui.theme.ListDarkRed
@@ -45,10 +49,13 @@ import ru.gorinih.familyshopper.ui.theme.ListLightBlue
 import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
 import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
+import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -64,6 +71,7 @@ fun ListStrikeTagsScreen(
         parameters = { parametersOf(listUuid) }
     )
 ) {
+    val context = LocalContext.current
     val handleExit = {
         viewModel.updateIfChanged()
         backPressed()
@@ -71,6 +79,7 @@ fun ListStrikeTagsScreen(
 
     val state = viewModel.shoppedList
     var isClicked by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     BackHandler(enabled = true) {
         handleExit()
@@ -79,6 +88,10 @@ fun ListStrikeTagsScreen(
         navigationActions(NavigationActions(onNavigationClick = handleExit))
 
         onDispose {
+            scope.launch(NonCancellable) {
+                notifyWidgetAboutChanged(context)
+            }
+
             navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }
@@ -88,61 +101,61 @@ fun ListStrikeTagsScreen(
             colors = if (isSystemInDarkTheme()) {
                 when (state.listLegend) {// цвета статика темная тема
                     TypeLegendList.ALL -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkGreen.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkBlue.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkYellow.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        Black,
                         ListDarkRed.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        Black,
                     )
                 }
             } else { // цвета статика светлая тема
                 when (state.listLegend) {
                     TypeLegendList.ALL -> listOf(
-                        MaterialTheme.colorScheme.background,
-                         ListLightGreen.copy(alpha = 0.5f),
-                                MaterialTheme.colorScheme.background,
+                        White,
+                        ListLightGreen.copy(alpha = 0.5f),
+                        White,
                     )
 
                     TypeLegendList.ADD -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        White,
                         ListLightBlue.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.VIEW -> listOf(
-                         MaterialTheme.colorScheme.background,
+                        White,
                         ListLightYellow.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.PRIVATE -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                         ListLightRed.copy(alpha = 0.7f),
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
 
                     TypeLegendList.NOTHING -> listOf(
-                        MaterialTheme.colorScheme.background,
+                        White,
                     )
                 }
             }
@@ -185,7 +198,7 @@ fun ListStrikeTagsScreen(
             TypeLegendList.ADD -> listOf(
                 MaterialTheme.colorScheme.onSecondary,
                 ListLightBlue,
-             )
+            )
 
             TypeLegendList.VIEW -> listOf(
                 MaterialTheme.colorScheme.onSecondary,
@@ -230,7 +243,10 @@ fun ListStrikeTagsScreen(
                             route(listUuid)
                         },
                     ) {
-                        Icon(Icons.Default.EditNote, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.EditNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface)
                     }
                 } else IconButton(
                     enabled = false,
@@ -238,34 +254,43 @@ fun ListStrikeTagsScreen(
                 ) {
                     Spacer(Modifier.width(48.dp))
                 }
-                Text(text = state.listName)
+                Text(
+                    text = state.listName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
                 if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
-                    || state.isEditable)
+                            || state.isEditable)
                 ) {
-                    Box(Modifier.width(48.dp).align(Alignment.CenterVertically)){
+                    Box(Modifier
+                        .width(48.dp)
+                        .align(Alignment.CenterVertically)) {
                         if (state.hiddenUpdate) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
                                 strokeWidth = 2.dp,
-                                modifier = Modifier.padding(start = 4.dp, top = 4.dp).size(36.dp)
+                                modifier = Modifier
+                                    .padding(start = 4.dp, top = 4.dp)
+                                    .size(36.dp)
                             )
                         }
                         IconButton(
                             enabled = !state.hiddenUpdate,
-                            onClick = { viewModel.updateList() },
+                            onClick = { viewModel.updatingList() },
                         ) {
-                            Icon(Icons.Default.Repeat, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 } else Spacer(Modifier.width(48.dp))
             }
-            HorizontalDivider(
-                thickness = 1.dp,
+            DividerHorizontalTransparent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 8.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
+                )
             TagsList(
                 modifier = Modifier
                     .fillMaxWidth()
