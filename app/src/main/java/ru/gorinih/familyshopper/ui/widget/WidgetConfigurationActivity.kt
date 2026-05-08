@@ -13,11 +13,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -30,12 +35,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
+import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_EDIT
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.views.CardListSimpleItem
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 
 /**
  * Created by Igor Abdulganeev on 28.04.2026
@@ -67,7 +74,12 @@ class WidgetConfigurationActivity : ComponentActivity() {
                     }
                     if (selected.list != null) {
                         with(selected.list) {
-                            saveListUuid(this@WidgetConfigurationActivity, appWidgetId, listId, isEdit)
+                            saveListUuid(
+                                this@WidgetConfigurationActivity,
+                                appWidgetId,
+                                listId,
+                                isEdit
+                            )
                         }
                     }
                 }
@@ -93,7 +105,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 } catch (_: IllegalArgumentException) {
                     AppWidgetManager.INVALID_APPWIDGET_ID
                 }
-                if(appWidgetId == appId) {
+                if (appWidgetId == appId) {
                     updateAppWidgetState(context, glanceId) { updateState ->
                         updateState[listIdKey] = listUuid
                         updateState[listEdit] = isEdit
@@ -121,8 +133,16 @@ fun ShowListToSelect(
 ) {
     val stateList = rememberLazyListState()
     Column(
-        modifier = modifier
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = stringResource(R.string.widget_header_select_list),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+        )
+        DividerHorizontalTransparent()
         LazyColumn(state = stateList) {
             items(listOfProducts.value, key = { list -> list.listId }) { item ->
                 CardListSimpleItem(

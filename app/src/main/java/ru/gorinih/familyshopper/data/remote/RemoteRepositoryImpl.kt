@@ -29,12 +29,16 @@ class RemoteRepositoryImpl(
     private val pref: StorageRepository,
 ) : RemoteRepository {
     override suspend fun getDictionariesVersions(): Map<String, Int> {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return emptyMap()
         val result = remoteApi.getDictionariesVersions(groupId = pref.getGroupUUID())
         val map = if (result.body() != null && result.code() == 200) result.body() else null
         return map ?: emptyMap()
     }
 
     override suspend fun getAllDictionaries(): Map<String, DictionaryRemoteTag> {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return emptyMap()
         val result = remoteApi.getAllDictionaries(groupId = pref.getGroupUUID())
         val map =
             if (result.body() != null && result.code() == 200) result.body()?.map { (key, value) ->
@@ -46,6 +50,12 @@ class RemoteRepositoryImpl(
     override suspend fun getDictionaryById(
         tagId: String
     ): DictionaryRemoteTag {
+        val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return DictionaryRemoteTag(
+            tagId = "",
+            tagVersion = 0,
+            tagNames = emptyList()
+        )
         val result = remoteApi.getDictionaryById(groupId = pref.getGroupUUID(), tagId = tagId)
         val map = if (result.body() != null && result.code() == 200)
             result.body()?.toDictionaryRemoteTags() else null
@@ -125,6 +135,7 @@ class RemoteRepositoryImpl(
 
     override suspend fun deleteListWithVersion(listId: String) {
         val groupId = pref.getGroupUUID()
+        if (groupId.isBlank()) return
         val maps = listId.toDeleteRemote()
         remoteApi.updateSharedData(
             groupId = groupId,

@@ -149,7 +149,7 @@ fun WidgetListScreen(
                 modifier = GlanceModifier.padding(horizontal = 16.dp, vertical = 4.dp),
             ) {
                 Image(
-                    provider = ImageProvider(R.drawable.ic_edit_24),
+                    provider = ImageProvider(R.drawable.ic_sync_alt_24),
                     contentDescription = null,
                     modifier = GlanceModifier
                         .clickable(

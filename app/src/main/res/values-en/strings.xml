@@ -119,6 +119,7 @@
     <string name="widget_header_preview">Shopping list</string>
     <string name="widget_first_strikethrough_text"><s>milk</s></string>
     <string name="widget_second_text">bread</string>
+    <string name="widget_header_select_list">Select a list for the widget</string>
 
     <string name="label_palette_select">Color scheme selection:</string>
     <string name="label_settings_tab_default">Presets</string>

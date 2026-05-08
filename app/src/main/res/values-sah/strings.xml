@@ -118,6 +118,7 @@
     <string name="widget_header_preview">Атыылаһар тиһик</string>
     <string name="widget_first_strikethrough_text"><s>үөт</s></string>
     <string name="widget_second_text">хлеб</string>
+    <string name="widget_header_select_list">Виджет иһин тиһиги тал</string>
 
     <string name="label_palette_select">Өҥ схематын тал:</string>
     <string name="label_settings_tab_default">Бэлэм туруоруу</string>

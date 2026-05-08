@@ -184,8 +184,8 @@ fun SettingsScreen(
                                 )
                             },
                             colors = SuggestionChipDefaults.suggestionChipColors(
-                                labelColor = if (index == pagerState.currentPage) MaterialTheme.colorScheme.onSurface
-                                else MaterialTheme.colorScheme.onPrimary,
+                                labelColor = if (index == pagerState.currentPage) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface,
                                 containerColor = if (index == pagerState.currentPage) MaterialTheme.colorScheme.primary
                                 else Color.Transparent
                             )
