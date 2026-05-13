@@ -30,4 +30,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FamilyShopper"
 include(":app")
- 
+include(":models")

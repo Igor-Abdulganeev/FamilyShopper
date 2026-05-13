@@ -3,9 +3,11 @@ package ru.gorinih.familyshopper.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.di.dataStore
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -118,6 +120,17 @@ class StorageSharedPreference(
             Palettes.palettes.firstOrNull {it.themeType == themeType} ?: Palettes.instance()
         }
 
+    override suspend fun getVoice(): Boolean =
+        context.dataStore.data.map { pref ->
+            pref[booleanPreferencesKey(VOICE_RECOGNIZER)]
+        }.firstOrNull() ?: false
+
+    override suspend fun setVoice(enabled: Boolean) {
+        context.dataStore.edit { pref ->
+            pref[booleanPreferencesKey(VOICE_RECOGNIZER)] = enabled
+        }
+    }
+
     companion object {
         const val WIDGET_LIST = "family_shopper_widget_list"
         const val WIDGET_EDIT = "family_shopper_widget_list_edit"
@@ -125,6 +138,7 @@ class StorageSharedPreference(
 
         const val SETTINGS_DATA_STORE = "family_shopper_settings"
         private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
+        private const val VOICE_RECOGNIZER = "family_shopper_voice_recognizer"
 
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"

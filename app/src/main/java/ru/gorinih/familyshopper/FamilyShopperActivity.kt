@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,97 +49,123 @@ import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 import ru.gorinih.familyshopper.ui.views.LocaleHelper
 import ru.gorinih.familyshopper.ui.views.getLocaleFromPreference
 import ru.gorinih.familyshopper.ui.widget.WidgetLists
+import ru.gorinih.familyshopper.voice.LocalVoicePermission
+import ru.gorinih.familyshopper.voice.VoicePermissionHandler
+import ru.gorinih.familyshopper.voice.VoicePermissionProvide
 
 class MainActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val voiceHandler = VoicePermissionHandler(activityResultRegistry, this)
+        val voiceProvider = object : VoicePermissionProvide {
+            override fun isVoiceGranted(): Boolean = voiceHandler.isVoiceGranted()
+
+            override fun requestVoicePermission(callback: (Boolean) -> Unit) =
+                voiceHandler.requestVoicePermission(callback)
+        }
+
         lifecycleScope.launch {
             WidgetLists().updateAll(application.applicationContext)
         }
         setContent {
-            val viewModel: FamilyShopperViewModel = koinViewModel()
-            val isDynamicColor by viewModel.dynamicColor.collectAsState(initial = false)
-            FamilyShopperTheme(
-                dynamicColor = isDynamicColor,
-                dataStoreRepository = getKoin().get()
-            ) {
-                val navController = rememberNavController()
-                var navigationActions by remember { mutableStateOf(NavigationActions(onNavigationClick = { navController.popBackStack()})) }
-                val backStackEntry by navController.currentBackStackEntryAsState()
-                val pref: StorageRepository = koinInject()
-                val startedKey: NavigationKey = when (pref.getStartedKey()) {
-                    true -> NavigationKey.ListEntityScreen
-                    false -> NavigationKey.SettingsScreen
-                }
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(
-                                stringResource(R.string.toolbar_main_header),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface) },
-                            navigationIcon = {
-                                IconButton(
-                                    onClick = {
-                                        navigationActions.onNavigationClick()
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = null
+            CompositionLocalProvider(LocalVoicePermission provides voiceProvider) {
+                val viewModel: FamilyShopperViewModel = koinViewModel()
+                val isDynamicColor by viewModel.dynamicColor.collectAsState(initial = false)
+                FamilyShopperTheme(
+                    dynamicColor = isDynamicColor,
+                    dataStoreRepository = getKoin().get()
+                ) {
+                    val navController = rememberNavController()
+                    var navigationActions by remember {
+                        mutableStateOf(
+                            NavigationActions(
+                                onNavigationClick = { navController.popBackStack() })
+                        )
+                    }
+                    val backStackEntry by navController.currentBackStackEntryAsState()
+                    val pref: StorageRepository = koinInject()
+                    val startedKey: NavigationKey = when (pref.getStartedKey()) {
+                        true -> NavigationKey.ListEntityScreen
+                        false -> NavigationKey.SettingsScreen
+                    }
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        stringResource(R.string.toolbar_main_header),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
-                                }
-                            },
-                            actions = {
-                                Row(
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    if (
-                                        backStackEntry?.destination?.route?.contains("SettingsScreen") != true
+                                },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            navigationActions.onNavigationClick()
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                actions = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.End,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (
+                                            backStackEntry?.destination?.route?.contains("SettingsScreen") != true
                                         ) {
+                                            IconButton(
+                                                enabled = navController.currentDestination?.route?.contains(
+                                                    "DictionariesScreen"
+                                                ) == false,
+                                                onClick = {
+                                                    navController.navigate(NavigationKey.DictionariesScreen)
+                                                }
+                                            ) {
+                                                Icon(
+                                                    Icons.AutoMirrored.Filled.Notes,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
                                         IconButton(
-                                            enabled = navController.currentDestination?.route?.contains("DictionariesScreen") == false,
+                                            enabled = navController.currentDestination?.route?.contains(
+                                                "SettingsScreen"
+                                            ) == false,
                                             onClick = {
-                                                navController.navigate(NavigationKey.DictionariesScreen)
+                                                navController.navigate(NavigationKey.SettingsScreen)
                                             }
                                         ) {
                                             Icon(
-                                                Icons.AutoMirrored.Filled.Notes,
+                                                Icons.Default.Settings,
                                                 contentDescription = null
                                             )
                                         }
                                     }
-                                    IconButton(
-                                        enabled = navController.currentDestination?.route?.contains("SettingsScreen") == false,
-                                        onClick = {
-                                            navController.navigate(NavigationKey.SettingsScreen)
-                                        }
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
                                 }
-                            }
-                        )
-                    }
-                ) { innerPadding ->
-                    Surface(
-                        modifier = Modifier.padding(innerPadding),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        NavigationHost(
-                            startedScreenKey = startedKey,
-                            navigationController = navController,
-                            onExit = { finishAfterTransition() },
-                            navigationActions = {actions -> navigationActions = actions}
-                        )
+                            )
+                        }
+                    ) { innerPadding ->
+                        Surface(
+                            modifier = Modifier.padding(innerPadding),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            NavigationHost(
+                                startedScreenKey = startedKey,
+                                navigationController = navController,
+                                onExit = { finishAfterTransition() },
+                                navigationActions = { actions -> navigationActions = actions }
+                            )
+                        }
                     }
                 }
             }
@@ -149,10 +176,12 @@ class MainActivity : ComponentActivity() {
      * поддержка смены локали старых андроидов
      */
     override fun attachBaseContext(newBase: Context?) {
-        val context = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && newBase!= null) {
+        val context = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && newBase != null) {
             val code = getLocaleFromPreference(newBase)
             LocaleHelper.wrap(newBase, code)
-        } else { newBase }
+        } else {
+            newBase
+        }
         super.attachBaseContext(context)
     }
 }

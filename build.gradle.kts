@@ -6,4 +6,5 @@ plugins {
     id("com.google.gms.google-services") version "4.4.4" apply false
     id("com.google.devtools.ksp") version "2.3.4" apply false
     id("com.huawei.agconnect") version "1.9.5.302" apply false
+    alias(libs.plugins.android.library) apply false
 }

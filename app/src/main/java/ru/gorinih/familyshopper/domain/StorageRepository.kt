@@ -47,4 +47,7 @@ interface StorageRepository {
 
     fun paletteFlow(): Flow<PaletteScheme>
 
+    suspend fun getVoice(): Boolean
+
+    suspend fun setVoice(enabled: Boolean)
 }

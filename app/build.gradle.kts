@@ -25,7 +25,7 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 14
+val vCode = 15
 val vName = "1.1"
 
 android {
@@ -33,6 +33,7 @@ android {
     compileSdk {
         version = release(36)
     }
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "ru.gorinih.familyshopper"
@@ -40,6 +41,10 @@ android {
         targetSdk = 36
         this.versionCode = vCode
         this.versionName = vName
+
+        ndk {
+            abiFilters += setOf("armeabi-v7a", "rm64-v8a", "x86_64", "x86")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -188,6 +193,9 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(libs.androidx.splashscreen)
+
+    implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation("com.alphacephei:vosk-android:0.3.75@aar")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
