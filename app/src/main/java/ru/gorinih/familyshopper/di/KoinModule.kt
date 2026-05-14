@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -53,6 +54,8 @@ import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
 import ru.gorinih.familyshopper.ui.widget.WidgetViewModel
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
 import java.util.concurrent.TimeUnit
 
 /**
@@ -141,9 +144,11 @@ fun koinModule(): Module = module {
     factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
+    single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl(context = androidContext().applicationContext) }
+
 
     viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
-    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), syncAllRemote = get(), pref = get()) }
+    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), syncAllRemote = get(), pref = get(), voice = get()) }
     viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
     viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
     viewModel { (listId: String) ->

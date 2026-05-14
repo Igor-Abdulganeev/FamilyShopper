@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.gorinih.familyshopper"
+    namespace = "ru.gorinih.models"
     compileSdk = 36
 
     defaultConfig {

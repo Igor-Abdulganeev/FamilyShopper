@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.ui.screens.dictionary
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardVoice
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -75,6 +78,11 @@ fun EditDictionariesScreen(
             selectedTab = ""
         }
     }
+
+    LaunchedEffect(state.fieldText) {
+        addedTag = state.fieldText
+    }
+
     fun addNewTag() {
         if (addedTag.isNotBlank()) {
             selectedTab = addedTag.first().uppercaseChar().toString()
@@ -121,11 +129,30 @@ fun EditDictionariesScreen(
                 },
                 placeholder = stringResource(R.string.label_enter_new_tag),
                 trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            addNewTag()
-                        },
-                    ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Icon(
+                            imageVector = Icons.Default.KeyboardVoice,
+                            contentDescription = null,
+                            modifier = Modifier.pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        try {
+                                            viewModel.voiceRecognizePress(true)
+                                            awaitRelease()
+                                        } finally {
+                                            viewModel.voiceRecognizePress(false)
+                                        }
+
+                                    }
+                                )
+                            }
+                        )
+                        IconButton(
+                            onClick = {
+                                addNewTag()
+                            },
+                        ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                    }
                 },
                 action = {
                     addNewTag()

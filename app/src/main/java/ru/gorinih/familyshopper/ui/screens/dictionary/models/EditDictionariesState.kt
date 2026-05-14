@@ -10,5 +10,6 @@ data class EditDictionariesState (
     val canSync: Boolean = false,
     val list: List<UiDictionary> = emptyList(),
     val warning: WarningState = WarningState(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val fieldText: String = ""
     )
