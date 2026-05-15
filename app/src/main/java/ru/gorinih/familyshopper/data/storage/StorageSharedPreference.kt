@@ -125,6 +125,11 @@ class StorageSharedPreference(
             pref[booleanPreferencesKey(VOICE_RECOGNIZER)]
         }.firstOrNull() ?: false
 
+    override fun getVoiceFlow(): Flow<Boolean> =
+        context.dataStore.data.map { pref ->
+            pref[booleanPreferencesKey(VOICE_RECOGNIZER)] == true
+        }
+
     override suspend fun setVoice(enabled: Boolean) {
         context.dataStore.edit { pref ->
             pref[booleanPreferencesKey(VOICE_RECOGNIZER)] = enabled

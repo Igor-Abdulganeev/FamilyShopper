@@ -2,12 +2,14 @@ package ru.gorinih.familyshopper.ui.views
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.BlurMaskFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,12 +30,14 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ru.gorinih.familyshopper.ui.GlassCircleImage
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import android.graphics.Paint.Style
 
 /**
  * Created by Igor Abdulganeev on 09.04.2026
@@ -89,6 +93,45 @@ fun Modifier.shadow(
                 radiusY = borderRadius.toPx(),
                 paint = paint
             )
+        }
+    }
+}
+
+fun Modifier.glowWave(
+    color: Color = Color.Red,
+    glowRadius: Dp = 4.dp,
+    shapeRadius: Dp = 8.dp,
+): Modifier = this.drawBehind {
+    drawIntoCanvas { canvas ->
+        val paint = Paint().asFrameworkPaint().apply {
+            this.color = color.toArgb()
+            isAntiAlias = true
+            style = Style.STROKE
+            strokeWidth = glowRadius.toPx()
+            if (glowRadius.toPx() > 0f) {
+                this.maskFilter = BlurMaskFilter(glowRadius.toPx(), BlurMaskFilter.Blur.NORMAL)
+            }
+        }
+
+        canvas.nativeCanvas.drawRoundRect(
+             0f, 0f,
+            size.width, size.height,
+            shapeRadius.toPx(), shapeRadius.toPx(),
+            paint
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewGlow() {
+    FamilyShopperTheme() {
+        Column(Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.onBackground)) {
+            Row(
+                Modifier.fillMaxWidth().padding(32.dp)
+                    .background(Color.Blue).glowWave()) {
+                Text("Проба пера", color = Color.White)
+            }
         }
     }
 }

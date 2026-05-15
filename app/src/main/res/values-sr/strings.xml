@@ -121,5 +121,6 @@
 
     <string name="label_palette_select">Izbor šeme boja:</string>
     <string name="label_settings_tab_default">Podrazumevano</string>
+    <string name="label_settings_voice_recognizer">Glasovni unos teksta</string>
 
 </resources>

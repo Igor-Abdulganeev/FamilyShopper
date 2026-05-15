@@ -121,5 +121,6 @@
 
     <string name="label_palette_select">เลือกชุดสี:</string>
     <string name="label_settings_tab_default">ค่าเริ่มต้น</string>
+    <string name="label_settings_voice_recognizer">ป้อนข้อความด้วยเสียง</string>
 
 </resources>

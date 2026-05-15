@@ -22,4 +22,5 @@ data class SettingsState(
     val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
     val warning: WarningState = WarningState(), // обработка исключений
     val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
+    val isVoiceRecognizer: Boolean = false, // включен ли режим ввода голосом
 ) : Parcelable

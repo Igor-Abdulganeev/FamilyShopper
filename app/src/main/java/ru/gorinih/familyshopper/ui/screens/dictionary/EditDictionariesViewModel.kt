@@ -1,18 +1,21 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
@@ -57,10 +60,25 @@ class EditDictionariesViewModel(
 
     init {
         viewModelScope.launch {
-            Log.d("GINES","PREload")
-            val r = voice.initRecognizer()
-            Log.d("GINES","end PREload $r")
+            val result = voice.initRecognizer()
+            dictionaryState.update {
+                it.copy(voiceRecognizer = dictionaryState.map { v -> v.voiceRecognizer }
+                    .first().copy(isEnabled = result))
+            }
         }
+        pref.getVoiceFlow()
+            .catch {
+                dictionaryState.update { state ->
+                    state.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                        .first().copy(isVisible = false, isEnabled = false))
+                }
+            }
+            .onEach { enabled ->
+                dictionaryState.update {
+                    it.copy(voiceRecognizer = dictionaryState.map { v -> v.voiceRecognizer }
+                        .first().copy(isVisible = enabled, isEnabled = enabled && voice.isPrepared()))
+                }
+            }.launchIn(viewModelScope)
         syncDictionaries()
         database.takeDictionaries()
             .map { list ->
@@ -139,35 +157,59 @@ class EditDictionariesViewModel(
         if (isPressed) {
             jobVoiceRecognize?.cancel()
             jobVoiceRecognize = null
+            viewModelScope.launch(Dispatchers.Main.immediate + coroutineExceptionHandler) {
+                dictionaryState.update {
+                    it.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                        .first().copy(isEnabled = false))
+                }
+            }
         }
-        Log.d("GINES","start/stop with $isPressed")
         when (isPressed) {
             true -> {
                 jobVoiceRecognize =
-                    viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+                    viewModelScope.launch(Dispatchers.IO) {
                         try {
                             if (!voice.isPrepared()) {
-                                Log.d("GINES", "isPrepared() = false")
                                 if (!voice.initRecognizer()) {
-                                    Log.d("GINES", "initRecognizer = false")
                                     throw IllegalStateException("Not init voice recognizer")
                                 }
                             }
 
                             voice.startListening().collect { text ->
-                                if (text.isNotBlank()) dictionaryState.update { it.copy(fieldText = text)}
-                                println("GINES Наговорили слово= $text")
+                                if (text.isNotBlank()) {
+                                    withContext(Dispatchers.Main.immediate) {
+                                        dictionaryState.update {
+                                            it.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                                                .first().copy(fieldText = text))
+                                        }
+                                    }
+                                }
                             }
 
-                        } catch (ex: Throwable) {
-                            Log.e("GINES","чето не то $ex")
+                        } catch (ex: CancellationException) {
+                            withContext(Dispatchers.Main.immediate + NonCancellable) {
+                                dictionaryState.update {
+                                    it.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                                        .first().copy(isEnabled = true))
+                                }
+                            }
+                            throw ex
+                        } catch (_: Throwable) {
+                            withContext(Dispatchers.Main.immediate + NonCancellable) {
+                                dictionaryState.update {
+                                    it.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                                        .first().copy(isEnabled = false, isVisible = false))
+                                }
+                            }
                         }
                     }
             }
 
             false -> {
+                viewModelScope.launch(Dispatchers.Main.immediate + coroutineExceptionHandler) {
                     jobVoiceRecognize?.cancel()
                     jobVoiceRecognize = null
+                }
             }
         }
     }

@@ -123,5 +123,6 @@
 
     <string name="label_palette_select">Color scheme selection:</string>
     <string name="label_settings_tab_default">Presets</string>
+    <string name="label_settings_voice_recognizer">Voice text input</string>
 
 </resources>

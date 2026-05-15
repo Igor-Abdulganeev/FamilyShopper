@@ -122,5 +122,6 @@
 
     <string name="label_palette_select">Өҥ схематын тал:</string>
     <string name="label_settings_tab_default">Бэлэм туруоруу</string>
+    <string name="label_settings_voice_recognizer">Саҥан текст киллэрии</string>
 
 </resources>

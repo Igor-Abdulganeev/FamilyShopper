@@ -66,6 +66,14 @@ class SettingsViewModel(
                 .onEach {
                     stateSettings = stateSettings.copy(palette = it) }
                 .stateIn(viewModelScope)
+            pref.getVoiceFlow()
+                .catch {
+                    stateSettings = stateSettings.copy(isVoiceRecognizer = false)
+                }
+                .onEach {
+                    stateSettings = stateSettings.copy(isVoiceRecognizer = it)
+                }
+                .stateIn(viewModelScope)
         }
     }
 
@@ -112,6 +120,12 @@ class SettingsViewModel(
     fun updateBackground() {
         stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
         pref.setBackgroundState(stateSettings.rainbow)
+    }
+
+    fun updateVoiceRecognizer(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            pref.setVoice(enabled)
+        }
     }
 
     fun saveUserName() {

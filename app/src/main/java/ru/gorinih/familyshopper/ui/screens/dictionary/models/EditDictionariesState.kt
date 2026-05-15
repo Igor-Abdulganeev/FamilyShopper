@@ -11,5 +11,5 @@ data class EditDictionariesState (
     val list: List<UiDictionary> = emptyList(),
     val warning: WarningState = WarningState(),
     val isLoading: Boolean = false,
-    val fieldText: String = ""
+    val voiceRecognizer: VoiceState = VoiceState(),
     )

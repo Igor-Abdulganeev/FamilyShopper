@@ -49,5 +49,7 @@ interface StorageRepository {
 
     suspend fun getVoice(): Boolean
 
+    fun getVoiceFlow(): Flow<Boolean>
+
     suspend fun setVoice(enabled: Boolean)
 }

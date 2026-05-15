@@ -48,6 +48,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -82,6 +83,7 @@ import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.LanguageSelector
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
+import ru.gorinih.familyshopper.voice.LocalVoicePermission
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -102,6 +104,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val screen = rememberScreenConfiguration()
     val scrollAppearancePage = rememberScrollState()
+    val voicePermission = LocalVoicePermission.current
+    var voiceRecognizer by remember { mutableStateOf(voicePermission.isVoiceGranted()) }
 
     LaunchedEffect(Unit) {
         viewModel.shareEvents.collect { uuid ->
@@ -612,9 +616,33 @@ fun SettingsScreen(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start
                     ) {
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = voiceRecognizer && state.isVoiceRecognizer,
+                                onCheckedChange = { check ->
+                                    if(check) {
+                                        voicePermission.requestVoicePermission { result ->
+                                            voiceRecognizer = result
+                                            viewModel.updateVoiceRecognizer(result)
+                                        }
+                                    }
+                                    else {
+                                        voiceRecognizer = false
+                                        viewModel.updateVoiceRecognizer(false)
+                                    }
+                                },
+                            )
+                            Text(text = stringResource(R.string.label_settings_voice_recognizer),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 16.dp))
+                        }
                         LazyColumn(
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .padding(top = 8.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->
                                 if (index == 0) {

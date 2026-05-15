@@ -89,5 +89,6 @@
 
     <string name="label_palette_select">Выбор цветовой схемы:</string>
     <string name="label_settings_tab_default">Предустановки</string>
+    <string name="label_settings_voice_recognizer">Голосовой ввод текста</string>
 
 </resources>
