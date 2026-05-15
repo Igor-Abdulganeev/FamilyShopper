@@ -43,10 +43,16 @@ android {
         this.versionName = vName
 
         ndk {
-            abiFilters += setOf("armeabi-v7a", "rm64-v8a", "x86_64", "x86")
+            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64", "x86")
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     signingConfigs {
