@@ -640,6 +640,9 @@ fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(start = 16.dp))
                         }
+
+                        DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
+
                         LazyColumn(
                             modifier = Modifier
                                 .padding(top = 8.dp)

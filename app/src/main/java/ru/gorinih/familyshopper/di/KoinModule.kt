@@ -128,7 +128,13 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
-    factory<UpdateListUseCase> { UpdateListUseCaseImpl(database = get(), remote = get(), pref = get()) }
+    factory<UpdateListUseCase> {
+        UpdateListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get()
+        )
+    }
     factory<SynchronizeListsUseCase> {
         SynchronizeListsUseCaseImpl(
             context = get(),
@@ -137,10 +143,27 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
-    factory<GetAndUpdateListUseCase> { GetAndUpdateListUseCaseImpl(database = get(), remote = get()) }
+    factory<GetAndUpdateListUseCase> {
+        GetAndUpdateListUseCaseImpl(
+            database = get(),
+            remote = get()
+        )
+    }
     factory<UpdateUsersUseCase> { UpdateUsersUseCaseImpl(remote = get(), database = get()) }
-    factory<DeleteListUseCase> { DeleteListUseCaseImpl(database = get(), remote = get(), pref = get()) }
-    factory<SynchronizeDictionariesGetAllRemoteUseCase> { SynchronizeDictionariesGetAllRemoteUseCaseImpl(remote = get(), database = get(), pref = get()) }
+    factory<DeleteListUseCase> {
+        DeleteListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get()
+        )
+    }
+    factory<SynchronizeDictionariesGetAllRemoteUseCase> {
+        SynchronizeDictionariesGetAllRemoteUseCaseImpl(
+            remote = get(),
+            database = get(),
+            pref = get()
+        )
+    }
     factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
@@ -148,8 +171,25 @@ fun koinModule(): Module = module {
 
 
     viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
-    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), syncAllRemote = get(), pref = get(), voice = get()) }
-    viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
+    viewModel {
+        EditDictionariesViewModel(
+            database = get(),
+            syncRemote = get(),
+            syncAllRemote = get(),
+            pref = get(),
+            voice = get()
+        )
+    }
+    viewModel { (listUuid: String) ->
+        EditListViewModel(
+            listUuid = listUuid,
+            pref = get(),
+            database = get(),
+            saveList = get(),
+            updateList = get(),
+            voice = get()
+        )
+    }
     viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
     viewModel { (listId: String) ->
         ListStrikeTagsViewModel(

@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.dictionary.models
+package ru.gorinih.familyshopper.ui.models
 
 /**
  * Created by Igor Abdulganeev on 15.05.2026

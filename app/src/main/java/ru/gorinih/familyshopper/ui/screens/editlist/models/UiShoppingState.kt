@@ -4,6 +4,7 @@ import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.VoiceState
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import java.util.UUID
@@ -33,6 +34,7 @@ data class UiShoppingState(
     val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
     val isLocalJob: Boolean = false, // локально или сетевая (есть groupUuid или нет)
+    val voiceRecognizer: VoiceState = VoiceState(), // класс по распознованию голосового ввода
 )
 
 fun UiShoppingState.toShoppedList() =

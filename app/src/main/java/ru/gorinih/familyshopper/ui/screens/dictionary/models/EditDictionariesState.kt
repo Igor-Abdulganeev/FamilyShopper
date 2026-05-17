@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary.models
 
+import ru.gorinih.familyshopper.ui.models.VoiceState
 import ru.gorinih.familyshopper.ui.models.WarningState
 
 /**

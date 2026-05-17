@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.KeyboardVoice
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -62,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -81,6 +84,7 @@ import ru.gorinih.familyshopper.ui.models.TypeListTags
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.views.ChipPanelSelectTypeList
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.GlowRoundedTextField
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.TagsList
@@ -114,10 +118,15 @@ fun EditListScreen(
 
     var helpWords by remember { mutableStateOf(listOf<String>()) }
     var isHelpWords by remember { mutableStateOf(false) }
+    var glowFlag by remember { mutableStateOf(false) }
 
     BackHandler(enabled = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
+    }
+
+    LaunchedEffect(state.voiceRecognizer.fieldText) {
+        addedTag = state.voiceRecognizer.fieldText
     }
 
     fun addNewTag(item: String = "", comment: String = "") {
@@ -247,7 +256,9 @@ fun EditListScreen(
                 expanded = isHelpWords,
                 onExpandedChange = { isHelpWords = it }
             ) {
-                RoundedTextField(
+                GlowRoundedTextField(
+                    isGlow = glowFlag,
+                    colorGlow = MaterialTheme.colorScheme.primary,
                     value = addedTag,
                     onValueChange = { name ->
                         addedTag = name
@@ -281,6 +292,33 @@ fun EditListScreen(
                     } else null,
                     trailingIcon = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            AnimatedVisibility(
+                                visible = state.voiceRecognizer.isVisible,
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardVoice,
+                                    contentDescription = null,
+                                    tint = if (state.voiceRecognizer.isEnabled) MaterialTheme.colorScheme.onSurface
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onPress = {
+                                                if (!state.voiceRecognizer.isEnabled) return@detectTapGestures
+                                                try {
+                                                    glowFlag = true
+                                                    viewModel.voiceRecognizePress(true)
+                                                    awaitRelease()
+                                                } finally {
+                                                    viewModel.voiceRecognizePress(false)
+                                                    glowFlag = false
+                                                }
+                                            }
+                                        )
+                                    }
+                                )
+                            }
                             IconButton(
                                 onClick = {
                                     addNewTag()
@@ -439,7 +477,9 @@ fun EditListScreen(
                         expanded = isHelpWords,
                         onExpandedChange = { isHelpWords = it }
                     ) {
-                        RoundedTextField(
+                        GlowRoundedTextField(
+                            isGlow = glowFlag,
+                            colorGlow = MaterialTheme.colorScheme.primary,
                             value = addedTag,
                             onValueChange = { name ->
                                 addedTag = name
@@ -472,6 +512,33 @@ fun EditListScreen(
                             } else null,
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    AnimatedVisibility(
+                                        visible = state.voiceRecognizer.isVisible,
+                                        enter = fadeIn(),
+                                        exit = fadeOut()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.KeyboardVoice,
+                                            contentDescription = null,
+                                            tint = if (state.voiceRecognizer.isEnabled) MaterialTheme.colorScheme.onSurface
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.pointerInput(Unit) {
+                                                detectTapGestures(
+                                                    onPress = {
+                                                        if (!state.voiceRecognizer.isEnabled) return@detectTapGestures
+                                                        try {
+                                                            glowFlag = true
+                                                            viewModel.voiceRecognizePress(true)
+                                                            awaitRelease()
+                                                        } finally {
+                                                            viewModel.voiceRecognizePress(false)
+                                                            glowFlag = false
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
                                     IconButton(
                                         onClick = {
                                             addNewTag()
