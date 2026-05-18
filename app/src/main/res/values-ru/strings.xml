@@ -91,4 +91,7 @@
     <string name="label_settings_tab_default">Предустановки</string>
     <string name="label_settings_voice_recognizer">Голосовой ввод текста</string>
 
+    <string name="label_voice_choice_en">Английский</string>
+    <string name="label_voice_choice_ru">Русский</string>
+
 </resources>

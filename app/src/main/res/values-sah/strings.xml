@@ -124,4 +124,7 @@
     <string name="label_settings_tab_default">Бэлэм туруоруу</string>
     <string name="label_settings_voice_recognizer">Саҥан текст киллэрии</string>
 
+    <string name="label_voice_choice_en">Ааҥыллыы</string>
+    <string name="label_voice_choice_ru">Нууччалыы</string>
+
 </resources>

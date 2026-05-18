@@ -29,8 +29,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,19 +80,25 @@ fun GlowRoundedTextField(
             repeatMode = RepeatMode.Reverse
         )
     )
-    val waveRadius = lerp(start = 2.dp, stop = 6.dp, fraction = waveProgress)
     val glowVisibility by animateFloatAsState(
         targetValue = if (isGlow) 1f else 0f,
         animationSpec = tween(durationMillis = 100),
         label = "glowVisibility"
     )
+    val targetGlow by remember {
+        derivedStateOf {
+            when (glowVisibility){
+                0f -> 0.dp
+                else -> lerp(start = 2.dp, stop = 6.dp, fraction = waveProgress) * glowVisibility
+            }
+        }
+    }
 
-    val targetGlow = waveRadius * glowVisibility
      Box(
         modifier = modifier.fillMaxWidth().glowWave(
             color = colorGlow,
-            glowRadius = targetGlow,
-            shapeRadius = 12.dp
+            glowRadius = { targetGlow },
+            shapeRadius = 16.dp
         )
     )
     {

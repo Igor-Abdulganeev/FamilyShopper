@@ -123,4 +123,7 @@
     <string name="label_settings_tab_default">Podrazumevano</string>
     <string name="label_settings_voice_recognizer">Glasovni unos teksta</string>
 
+    <string name="label_voice_choice_en">Engleski</string>
+    <string name="label_voice_choice_ru">Ruski</string>
+
 </resources>

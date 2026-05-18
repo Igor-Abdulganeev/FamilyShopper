@@ -125,4 +125,7 @@
     <string name="label_settings_tab_default">Presets</string>
     <string name="label_settings_voice_recognizer">Voice text input</string>
 
+    <string name="label_voice_choice_en">English</string>
+    <string name="label_voice_choice_ru">Russian</string>
+
 </resources>

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -25,7 +26,9 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
+import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import java.util.UUID
 
 /**
@@ -37,6 +40,7 @@ class SettingsViewModel(
     private val remote: UpdateUserUseCase,
     private val database: DatabaseRepository,
     private val updater: UpdateUsersUseCase,
+    private val voice: FamilyVoiceRecognizer,
 ) : ViewModel() {
 
     var stateSettings by mutableStateOf(getStartedKeys())
@@ -62,9 +66,11 @@ class SettingsViewModel(
                 )
             pref.paletteFlow()
                 .catch {
-                    stateSettings = stateSettings.copy(palette = PaletteScheme()) }
+                    stateSettings = stateSettings.copy(palette = PaletteScheme())
+                }
                 .onEach {
-                    stateSettings = stateSettings.copy(palette = it) }
+                    stateSettings = stateSettings.copy(palette = it)
+                }
                 .stateIn(viewModelScope)
             pref.getVoiceFlow()
                 .catch {
@@ -74,6 +80,11 @@ class SettingsViewModel(
                     stateSettings = stateSettings.copy(isVoiceRecognizer = it)
                 }
                 .stateIn(viewModelScope)
+            pref.getVoiceModelFlow().collectLatest { tag ->
+                stateSettings =
+                    stateSettings.copy(voiceRecognizerModel = VoiceModels.entries.firstOrNull { it.tag == tag }
+                        ?: VoiceModels.ENGLISH)
+            }
         }
     }
 
@@ -124,7 +135,16 @@ class SettingsViewModel(
 
     fun updateVoiceRecognizer(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if(!enabled) voice.closeRecognizer()
             pref.setVoice(enabled)
+        }
+    }
+
+    fun updateVoice(voiceName: VoiceModels) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            val currentName = pref.getVoiceModel()
+            if (currentName != voiceName.tag) voice.closeRecognizer()
+            pref.setVoiceModel(voiceName.tag)
         }
     }
 

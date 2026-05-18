@@ -59,13 +59,6 @@ class EditDictionariesViewModel(
         private set
 
     init {
-        viewModelScope.launch {
-            val result = voice.initRecognizer()
-            dictionaryState.update {
-                it.copy(voiceRecognizer = dictionaryState.map { v -> v.voiceRecognizer }
-                    .first().copy(isEnabled = result))
-            }
-        }
         pref.getVoiceFlow()
             .catch {
                 dictionaryState.update { state ->
@@ -76,9 +69,23 @@ class EditDictionariesViewModel(
             .onEach { enabled ->
                 dictionaryState.update {
                     it.copy(voiceRecognizer = dictionaryState.map { v -> v.voiceRecognizer }
-                        .first().copy(isVisible = enabled, isEnabled = enabled && voice.isPrepared()))
+                        .first().copy(isVisible = enabled))
                 }
             }.launchIn(viewModelScope)
+        pref.getVoiceModelFlow()
+            .catch {
+                dictionaryState.update { state ->
+                    state.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
+                        .first().copy(isVisible = false, isEnabled = false))
+                }
+            }
+            .onEach {
+            val result = if(!voice.isPrepared()) voice.initRecognizer() else true
+            dictionaryState.update {
+                it.copy(voiceRecognizer = dictionaryState.map { v -> v.voiceRecognizer }
+                    .first().copy(isEnabled = result))
+            }
+        }.launchIn(viewModelScope)
         syncDictionaries()
         database.takeDictionaries()
             .map { list ->

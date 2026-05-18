@@ -67,10 +67,6 @@ class EditListViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            voice.initRecognizer().let { result ->
-                shoppedList =
-                    shoppedList.copy(voiceRecognizer = shoppedList.voiceRecognizer.copy(isEnabled = result))
-            }
             pref.getVoiceFlow()
                 .catch {
                     shoppedList = shoppedList.copy(
@@ -83,11 +79,27 @@ class EditListViewModel(
                 .onEach { enabled ->
                     shoppedList = shoppedList.copy(
                         voiceRecognizer = shoppedList.voiceRecognizer.copy(
-                            isVisible = enabled,
-                            isEnabled = enabled && voice.isPrepared()
+                            isVisible = enabled
                         )
                     )
                 }.stateIn(viewModelScope)
+            pref.getVoiceModelFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(
+                        voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                            isVisible = false,
+                            isEnabled = false
+                        )
+                    )
+                }
+                .onEach {
+                val result = if(!voice.isPrepared()) voice.initRecognizer() else true
+                shoppedList = shoppedList.copy(
+                    voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                        isEnabled = result
+                    )
+                )
+             }.stateIn(viewModelScope)
             database.takeDictionaries()
                 .catch { }
                 .onEach { list ->

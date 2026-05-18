@@ -16,6 +16,7 @@ import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import ru.gorinih.familyshopper.domain.StorageRepository
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -23,11 +24,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 
 class FamilyVoiceRecognizerImpl(
-    private val context: Context
+    private val context: Context,
+    private val preference: StorageRepository
 ) : FamilyVoiceRecognizer {
     private var speechService: SpeechService? = null
     private var modelSpeech: Model? = null
     private var recognizer: Recognizer? = null
+    private var modelName: String = ""
 
     override fun isPrepared(): Boolean = recognizer != null
 
@@ -87,36 +90,47 @@ class FamilyVoiceRecognizerImpl(
         ) {
             return false
         }
+        val currentModelName = preference.getVoiceModel()
 
-        if (modelSpeech != null && recognizer != null) return true
+        if (modelSpeech != null && recognizer != null && modelName == currentModelName) return true
+        if (modelName != currentModelName) closeRecognizer()
+        modelName = currentModelName
         return try {
-            val loadingModel = suspendCancellableCoroutine<Model> { continuation ->
-                StorageService.unpack(
-                    context,
-                    "model-ru",
-                    "model",
-                    { model ->
-                        if (continuation.isActive) continuation.resume(model) { _, modelToClose, _ ->
-                            modelToClose?.close()
-                         }
-                    },
-                    { exception ->
-                        if (continuation.isActive) continuation.resumeWith(Result.failure(exception))
-                    }
+            if (modelName.isNotBlank()) {
+                val loadingModel = suspendCancellableCoroutine<Model> { continuation ->
+                    StorageService.unpack(
+                        context,
+                        modelName,
+                        "model",
+                        { model ->
+                            if (continuation.isActive) continuation.resume(model) { _, modelToClose, _ ->
+                                modelToClose?.close()
+                            }
+                        },
+                        { exception ->
+                            if (continuation.isActive) continuation.resumeWith(
+                                Result.failure(
+                                    exception
+                                )
+                            )
+                        }
+                    )
+                }
+                modelSpeech = loadingModel
+                recognizer = Recognizer(
+                    modelSpeech,
+                    16000.0f
                 )
+                true
+            } else {
+                false
             }
-            modelSpeech = loadingModel
-            recognizer = Recognizer(
-                modelSpeech,
-                16000.0f
-            )
-            true
         } catch (_: Throwable) {
             false
         }
     }
 
-    override fun closeRecognizer() {
+    override suspend fun closeRecognizer() {
         stopListening()
         recognizer?.close()
         recognizer = null

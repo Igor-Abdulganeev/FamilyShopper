@@ -52,4 +52,10 @@ interface StorageRepository {
     fun getVoiceFlow(): Flow<Boolean>
 
     suspend fun setVoice(enabled: Boolean)
+
+    suspend fun setVoiceModel(name: String)
+
+    suspend fun getVoiceModel(): String
+
+    fun getVoiceModelFlow(): Flow<String>
 }

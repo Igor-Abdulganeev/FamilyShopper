@@ -23,4 +23,5 @@ data class SettingsState(
     val warning: WarningState = WarningState(), // обработка исключений
     val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
     val isVoiceRecognizer: Boolean = false, // включен ли режим ввода голосом
+    val voiceRecognizerModel: VoiceModels = VoiceModels.ENGLISH
 ) : Parcelable

@@ -10,5 +10,5 @@ interface FamilyVoiceRecognizer {
     suspend fun initRecognizer(): Boolean
     fun startListening(): Flow<String>
     fun isPrepared(): Boolean
-    fun closeRecognizer()
+    suspend fun closeRecognizer()
 }

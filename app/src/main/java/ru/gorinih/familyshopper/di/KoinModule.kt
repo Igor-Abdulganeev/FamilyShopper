@@ -167,10 +167,10 @@ fun koinModule(): Module = module {
     factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
-    single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl(context = androidContext().applicationContext) }
+    single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl(context = androidContext().applicationContext, preference = get()) }
 
 
-    viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
+    viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get(), voice = get()) }
     viewModel {
         EditDictionariesViewModel(
             database = get(),

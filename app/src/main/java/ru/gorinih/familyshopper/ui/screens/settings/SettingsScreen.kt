@@ -9,9 +9,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -76,10 +78,12 @@ import ru.gorinih.familyshopper.navigation.ScreenLayoutType
 import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
+import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
 import ru.gorinih.familyshopper.ui.views.ColorSchemeItems
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.FilterChipItem
 import ru.gorinih.familyshopper.ui.views.LanguageSelector
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
@@ -104,6 +108,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val screen = rememberScreenConfiguration()
     val scrollAppearancePage = rememberScrollState()
+    val scrollPresetsPage = rememberScrollState()
     val voicePermission = LocalVoicePermission.current
     var voiceRecognizer by remember { mutableStateOf(voicePermission.isVoiceGranted()) }
 
@@ -612,9 +617,10 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                            .padding(vertical = 8.dp, horizontal = 4.dp)
+                            .verticalScroll(state = scrollPresetsPage),
                         verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = Alignment.Start,
                     ) {
                         Row(modifier = Modifier
                             .fillMaxWidth()
@@ -640,11 +646,34 @@ fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(start = 16.dp))
                         }
+                        AnimatedVisibility(
+                            visible = voiceRecognizer && state.isVoiceRecognizer
+                        ) {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                for (language in VoiceModels.entries) {
+                                    FilterChipItem(
+                                        label = when(language) {
+                                            VoiceModels.ENGLISH -> stringResource(R.string.label_voice_choice_en)
+                                            VoiceModels.RUSSIAN -> stringResource(R.string.label_voice_choice_ru)
+                                        },
+                                        selected = language == state.voiceRecognizerModel,
+                                        onClick = {
+                                            viewModel.updateVoice(language)
+                                        }
+                                    )
+                                }
+                            }
+                        }
 
-                        DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
+                        DividerHorizontalTransparent(Modifier.padding(vertical = 16.dp))
 
                         LazyColumn(
-                            modifier = Modifier
+                            modifier = Modifier.fillMaxWidth()
+                                .height(350.dp)
                                 .padding(top = 8.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->

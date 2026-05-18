@@ -136,6 +136,22 @@ class StorageSharedPreference(
         }
     }
 
+    override suspend fun setVoiceModel(name: String) {
+        context.dataStore.edit { pref ->
+            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] = name
+        }
+    }
+
+    override suspend fun getVoiceModel(): String =
+        context.dataStore.data.map { pref ->
+            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)]
+        }.firstOrNull() ?: "model-en-us"
+
+    override fun getVoiceModelFlow(): Flow<String> =
+        context.dataStore.data.map {pref ->
+            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] ?: "model-en-us"
+        }
+
     companion object {
         const val WIDGET_LIST = "family_shopper_widget_list"
         const val WIDGET_EDIT = "family_shopper_widget_list_edit"
@@ -144,6 +160,7 @@ class StorageSharedPreference(
         const val SETTINGS_DATA_STORE = "family_shopper_settings"
         private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
         private const val VOICE_RECOGNIZER = "family_shopper_voice_recognizer"
+        private const val VOICE_RECOGNIZER_MODEL = "family_shopper_voice_recognizer_model"
 
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
