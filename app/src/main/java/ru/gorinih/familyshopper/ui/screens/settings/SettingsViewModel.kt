@@ -11,23 +11,29 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.models.toWarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
+import ru.gorinih.familyshopper.ui.screens.settings.models.ListSaved
 import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
 import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
+import ru.gorinih.familyshopper.ui.theme.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+import ru.gorinih.familyshopper.ui.theme.models.Palettes
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import java.util.UUID
 
@@ -61,17 +67,19 @@ class SettingsViewModel(
                     val list: List<UiListUser> = users.map { it.toUiListUsers() }
                         .filterNot { it.userUuid == pref.getClientUUID() }.sortedBy { it.userUuid }
                     stateSettings = stateSettings.copy(listUsers = list)
-                }.stateIn(
+                }.launchIn(
                     viewModelScope
                 )
             pref.paletteFlow()
                 .catch {
                     stateSettings = stateSettings.copy(palette = PaletteScheme())
                 }
-                .onEach {
-                    stateSettings = stateSettings.copy(palette = it)
+                .onEach { namePalette ->
+                    val themeType = ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
+                    val palette = Palettes.palettes.firstOrNull { it.themeType == themeType } ?: Palettes.instance()
+                    stateSettings = stateSettings.copy(palette = palette)
                 }
-                .stateIn(viewModelScope)
+                .launchIn(viewModelScope)
             pref.getVoiceFlow()
                 .catch {
                     stateSettings = stateSettings.copy(isVoiceRecognizer = false)
@@ -79,7 +87,19 @@ class SettingsViewModel(
                 .onEach {
                     stateSettings = stateSettings.copy(isVoiceRecognizer = it)
                 }
-                .stateIn(viewModelScope)
+                .launchIn(viewModelScope)
+            pref.getListSaveTagsFlow()
+                .catch {}
+                .onEach { lists ->
+                    val settings: List<ListSaved> =  lists.entries.map { (key, value) ->
+                        val legend = TypeLegendList.entries.firstOrNull { it.listId == key.listId } ?: TypeLegendList.NOTHING
+                        ListSaved(legend, value)
+                    }
+                    withContext(Dispatchers.Main.immediate) {
+                        stateSettings =
+                            stateSettings.copy(listSaveTagsSettings = settings.sortedBy { it.legend.listId })
+                    }
+                }.launchIn(viewModelScope)
             pref.getVoiceModelFlow().collectLatest { tag ->
                 stateSettings =
                     stateSettings.copy(voiceRecognizerModel = VoiceModels.entries.firstOrNull { it.tag == tag }
@@ -124,7 +144,7 @@ class SettingsViewModel(
     fun updatePalette(palette: PaletteScheme) {
         stateSettings = stateSettings.copy(palette = palette)
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            pref.updatePalette(palette)
+            pref.updatePalette(palette.themeType.name)
         }
     }
 
@@ -145,6 +165,16 @@ class SettingsViewModel(
             val currentName = pref.getVoiceModel()
             if (currentName != voiceName.tag) voice.closeRecognizer()
             pref.setVoiceModel(voiceName.tag)
+        }
+    }
+
+    fun updateListSaveTags(list: TypeLegendList) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            val key = LegendList.entries.firstOrNull { it.listId == list.listId } ?: return@launch
+            val settings = pref.getListSaveTags()
+            val enabled = !(settings[key] ?: true)
+            settings[key] = enabled
+            pref.setListSaveTags(settings)
         }
     }
 

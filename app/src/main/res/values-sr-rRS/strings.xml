@@ -125,5 +125,6 @@
 
     <string name="label_voice_choice_en">Енглески</string>
     <string name="label_voice_choice_ru">Руски</string>
+    <string name="label_auto_save_tag_type_lists">Аутоматски сачувај нове уносе у речник само за изабране типове листа:</string>
 
 </resources>

@@ -23,5 +23,6 @@ data class SettingsState(
     val warning: WarningState = WarningState(), // обработка исключений
     val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
     val isVoiceRecognizer: Boolean = false, // включен ли режим ввода голосом
-    val voiceRecognizerModel: VoiceModels = VoiceModels.ENGLISH
+    val voiceRecognizerModel: VoiceModels = VoiceModels.ENGLISH,
+    val listSaveTagsSettings: List<ListSaved> = emptyList() // настройки автосохранения тэгов по типам списков
 ) : Parcelable

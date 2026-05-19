@@ -126,5 +126,6 @@
 
     <string name="label_voice_choice_en">Ааҥыллыы</string>
     <string name="label_voice_choice_ru">Нууччалыы</string>
+    <string name="label_auto_save_tag_type_lists">Саҥа суруктары тылдьытка автоматынан талыллыбыт тиһик көрүҥнэрэ эрэ иһин сақлаа:</string>
 
 </resources>

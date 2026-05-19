@@ -10,8 +10,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+import ru.gorinih.familyshopper.ui.theme.models.Palettes
 
 private val DarkColorScheme = darkColorScheme(
     primary = MediumGreen,
@@ -94,35 +96,39 @@ fun FamilyShopperTheme(
     content: @Composable () -> Unit
 ) {
 
-        val paletteScheme = dataStoreRepository?.paletteFlow()?.collectAsState(PaletteScheme())
-        val currentPalette = paletteScheme?.value ?: PaletteScheme()
+    val paletteScheme = dataStoreRepository?.paletteFlow()?.map { namePalette ->
+        val themeType = ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
+        Palettes.palettes.firstOrNull { it.themeType == themeType } ?: Palettes.instance()
+    }?.collectAsState(PaletteScheme())
 
-        val colorScheme = when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
+    val currentPalette = paletteScheme?.value ?: PaletteScheme()
 
-            darkTheme -> DarkColorScheme.copy(
-                primary = currentPalette.darkPrimary,
-                secondary = currentPalette.secondary,
-                tertiary = currentPalette.tertiary,
-                background = currentPalette.darkBackground,
-                surface = currentPalette.darkSurface,
-            )
-
-            else -> LightColorScheme.copy(
-                primary = currentPalette.lightPrimary,
-                secondary = currentPalette.secondary,
-                tertiary = currentPalette.tertiary,
-                background = currentPalette.lightBackground,
-                surface = currentPalette.lightSurface,
-            )
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
+        darkTheme -> DarkColorScheme.copy(
+            primary = currentPalette.darkPrimary,
+            secondary = currentPalette.secondary,
+            tertiary = currentPalette.tertiary,
+            background = currentPalette.darkBackground,
+            surface = currentPalette.darkSurface,
         )
+
+        else -> LightColorScheme.copy(
+            primary = currentPalette.lightPrimary,
+            secondary = currentPalette.secondary,
+            tertiary = currentPalette.tertiary,
+            background = currentPalette.lightBackground,
+            surface = currentPalette.lightSurface,
+        )
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
 }

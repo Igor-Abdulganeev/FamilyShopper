@@ -127,5 +127,6 @@
 
     <string name="label_voice_choice_en">English</string>
     <string name="label_voice_choice_ru">Russian</string>
+    <string name="label_auto_save_tag_type_lists">Automatically save new entries to the dictionary only for selected list types:</string>
 
 </resources>

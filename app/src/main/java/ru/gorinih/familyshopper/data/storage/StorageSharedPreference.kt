@@ -3,6 +3,7 @@ package ru.gorinih.familyshopper.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -12,11 +13,9 @@ import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.di.dataStore
 import ru.gorinih.familyshopper.domain.StorageRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
-import ru.gorinih.familyshopper.ui.theme.ThemeType
-import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
-import ru.gorinih.familyshopper.ui.theme.models.Palettes
 import java.util.UUID
 
 /**
@@ -78,8 +77,9 @@ class StorageSharedPreference(
     override fun getSort(): Pair<SortType, SortDirection> {
         val typeName: String? = preference.getString(SORT_TYPE, null)?.uppercase()
         val directionName: String? = preference.getString(SORT_DIRECTION, null)?.uppercase()
-        val type = if (typeName!=null) SortType.valueOf(typeName ) else SortType.NOTHING
-        val direction = if (directionName!=null) SortDirection.valueOf(directionName ) else SortDirection.NOTHING
+        val type = if (typeName != null) SortType.valueOf(typeName) else SortType.NOTHING
+        val direction =
+            if (directionName != null) SortDirection.valueOf(directionName) else SortDirection.NOTHING
         return Pair(type, direction)
     }
 
@@ -104,20 +104,15 @@ class StorageSharedPreference(
         }
     }
 
-    override suspend fun updatePalette(palette: PaletteScheme) {
-        context.dataStore.edit { pref->
-            pref[stringPreferencesKey(COLOR_NAME_SCHEME)]= palette.themeType.name
+    override suspend fun updatePalette(palette: String) {
+        context.dataStore.edit { pref ->
+            pref[stringPreferencesKey(COLOR_NAME_SCHEME)] = palette
         }
     }
 
-    override fun paletteFlow(): Flow<PaletteScheme> =
+    override fun paletteFlow(): Flow<String> =
         context.dataStore.data.map { pref ->
-            val themeType = ThemeType.entries.firstOrNull {
-                it.name == (pref[stringPreferencesKey(
-                    COLOR_NAME_SCHEME
-                )])
-            } ?: ThemeType.MAIN
-            Palettes.palettes.firstOrNull {it.themeType == themeType} ?: Palettes.instance()
+            pref[stringPreferencesKey(COLOR_NAME_SCHEME)] ?: ""
         }
 
     override suspend fun getVoice(): Boolean =
@@ -148,9 +143,36 @@ class StorageSharedPreference(
         }.firstOrNull() ?: "model-en-us"
 
     override fun getVoiceModelFlow(): Flow<String> =
-        context.dataStore.data.map {pref ->
+        context.dataStore.data.map { pref ->
             pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] ?: "model-en-us"
         }
+
+    override suspend fun setListSaveTags(listSettings: HashMap<LegendList, Boolean>) {
+        context.dataStore.edit { pref ->
+            for (list in listSettings) {
+                    pref[getListKey(list.key)] = list.value
+            }
+        }
+    }
+
+    override fun getListSaveTagsFlow(): Flow<HashMap<LegendList, Boolean>> =
+        context.dataStore.data.map { pref ->
+            val result: HashMap<LegendList, Boolean> = HashMap()
+            for (list in LegendList.entries) {
+                result[list] = pref[getListKey(list)] ?: false
+            }
+            result
+        }
+
+    override suspend fun getListSaveTags(): HashMap<LegendList, Boolean> =
+        context.dataStore.data.map { pref ->
+            val result: HashMap<LegendList, Boolean> = HashMap()
+            for (list in LegendList.entries) {
+                result[list] = pref[getListKey(list)] ?: false
+            }
+            result
+        }.firstOrNull() ?: HashMap()
+
 
     companion object {
         const val WIDGET_LIST = "family_shopper_widget_list"
@@ -161,6 +183,10 @@ class StorageSharedPreference(
         private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
         private const val VOICE_RECOGNIZER = "family_shopper_voice_recognizer"
         private const val VOICE_RECOGNIZER_MODEL = "family_shopper_voice_recognizer_model"
+        private const val TAG_SAVER_LIST_ALL = "family_shopper_tag_saver_all"
+        private const val TAG_SAVER_LIST_ADD = "family_shopper_tag_saver_add"
+        private const val TAG_SAVER_LIST_VIEW = "family_shopper_tag_saver_view"
+        private const val TAG_SAVER_LIST_PRIVATE = "family_shopper_tag_saver_private"
 
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
@@ -173,5 +199,15 @@ class StorageSharedPreference(
         private const val FILTER_AUTHOR = "family_shopper_filter_author"
 
         private const val SETTING_FILE_NAME = "family_settings"
+
+        fun getListKey(type: LegendList): Preferences.Key<Boolean> =
+            booleanPreferencesKey(
+                when (type) {
+                    LegendList.ALL -> TAG_SAVER_LIST_ALL
+                    LegendList.ADD -> TAG_SAVER_LIST_ADD
+                    LegendList.VIEW -> TAG_SAVER_LIST_VIEW
+                    LegendList.PRIVATE -> TAG_SAVER_LIST_PRIVATE
+                }
+            )
     }
 }

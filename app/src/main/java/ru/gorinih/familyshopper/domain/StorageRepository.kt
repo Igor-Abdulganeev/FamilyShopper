@@ -2,9 +2,9 @@ package ru.gorinih.familyshopper.domain
 
 import kotlinx.coroutines.flow.Flow
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
-import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 
 /**
  * Created by Igor Abdulganeev on 04.04.2026
@@ -43,9 +43,9 @@ interface StorageRepository {
 
     fun setAuthorFilter(filter: AuthorFilter)
 
-    suspend fun updatePalette(palette: PaletteScheme)
+    suspend fun updatePalette(palette: String)
 
-    fun paletteFlow(): Flow<PaletteScheme>
+    fun paletteFlow(): Flow<String>
 
     suspend fun getVoice(): Boolean
 
@@ -58,4 +58,10 @@ interface StorageRepository {
     suspend fun getVoiceModel(): String
 
     fun getVoiceModelFlow(): Flow<String>
+
+    suspend fun setListSaveTags(listSettings: HashMap<LegendList, Boolean>)
+
+    fun getListSaveTagsFlow(): Flow<HashMap<LegendList, Boolean>>
+
+    suspend fun getListSaveTags(): HashMap<LegendList, Boolean>
 }

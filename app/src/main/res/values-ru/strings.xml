@@ -93,5 +93,6 @@
 
     <string name="label_voice_choice_en">Английский</string>
     <string name="label_voice_choice_ru">Русский</string>
+    <string name="label_auto_save_tag_type_lists">Автоматическое сохранение новых записей в словарь только для выбранных типов списков:</string>
 
 </resources>
