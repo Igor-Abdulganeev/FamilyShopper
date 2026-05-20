@@ -35,7 +35,7 @@ fun ShoppedList.toListWidgetItem(): WidgetItem =
             listUuid = this.listId,
             listVersion = this.listVersion,
             listName = this.listName,
-            listLegend = this.listLegend,
+            listLegend = this.listLegend.listId,
             tags = this.tagNames.map {
                 it.toWidgetTagItem()
             },

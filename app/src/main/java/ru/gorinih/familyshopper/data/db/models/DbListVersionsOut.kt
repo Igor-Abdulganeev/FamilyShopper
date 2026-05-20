@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.data.db.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
@@ -26,7 +27,7 @@ fun DbListVersionsOut.toShoppedList() =
         listName = this.listVersion.listName,
         ownerUuid = this.listVersion.listOwner,
         listVersion = this.listVersion.listVersion,
-        listLegend = this.listVersion.listLegend,
+        listLegend = LegendList.entries.firstOrNull { it.listId == this.listVersion.listLegend } ?: LegendList.ALL ,
         tagNames = emptyList(),
         usersUuid = this.listVersion.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.listVersion.listDatetime,

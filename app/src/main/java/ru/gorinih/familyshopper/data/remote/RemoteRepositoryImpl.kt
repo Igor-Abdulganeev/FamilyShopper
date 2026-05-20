@@ -165,7 +165,7 @@ fun DictionaryRemoteTag.toUpdateRemote(): Map<String, Any?> = mapOf(
 fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
     "$PATH_CURRENT_LISTS_VERSIONS${this.listId}" to ListVersionInfo(
         listVersion = this.listVersion,
-        listLegend = this.listLegend,
+        listLegend =  this.listLegend.listId,
         listOwner = this.ownerUuid,
         listDatetime = this.dateTime
     ),
@@ -174,7 +174,7 @@ fun ShoppedList.toUpdateRemote(): Map<String, Any> = mapOf(
         listVersion = this.listVersion,
         listDateTime = this.dateTime,
         listName = this.listName,
-        listLegend = this.listLegend,
+        listLegend = this.listLegend.listId,
         listOwner = this.ownerUuid,
         listTo = this.usersUuid.map { it.userUuid },
         listTags = this.tagNames.map { it.toListTagObject() }

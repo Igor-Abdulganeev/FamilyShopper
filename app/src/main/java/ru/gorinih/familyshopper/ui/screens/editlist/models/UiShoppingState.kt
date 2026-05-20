@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.editlist.models
 
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
@@ -43,7 +44,7 @@ fun UiShoppingState.toShoppedList() =
         listName = this.listName,
         ownerUuid = this.ownerUuid,
         listVersion = this.listVersion,
-        listLegend = this.listLegend.listId,
+        listLegend = LegendList.entries.firstOrNull { it.listId == this.listLegend.listId } ?: LegendList.ALL,
         tagNames = this.tagNames.map { it.toShoppedItem() },
         usersUuid = this.usersUuid.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.dateTime,

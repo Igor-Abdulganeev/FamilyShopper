@@ -60,7 +60,7 @@ class ListEntityVewModel(
                     val users = entity.usersUuid.mapNotNull { uuid -> userMap[uuid.userUuid] }
                         .map { it.toUiListUsers() }
                     val isEdit =
-                        userUuid == entity.ownerUuid || entity.listLegend == TypeLegendList.ALL.listId
+                        userUuid == entity.ownerUuid || entity.listLegend.listId == TypeLegendList.ALL.listId
                     val isDelete =
                         userUuid == entity.ownerUuid
                     entity.toUiListObject()
