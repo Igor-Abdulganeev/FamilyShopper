@@ -26,7 +26,7 @@ if (localPropertiesFile.exists()) {
 }
 
 val vCode = 17
-val vName = "1.1"
+val vName = "1.2"
 
 android {
     namespace = "ru.gorinih.familyshopper"
