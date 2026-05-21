@@ -159,7 +159,7 @@ class StorageSharedPreference(
         context.dataStore.data.map { pref ->
             val result: HashMap<LegendList, Boolean> = HashMap()
             for (list in LegendList.entries) {
-                result[list] = pref[getListKey(list)] ?: false
+                result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
             }
             result
         }
@@ -168,7 +168,7 @@ class StorageSharedPreference(
         context.dataStore.data.map { pref ->
             val result: HashMap<LegendList, Boolean> = HashMap()
             for (list in LegendList.entries) {
-                result[list] = pref[getListKey(list)] ?: false
+                result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
             }
             result
         }.firstOrNull() ?: HashMap()
