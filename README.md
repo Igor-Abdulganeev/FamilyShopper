@@ -59,7 +59,7 @@
 *   **Локальное хранение:** [Room Persistence Library](https://android.com).
 *   **Навигация:** Compose Navigation.
 *   **Сериализация:** Kotlinx Serialization.
-*   **Распознование голоса** [Vosk](https://alphacephei.com/vosk/).
+*   **Распознавание голоса** [Vosk](https://alphacephei.com/vosk/).
 
 ---
 
@@ -114,7 +114,7 @@
 Этот проект распространяется под лицензией **GNU General Public License v3.0**.
 - [Текст лицензии](https://www.gnu.org/licenses/gpl-3.0.html)
   
-Для распознования голоса используется Vosk под лицензией **Apache-2.0 license**.
+Для распознавания голоса используется Vosk под лицензией **Apache-2.0 license**.
 - [Текст лицензии](https://www.apache.org/licenses/LICENSE-2.0.txt)
 ---
 **Разработчик:** [Igor-Abdulganeev](https://github.com)  
