@@ -1,10 +1,17 @@
 package ru.gorinih.familyshopper.ui.views
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -22,8 +29,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,12 +47,76 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.times
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 
 /**
  * элементы ввода и редактирования текста
  */
+
+@Composable
+fun GlowRoundedTextField(
+    isGlow: Boolean,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    colorGlow: Color = MaterialTheme.colorScheme.primary,
+    label: String = "",
+    placeholder: String = "",
+    isEditable: Boolean = true,
+    isSingleLine: Boolean = true,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    action: (() -> Unit)? = null,
+    onClearCurrentField: (() -> Unit)? = null,
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "glow_pulsar")
+    val waveProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val glowVisibility by animateFloatAsState(
+        targetValue = if (isGlow) 1f else 0f,
+        animationSpec = tween(durationMillis = 100),
+        label = "glowVisibility"
+    )
+    val targetGlow by remember {
+        derivedStateOf {
+            when (glowVisibility){
+                0f -> 0.dp
+                else -> lerp(start = 2.dp, stop = 6.dp, fraction = waveProgress) * glowVisibility
+            }
+        }
+    }
+
+     Box(
+        modifier = modifier.fillMaxWidth().glowWave(
+            color = colorGlow,
+            glowRadius = { targetGlow },
+            shapeRadius = 16.dp
+        )
+    )
+    {
+        RoundedTextField(
+            value,
+            onValueChange,
+            modifier,
+            label,
+            placeholder,
+            isEditable,
+            isSingleLine,
+            trailingIcon,
+            leadingIcon,
+            action,
+            onClearCurrentField,
+        )
+    }
+}
 
 @Composable
 fun RoundedTextField(
@@ -323,6 +396,28 @@ fun PreviewBracketTextField() {
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = MaterialTheme.colorScheme.secondary,
                 onChange = {}
+            )
+        }
+    }
+}
+
+@Preview( showBackground = true)
+@Composable
+fun PreviewGlowRoundedTextField() {
+    FamilyShopperTheme() {
+        Column(Modifier.fillMaxSize().background(color= MaterialTheme.colorScheme.onBackground)) {
+            GlowRoundedTextField(
+                isGlow = false,
+                value = "без свечения",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+            )
+           GlowRoundedTextField(
+                isGlow = true,
+               colorGlow = Color.Red,
+                value = "со свечением",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
             )
         }
     }

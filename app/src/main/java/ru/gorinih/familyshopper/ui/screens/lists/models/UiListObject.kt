@@ -30,7 +30,7 @@ fun ShoppedList.toUiListObject() =
         listId = this.listId,
         listVersion = this.listVersion,
         listName = this.listName,
-        listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
+        listLegend = TypeLegendList.entries.first { it.listId == this.listLegend.listId },
         listOwner = this.ownerUuid,
         listTo = this.usersUuid.map { it.toUiListUsers() },
         listDatetimeValue = this.dateTime,

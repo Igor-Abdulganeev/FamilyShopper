@@ -24,6 +24,7 @@ import ru.gorinih.familyshopper.data.db.models.toShoppedUsers
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
@@ -145,7 +146,7 @@ class DatabaseRepositoryImpl(
                         listName = firstItem.listName,
                         ownerUuid = firstItem.listOwner,
                         listVersion = firstItem.listVersion,
-                        listLegend = firstItem.listLegend,
+                        listLegend = LegendList.entries.firstOrNull { it.listId == firstItem.listLegend } ?: LegendList.ALL,
                         usersUuid = firstItem.listTo.map {
                             ShoppedUsers(
                                 userUuid = it,
@@ -225,7 +226,7 @@ class DatabaseRepositoryImpl(
                     listName = firstItem.listName,
                     ownerUuid = firstItem.listOwner,
                     listVersion = firstItem.listVersion,
-                    listLegend = firstItem.listLegend,
+                    listLegend = LegendList.entries.firstOrNull { it.listId == firstItem.listLegend } ?: LegendList.ALL,
                     usersUuid = firstItem.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
                     dateTime = firstItem.listDatetime,
                     tagNames = values.mapNotNull { value ->

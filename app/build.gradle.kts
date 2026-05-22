@@ -25,14 +25,15 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 14
-val vName = "1.1"
+val vCode = 18
+val vName = "1.2"
 
 android {
     namespace = "ru.gorinih.familyshopper"
     compileSdk {
         version = release(36)
     }
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "ru.gorinih.familyshopper"
@@ -41,7 +42,17 @@ android {
         this.versionCode = vCode
         this.versionName = vName
 
+        ndk {
+            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64", "x86")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     signingConfigs {
@@ -151,6 +162,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":models"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -188,6 +201,9 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(libs.androidx.splashscreen)
+
+    implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation("com.alphacephei:vosk-android:0.3.75@aar")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

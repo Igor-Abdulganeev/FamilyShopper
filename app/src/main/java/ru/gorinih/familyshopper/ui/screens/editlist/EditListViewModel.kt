@@ -5,11 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.StorageRepository
@@ -25,6 +30,7 @@ import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingState
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedList
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,7 +45,10 @@ class EditListViewModel(
     private val database: DatabaseRepository,
     private val saveList: UpdateListUseCase,
     private val updateList: GetAndUpdateListUseCase,
+    private val voice: FamilyVoiceRecognizer,
 ) : ViewModel() {
+
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ -> }
 
     var shoppedList by mutableStateOf(
         value = UiShoppingState().copy(
@@ -54,10 +63,43 @@ class EditListViewModel(
 
     private var currentEditingFieldId: String? = null
     private var onCurrentFocusLost: (() -> Unit)? = null
-
+    private var jobVoiceRecognize: Job? = null
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            pref.getVoiceFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(
+                        voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                            isVisible = false,
+                            isEnabled = false
+                        )
+                    )
+                }
+                .onEach { enabled ->
+                    shoppedList = shoppedList.copy(
+                        voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                            isVisible = enabled
+                        )
+                    )
+                }.stateIn(viewModelScope)
+            pref.getVoiceModelFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(
+                        voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                            isVisible = false,
+                            isEnabled = false
+                        )
+                    )
+                }
+                .onEach {
+                val result = if(!voice.isPrepared()) voice.initRecognizer() else true
+                shoppedList = shoppedList.copy(
+                    voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                        isEnabled = result
+                    )
+                )
+             }.stateIn(viewModelScope)
             database.takeDictionaries()
                 .catch { }
                 .onEach { list ->
@@ -86,7 +128,7 @@ class EditListViewModel(
                             listUuid = this.listId,
                             ownerUuid = this.ownerUuid,
                             listVersion = this.listVersion,
-                            listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
+                            listLegend = TypeLegendList.entries.first { it.listId == this.listLegend.listId },
                             tagNames = this.tagNames.map { it.toUiShoppingItem() },
                             usersUuid = this.usersUuid.map { it.userUuid },
                             loading = false,
@@ -103,7 +145,7 @@ class EditListViewModel(
                                 listUuid = listId,
                                 ownerUuid = ownerUuid,
                                 listVersion = listVersion,
-                                listLegend = TypeLegendList.entries.first { it.listId == this.listLegend },
+                                listLegend = TypeLegendList.entries.first { it.listId == this.listLegend.listId },
                                 tagNames = tagNames.map { it.toUiShoppingItem() },
                                 usersUuid = usersUuid.map { it.userUuid },
                                 loading = false,
@@ -251,6 +293,67 @@ class EditListViewModel(
         onCurrentFocusLost?.invoke()
         currentEditingFieldId = null
         onCurrentFocusLost = null
+    }
+
+    fun voiceRecognizePress(isPressed: Boolean) {
+        if (isPressed) {
+            jobVoiceRecognize?.cancel()
+            jobVoiceRecognize = null
+            viewModelScope.launch(Dispatchers.Main.immediate + coroutineExceptionHandler) {
+                shoppedList =
+                    shoppedList.copy(voiceRecognizer = shoppedList.voiceRecognizer.copy(isEnabled = false))
+            }
+        }
+        when (isPressed) {
+            true -> {
+                jobVoiceRecognize =
+                    viewModelScope.launch(Dispatchers.IO) {
+                        try {
+                            if (!voice.isPrepared()) {
+                                if (!voice.initRecognizer()) {
+                                    throw IllegalStateException("Not init voice recognizer")
+                                }
+                            }
+
+                            voice.startListening().collect { text ->
+                                if (text.isNotBlank()) {
+                                    withContext(Dispatchers.Main.immediate) {
+                                        shoppedList = shoppedList.copy(
+                                            voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                                                fieldText = text
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+
+                        } catch (ex: CancellationException) {
+                            withContext(Dispatchers.Main.immediate + NonCancellable) {
+                                shoppedList = shoppedList.copy(
+                                    voiceRecognizer = shoppedList.voiceRecognizer.copy(isEnabled = true)
+                                )
+                            }
+                            throw ex
+                        } catch (_: Throwable) {
+                            withContext(Dispatchers.Main.immediate + NonCancellable) {
+                                shoppedList = shoppedList.copy(
+                                    voiceRecognizer = shoppedList.voiceRecognizer.copy(
+                                        isEnabled = false,
+                                        isVisible = false
+                                    )
+                                )
+                            }
+                        }
+                    }
+            }
+
+            false -> {
+                viewModelScope.launch(Dispatchers.Main.immediate + coroutineExceptionHandler) {
+                    jobVoiceRecognize?.cancel()
+                    jobVoiceRecognize = null
+                }
+            }
+        }
     }
 
 }

@@ -1,9 +1,11 @@
 package ru.gorinih.familyshopper.ui.screens.editlist.models
 
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.VoiceState
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import java.util.UUID
@@ -33,6 +35,7 @@ data class UiShoppingState(
     val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
     val isLocalJob: Boolean = false, // локально или сетевая (есть groupUuid или нет)
+    val voiceRecognizer: VoiceState = VoiceState(), // класс по распознованию голосового ввода
 )
 
 fun UiShoppingState.toShoppedList() =
@@ -41,7 +44,7 @@ fun UiShoppingState.toShoppedList() =
         listName = this.listName,
         ownerUuid = this.ownerUuid,
         listVersion = this.listVersion,
-        listLegend = this.listLegend.listId,
+        listLegend = LegendList.entries.firstOrNull { it.listId == this.listLegend.listId } ?: LegendList.ALL,
         tagNames = this.tagNames.map { it.toShoppedItem() },
         usersUuid = this.usersUuid.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.dateTime,

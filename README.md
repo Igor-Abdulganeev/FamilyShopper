@@ -6,16 +6,16 @@
 
 <table>
   <tr>
-    <td><img src="https://github.com/user-attachments/assets/2a0de842-743b-486a-bf47-85cf8b69b41e" width="200" alt="холст_1"></td>
-    <td><img src="https://github.com/user-attachments/assets/302a412c-42a6-4ea5-ad0b-4b0b35ae8ca0" width="200" alt="холст_2"></td>
-    <td><img src="https://github.com/user-attachments/assets/d0ec192c-53e6-4ddf-a6b2-4cdceb089383" width="200" alt="холст_3"></td>
-    <td><img src="https://github.com/user-attachments/assets/44872845-443d-4075-a7b1-19eeb86bd1a2" width="200" alt="холст_4"></td>
+    <td><img src="https://github.com/user-attachments/assets/07efcb90-dc9f-47b3-a225-bd7b82d57c4f" width="200" alt="холст_1"></td>
+    <td><img src="https://github.com/user-attachments/assets/4684f2b5-1219-48d9-8d37-57689923f34f" width="200" alt="холст_2"></td>
+    <td><img src="https://github.com/user-attachments/assets/3d708eeb-947d-42b1-8105-4e71209fc62f" width="200" alt="холст_3"></td>
+    <td><img src="https://github.com/user-attachments/assets/0119ad50-a6ab-4abd-a57c-22bae81a0f72" width="200" alt="холст_4"></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/user-attachments/assets/2e1f15a5-ef05-47dc-ba93-b223819d8a59" width="200" alt="холст_5"></td>
-    <td><img src="https://github.com/user-attachments/assets/6d2d3ea0-9e6b-477f-afdb-e1761efe3edf" width="200" alt="холст_6"></td>
-    <td><img src="https://github.com/user-attachments/assets/bfede8ff-5dc2-4cc3-9db5-a06dc6b2b5fa" width="200" alt="холст_7"></td>    
-    <td><img src="https://github.com/user-attachments/assets/1be9850e-810d-42c3-b6ee-71f9e4250ae3" width="200" alt="холст_8"></td>
+    <td><img src="https://github.com/user-attachments/assets/300ac3d8-c5e9-4b75-9d04-a7bdd9964f31" width="200" alt="холст_5"></td>
+    <td><img src="https://github.com/user-attachments/assets/befa84f3-df67-45dc-9944-9891a0687610" width="200" alt="холст_6"></td>
+    <td><img src="https://github.com/user-attachments/assets/7b7cf072-dcbe-4fd0-a49c-89065a9c14ea" width="200" alt="холст_7"></td>    
+    <td><img src="https://github.com/user-attachments/assets/c36c8c3d-8123-4da1-a4f4-6b8ad3c5881d" width="200" alt="холст_8"></td>
   </tr>
 </table>
 
@@ -40,6 +40,12 @@
 - **Персональный словарь:** Создавайте базу своих любимых товаров, чтобы добавлять их в списки за пару кликов.
 - **Детализация:** Добавляйте комментарии к каждому товару (бренд, вес, особые пожелания).
 
+### 🎤 Голосовой ввод 
+- вводите данные с клавиатуры или просто голосом, поддерживаемые языки: английский, русский
+
+### 📱Виджеты на рабочем столе
+- выведите нужные списки прямо на рабочий стол, чтобы они были всегда под рукой.
+
 ---
 
 ## 🛠 Технологический стек
@@ -53,6 +59,7 @@
 *   **Локальное хранение:** [Room Persistence Library](https://android.com).
 *   **Навигация:** Compose Navigation.
 *   **Сериализация:** Kotlinx Serialization.
+*   **Распознование голоса** [Vosk](https://alphacephei.com/vosk/).
 
 ---
 
@@ -106,7 +113,9 @@
 ## 📄 Лицензия
 Этот проект распространяется под лицензией **GNU General Public License v3.0**.
 - [Текст лицензии](https://www.gnu.org/licenses/gpl-3.0.html)
-
+  
+Для распознования голоса используется Vosk под лицензией **Apache-2.0 license**.
+- [Текст лицензии](https://www.apache.org/licenses/LICENSE-2.0.txt)
 ---
 **Разработчик:** [Igor-Abdulganeev](https://github.com)  
 **Связь:** [Telegram (@GorInIh)](https://t.me/GorInIh)

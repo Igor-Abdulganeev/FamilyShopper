@@ -42,6 +42,20 @@
 #-keep class retrofit2.** { *; }
 -keepattributes Signature
 
+# Защита библиотеки Vosk
+-keep class org.vosk.** { *; }
+-dontwarn org.vosk.**
+
+# Защита библиотеки JNA
+-keep class com.sun.jna.** { *; }
+-keepclassmembers class com.sun.jna.** { *; }
+-dontwarn com.sun.jna.**
+
+# Запрет переименования нативных методов по всему проекту
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
 -keep class ru.gorinih.familyshopper.data.db.models.** { *; }
 -keep class ru.gorinih.familyshopper.data.remote.models.** { *; }
 -keep class ru.gorinih.familyshopper.domain.models.** { *; }

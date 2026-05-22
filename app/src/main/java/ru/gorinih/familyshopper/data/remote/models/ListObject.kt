@@ -2,6 +2,7 @@ package ru.gorinih.familyshopper.data.remote.models
 
 import androidx.room.ColumnInfo
 import kotlinx.serialization.Serializable
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import kotlin.collections.map
@@ -36,7 +37,7 @@ fun ListObject.toShoppedList() =
         listName = this.listName,
         ownerUuid = this.listOwner,
         listVersion = this.listVersion,
-        listLegend = this.listLegend,
+        listLegend = LegendList.entries.firstOrNull { it.listId == this.listLegend } ?: LegendList.ALL,
         tagNames = this.listTags?.map { it.toShoppedItem() } ?: emptyList(),
         usersUuid = this.listTo?.map { ShoppedUsers(userUuid = it, userName = "") } ?: emptyList(),
         dateTime = this.listDateTime,

@@ -11,5 +11,6 @@ enum class ThemeType {
     BROWN,
     RED,
     YELLOW,
-    SEA
+    SEA,
+    VIOLET
 }

@@ -1,7 +1,11 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +23,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardVoice
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -42,9 +47,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
+import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.GlowRoundedTextField
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
-import ru.gorinih.familyshopper.ui.views.RoundedTextField
 
 /**
  * Редактирование тэгов
@@ -60,6 +66,7 @@ fun EditDictionariesScreen(
     var currentPosition by remember { mutableIntStateOf(0) }
     var addedTag by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf("") }
+    var glowFlag by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentPosition) {
         if (currentPosition >= 0)
@@ -75,6 +82,11 @@ fun EditDictionariesScreen(
             selectedTab = ""
         }
     }
+
+    LaunchedEffect(state.voiceRecognizer.fieldText) {
+        addedTag = state.voiceRecognizer.fieldText
+    }
+
     fun addNewTag() {
         if (addedTag.isNotBlank()) {
             selectedTab = addedTag.first().uppercaseChar().toString()
@@ -109,7 +121,9 @@ fun EditDictionariesScreen(
                     )
                 }
             }
-            RoundedTextField(
+            GlowRoundedTextField(
+                isGlow = glowFlag,
+                colorGlow = MaterialTheme.colorScheme.primary,
                 value = addedTag,
                 onValueChange = { text ->
                     addedTag = text
@@ -121,11 +135,40 @@ fun EditDictionariesScreen(
                 },
                 placeholder = stringResource(R.string.label_enter_new_tag),
                 trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            addNewTag()
-                        },
-                    ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        AnimatedVisibility(
+                            visible = state.voiceRecognizer.isVisible,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardVoice,
+                                contentDescription = null,
+                                tint = if (state.voiceRecognizer.isEnabled) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onPress = {
+                                            if (!state.voiceRecognizer.isEnabled) return@detectTapGestures
+                                            try {
+                                                glowFlag = true
+                                                viewModel.voiceRecognizePress(true)
+                                                awaitRelease()
+                                            } finally {
+                                                viewModel.voiceRecognizePress(false)
+                                                glowFlag = false
+                                            }
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                addNewTag()
+                            },
+                        ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                    }
                 },
                 action = {
                     addNewTag()
@@ -207,7 +250,7 @@ fun AlphabetTabs(
                 data = tab,
                 onTagClick
             )
-            VerticalDivider(thickness = 1.dp)
+            DividerVerticalTransparent()
         }
     }
 }

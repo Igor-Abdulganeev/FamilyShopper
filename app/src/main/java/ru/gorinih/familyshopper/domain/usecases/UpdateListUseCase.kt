@@ -65,7 +65,8 @@ class UpdateListUseCaseImpl(
     }
 
     private suspend fun updateTags(data: ShoppedList) {
-        if (data.listLegend != 4) {
+        val listProperties = pref.getListSaveTags()
+        if (listProperties[data.listLegend] == true) {
             val localTags = database.getDictionaryTags()
             val newTags = data.tagNames.filter { tag -> tag.tagName !in localTags }
                 .map { it.toDictionaryLocalTag(true) }

@@ -111,6 +111,17 @@ object Palettes {
             lightSurface = Color(0xFFEBFCFC),
             darkSurface = Color(0xFF091C1B),
         ),
+        PaletteScheme(
+            themeType = ThemeType.VIOLET,
+            lightPrimary = Color(0xFFA97BDE),
+            darkPrimary = Color(0xFF3E1450),
+            secondary = Color(0xFF764E81),
+            tertiary = Color(0xFFC9B5CB),
+            lightBackground = Color(0xFFF9E1FA),
+            darkBackground = Color(0xFF24092A),
+            lightSurface = Color(0xFFFBEBFC),
+            darkSurface = Color(0xFF1A091C),
+        ),
     )
 
     fun instance(): PaletteScheme = PaletteScheme(

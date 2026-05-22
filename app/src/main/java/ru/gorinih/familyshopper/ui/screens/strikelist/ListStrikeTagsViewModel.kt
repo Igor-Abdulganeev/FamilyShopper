@@ -67,10 +67,10 @@ class ListStrikeTagsViewModel(
                 val ownerUuid = pref.getClientUUID() == listData.ownerUuid
                 val isEditable = when {
                     ownerUuid -> true
-                    listData.listLegend == TypeLegendList.ALL.listId -> true
+                    listData.listLegend.listId == TypeLegendList.ALL.listId -> true
                     else -> false
                 }
-                val legend = TypeLegendList.entries.first { it.listId == listData.listLegend }
+                val legend = TypeLegendList.entries.first { it.listId == listData.listLegend.listId }
                 val type = when {
                     legend in listOf(TypeLegendList.ALL, TypeLegendList.ADD) -> TypeListTags.STRIKE
                     legend == TypeLegendList.VIEW -> TypeListTags.VIEW

@@ -9,9 +9,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +28,7 @@ import androidx.compose.foundation.text.TextAutoSizeDefaults
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Repeat
@@ -36,6 +39,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SuggestionChip
@@ -47,7 +52,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -74,14 +81,19 @@ import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.ScreenLayoutType
 import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.legendListIdName
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
+import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
 import ru.gorinih.familyshopper.ui.views.ColorSchemeItems
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.FilterChipItem
 import ru.gorinih.familyshopper.ui.views.LanguageSelector
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
+import ru.gorinih.familyshopper.voice.LocalVoicePermission
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
@@ -102,6 +114,9 @@ fun SettingsScreen(
     val context = LocalContext.current
     val screen = rememberScreenConfiguration()
     val scrollAppearancePage = rememberScrollState()
+    val scrollPresetsPage = rememberScrollState()
+    val voicePermission = LocalVoicePermission.current
+    var voiceRecognizer by remember { mutableStateOf(voicePermission.isVoiceGranted()) }
 
     LaunchedEffect(Unit) {
         viewModel.shareEvents.collect { uuid ->
@@ -608,13 +623,122 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                            .padding(vertical = 8.dp, horizontal = 4.dp)
+                            .verticalScroll(state = scrollPresetsPage),
                         verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = Alignment.Start,
                     ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = voiceRecognizer && state.isVoiceRecognizer,
+                                onCheckedChange = { check ->
+                                    if (check) {
+                                        voicePermission.requestVoicePermission { result ->
+                                            voiceRecognizer = result
+                                            viewModel.updateVoiceRecognizer(result)
+                                        }
+                                    } else {
+                                        voiceRecognizer = false
+                                        viewModel.updateVoiceRecognizer(false)
+                                    }
+                                },
+                            )
+                            Text(
+                                text = stringResource(R.string.label_settings_voice_recognizer),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = voiceRecognizer && state.isVoiceRecognizer
+                        ) {
+                            FlowRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                for (language in VoiceModels.entries) {
+                                    FilterChipItem(
+                                        label = when (language) {
+                                            VoiceModels.ENGLISH -> stringResource(R.string.label_voice_choice_en)
+                                            VoiceModels.RUSSIAN -> stringResource(R.string.label_voice_choice_ru)
+                                        },
+                                        selected = language == state.voiceRecognizerModel,
+                                        onClick = {
+                                            viewModel.updateVoice(language)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        DividerHorizontalTransparent(Modifier.padding(vertical = 16.dp))
+                        Text(
+                            text = stringResource(R.string.label_auto_save_tag_type_lists),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        )
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            maxItemsInEachRow = 4
+                        ) {
+                            for (list in state.listSaveTagsSettings) {
+                                key(list.legend) {
+                                    if (list.legend != TypeLegendList.NOTHING) {
+                                        InputChip(
+                                            selected = list.enabled,
+                                            onClick = {
+                                                viewModel.updateListSaveTags(list.legend)
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = list.legend.legendListIdName()
+                                                        .takeIf { it != 0 }
+                                                        ?.run { stringResource(this) } ?: ""
+                                                )
+                                            },
+                                            leadingIcon = {
+                                                if (list.enabled) Icon(
+                                                    Icons.Default.Done,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            colors = InputChipDefaults.inputChipColors(
+                                                labelColor = MaterialTheme.colorScheme.onSurface,
+                                                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                                selectedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+                                                selectedContainerColor = GlassCircleImageHolder.getColor(
+                                                    list.legend.listId
+                                                ).copy(alpha = 0.5f),
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        DividerHorizontalTransparent(Modifier.padding(vertical = 16.dp))
+
                         LazyColumn(
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .fillMaxWidth()
+                                .height(350.dp)
+                                .padding(top = 8.dp)
                         ) {
                             itemsIndexed((1..4).toList()) { index, item ->
                                 if (index == 0) {

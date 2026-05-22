@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -53,6 +54,8 @@ import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
 import ru.gorinih.familyshopper.ui.widget.WidgetViewModel
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
 import java.util.concurrent.TimeUnit
 
 /**
@@ -125,7 +128,13 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
-    factory<UpdateListUseCase> { UpdateListUseCaseImpl(database = get(), remote = get(), pref = get()) }
+    factory<UpdateListUseCase> {
+        UpdateListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get()
+        )
+    }
     factory<SynchronizeListsUseCase> {
         SynchronizeListsUseCaseImpl(
             context = get(),
@@ -134,17 +143,53 @@ fun koinModule(): Module = module {
             pref = get()
         )
     }
-    factory<GetAndUpdateListUseCase> { GetAndUpdateListUseCaseImpl(database = get(), remote = get()) }
+    factory<GetAndUpdateListUseCase> {
+        GetAndUpdateListUseCaseImpl(
+            database = get(),
+            remote = get()
+        )
+    }
     factory<UpdateUsersUseCase> { UpdateUsersUseCaseImpl(remote = get(), database = get()) }
-    factory<DeleteListUseCase> { DeleteListUseCaseImpl(database = get(), remote = get(), pref = get()) }
-    factory<SynchronizeDictionariesGetAllRemoteUseCase> { SynchronizeDictionariesGetAllRemoteUseCaseImpl(remote = get(), database = get(), pref = get()) }
+    factory<DeleteListUseCase> {
+        DeleteListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get()
+        )
+    }
+    factory<SynchronizeDictionariesGetAllRemoteUseCase> {
+        SynchronizeDictionariesGetAllRemoteUseCaseImpl(
+            remote = get(),
+            database = get(),
+            pref = get()
+        )
+    }
     factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
+    single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl(context = androidContext().applicationContext, preference = get()) }
 
-    viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get()) }
-    viewModel { EditDictionariesViewModel(database = get(), syncRemote = get(), syncAllRemote = get(), pref = get()) }
-    viewModel { (listUuid: String) -> EditListViewModel(listUuid = listUuid, pref = get(), database = get(), saveList = get(), updateList = get()) }
+
+    viewModel { SettingsViewModel(pref = get(), remote = get(), database = get(), updater = get(), voice = get()) }
+    viewModel {
+        EditDictionariesViewModel(
+            database = get(),
+            syncRemote = get(),
+            syncAllRemote = get(),
+            pref = get(),
+            voice = get()
+        )
+    }
+    viewModel { (listUuid: String) ->
+        EditListViewModel(
+            listUuid = listUuid,
+            pref = get(),
+            database = get(),
+            saveList = get(),
+            updateList = get(),
+            voice = get()
+        )
+    }
     viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
     viewModel { (listId: String) ->
         ListStrikeTagsViewModel(

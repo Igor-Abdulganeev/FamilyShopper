@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
+import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 
@@ -36,7 +37,7 @@ fun ShoppedList.toDbListVersions() =
         listId = this.listId,
         listVersion = this.listVersion,
         listName = this.listName,
-        listLegend = this.listLegend,
+        listLegend = this.listLegend.listId,
         listOwner = this.ownerUuid,
         listTo = this.usersUuid.map { it.userUuid },
         listDatetime = this.dateTime
@@ -48,7 +49,7 @@ fun DbListVersions.toShoppedList() =
         listName = this.listName,
         ownerUuid = this.listOwner,
         listVersion = this.listVersion,
-        listLegend = this.listLegend,
+        listLegend = LegendList.entries.firstOrNull { it.listId == this.listLegend } ?: LegendList.ALL,
         tagNames = emptyList(),
         usersUuid = this.listTo.map { ShoppedUsers(userUuid = it, userName = "") },
         dateTime = this.listDatetime,
