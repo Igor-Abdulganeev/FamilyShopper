@@ -7,4 +7,6 @@ plugins {
     id("com.google.devtools.ksp") version "2.3.4" apply false
     id("com.huawei.agconnect") version "1.9.5.302" apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.composeMultiplatform) apply false
 }
