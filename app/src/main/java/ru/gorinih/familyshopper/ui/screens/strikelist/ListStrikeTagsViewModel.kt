@@ -12,7 +12,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
@@ -34,7 +34,7 @@ class ListStrikeTagsViewModel(
     listUuid: String = "",
     private val database: DatabaseRepository,
     private val updateList: UpdateListUseCase,
-    private val pref: StorageRepository
+    private val pref: PreferenceRepository
 ) : ViewModel() {
 
 
@@ -212,7 +212,7 @@ class ListStrikeTagsViewModel(
             memoryList?.copy(tagNames = shoppedList.tagNames.map { it.toShoppedItem() })
         memoryList?.let {
             val result = updateList(it)
-            if (result.isError && result.textErrorResource != 0) database.updateList(it)
+            if (result.isError && result.textError.isNotBlank()) database.updateList(it)
             }
         }
 }

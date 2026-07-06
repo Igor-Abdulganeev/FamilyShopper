@@ -1,9 +1,9 @@
 package ru.gorinih.familyshopper.ui.theme.models
 
-import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
-import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.ui.theme.DarkBlue
 import ru.gorinih.familyshopper.ui.theme.LightBlue
 import ru.gorinih.familyshopper.ui.theme.LightGray
@@ -18,19 +18,18 @@ import ru.gorinih.familyshopper.ui.theme.VeryLightGray
  * Created by Igor Abdulganeev on 05.05.2026
  */
 
-
-@Parcelize
+@Serializable
 data class PaletteScheme(
     val themeType: ThemeType = ThemeType.MAIN,
-    val lightPrimary: @RawValue Color = LightGreen,
-    val darkPrimary: @RawValue Color = MediumGreen,
-    val secondary: @RawValue Color = DarkBlue,
-    val tertiary: @RawValue Color = LightBlue,
-    val lightBackground: @RawValue Color = VeryLightGray,
-    val darkBackground: @RawValue Color = VeryDarkGray,
-    val lightSurface: @RawValue Color = LightGray,
-    val darkSurface: @RawValue Color = SurfaceDark,
-) : Parcelable {
+    val lightPrimary: @Contextual @RawValue Color = LightGreen,
+    val darkPrimary: @Contextual @RawValue Color = MediumGreen,
+    val secondary: @Contextual @RawValue Color = DarkBlue,
+    val tertiary: @Contextual @RawValue Color = LightBlue,
+    val lightBackground: @Contextual @RawValue Color = VeryLightGray,
+    val darkBackground: @Contextual @RawValue Color = VeryDarkGray,
+    val lightSurface: @Contextual @RawValue Color = LightGray,
+    val darkSurface: @Contextual @RawValue Color = SurfaceDark,
+) {
     fun isDynamic() = this.themeType == ThemeType.SYSTEM
 }
 

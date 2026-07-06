@@ -689,10 +689,10 @@ fun EditListScreen(
         ProgressLoadingOverlay()
     }
     if (state.warning.isWarning) {
-        when (state.warning.resourceWarning) {
-            0 -> ErrorDialog(errorText = state.warning.textWarning) { viewModel.onDismiss() }
-            else -> ErrorDialog(
-                errorText = "${stringResource(state.warning.resourceWarning)}\n${
+        when (state.warning.isNetworkWarning) {
+            false -> ErrorDialog(errorText = state.warning.textWarning) { viewModel.onDismiss() }
+            true -> ErrorDialog(
+                errorText = "${state.warning.textWarning}\n${
                     stringResource(
                         R.string.warning_local_changed
                     )

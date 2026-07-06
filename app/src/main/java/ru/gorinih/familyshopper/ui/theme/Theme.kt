@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.theme
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.map
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
 
@@ -87,16 +88,17 @@ private val LightColorScheme = lightColorScheme(
     scrim = Black
 )
 
+@SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun FamilyShopperTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
-    dataStoreRepository: StorageRepository? = null,
+    dataPreferenceRepository: StoreRepository? = null,
     content: @Composable () -> Unit
 ) {
 
-    val paletteScheme = dataStoreRepository?.paletteFlow()?.map { namePalette ->
+    val paletteScheme = dataPreferenceRepository?.paletteFlow()?.map { namePalette ->
         val themeType = ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
         Palettes.palettes.firstOrNull { it.themeType == themeType } ?: Palettes.instance()
     }?.collectAsState(PaletteScheme())

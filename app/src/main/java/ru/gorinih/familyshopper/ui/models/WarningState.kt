@@ -1,24 +1,23 @@
 package ru.gorinih.familyshopper.ui.models
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.domain.models.Results
 
 /**
  * Created by Igor Abdulganeev on 12.04.2026
  */
-@Parcelize
+@Serializable
 data class WarningState(
     val isWarning: Boolean = false,
     val textWarning: String = "",
-    val resourceWarning: Int = 0,
+    val isNetworkWarning: Boolean = false,
     val complete: String = "",
-): Parcelable
+)
 
 fun Results.toWarningState() =
     WarningState(
         isWarning = this.isError,
         textWarning = this.textError,
-        resourceWarning = this.textErrorResource,
+        isNetworkWarning = this.isNetworkError,
         complete = this.textComplete,
     )

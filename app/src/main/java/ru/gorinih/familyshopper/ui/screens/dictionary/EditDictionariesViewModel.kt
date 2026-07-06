@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalTag
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCase
 import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
@@ -37,7 +38,8 @@ class EditDictionariesViewModel(
     private val syncRemote: SynchronizeDictionariesUseCase,
     private val syncAllRemote: SynchronizeDictionariesGetAllRemoteUseCase,
     private val voice: FamilyVoiceRecognizer,
-    pref: StorageRepository
+    store: StoreRepository,
+    pref: PreferenceRepository
 ) : ViewModel() {
 
     private var jobVoiceRecognize: Job? = null
@@ -59,7 +61,7 @@ class EditDictionariesViewModel(
         private set
 
     init {
-        pref.getVoiceFlow()
+        store.getVoiceFlow()
             .catch {
                 dictionaryState.update { state ->
                     state.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }
@@ -72,7 +74,7 @@ class EditDictionariesViewModel(
                         .first().copy(isVisible = enabled))
                 }
             }.launchIn(viewModelScope)
-        pref.getVoiceModelFlow()
+        store.getVoiceModelFlow()
             .catch {
                 dictionaryState.update { state ->
                     state.copy(voiceRecognizer = dictionaryState.map { voice -> voice.voiceRecognizer }

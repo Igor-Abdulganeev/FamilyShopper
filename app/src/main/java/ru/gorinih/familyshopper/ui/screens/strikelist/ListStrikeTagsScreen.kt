@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -246,7 +245,8 @@ fun ListStrikeTagsScreen(
                         Icon(
                             imageVector = Icons.Default.EditNote,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface)
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 } else IconButton(
                     enabled = false,
@@ -262,9 +262,11 @@ fun ListStrikeTagsScreen(
                 if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
                             || state.isEditable)
                 ) {
-                    Box(Modifier
-                        .width(48.dp)
-                        .align(Alignment.CenterVertically)) {
+                    Box(
+                        Modifier
+                            .width(48.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
                         if (state.hiddenUpdate) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
@@ -281,7 +283,8 @@ fun ListStrikeTagsScreen(
                             Icon(
                                 imageVector = Icons.Default.Repeat,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface)
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 } else Spacer(Modifier.width(48.dp))
@@ -290,7 +293,7 @@ fun ListStrikeTagsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 8.dp),
-                )
+            )
             TagsList(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -321,12 +324,8 @@ fun ListStrikeTagsScreen(
         }
     }
     if (state.loading) ProgressLoadingOverlay()
-    if (state.warning.isWarning) ErrorDialog(
-        errorText = when (state.warning.resourceWarning) {
-            0 -> state.warning.textWarning
-            else -> stringResource(state.warning.resourceWarning)
-        }
-    ) { viewModel.onDismiss() }
+    if (state.warning.isWarning) ErrorDialog(errorText = state.warning.textWarning)
+    { viewModel.onDismiss() }
 
 }
 

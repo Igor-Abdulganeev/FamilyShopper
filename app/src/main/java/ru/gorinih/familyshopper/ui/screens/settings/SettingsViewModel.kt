@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
@@ -42,7 +43,8 @@ import java.util.UUID
  */
 
 class SettingsViewModel(
-    private val pref: StorageRepository,
+    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
     private val remote: UpdateUserUseCase,
     private val database: DatabaseRepository,
     private val updater: UpdateUsersUseCase,
@@ -70,7 +72,7 @@ class SettingsViewModel(
                 }.launchIn(
                     viewModelScope
                 )
-            pref.paletteFlow()
+            store.paletteFlow()
                 .catch {
                     stateSettings = stateSettings.copy(palette = PaletteScheme())
                 }
@@ -80,7 +82,7 @@ class SettingsViewModel(
                     stateSettings = stateSettings.copy(palette = palette)
                 }
                 .launchIn(viewModelScope)
-            pref.getVoiceFlow()
+            store.getVoiceFlow()
                 .catch {
                     stateSettings = stateSettings.copy(isVoiceRecognizer = false)
                 }
@@ -88,7 +90,7 @@ class SettingsViewModel(
                     stateSettings = stateSettings.copy(isVoiceRecognizer = it)
                 }
                 .launchIn(viewModelScope)
-            pref.getListSaveTagsFlow()
+            store.getListSaveTagsFlow()
                 .catch {}
                 .onEach { lists ->
                     val settings: List<ListSaved> =  lists.entries.map { (key, value) ->
@@ -100,7 +102,7 @@ class SettingsViewModel(
                             stateSettings.copy(listSaveTagsSettings = settings.sortedBy { it.legend.listId })
                     }
                 }.launchIn(viewModelScope)
-            pref.getVoiceModelFlow().collectLatest { tag ->
+            store.getVoiceModelFlow().collectLatest { tag ->
                 stateSettings =
                     stateSettings.copy(voiceRecognizerModel = VoiceModels.entries.firstOrNull { it.tag == tag }
                         ?: VoiceModels.ENGLISH)
@@ -144,7 +146,7 @@ class SettingsViewModel(
     fun updatePalette(palette: PaletteScheme) {
         stateSettings = stateSettings.copy(palette = palette)
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            pref.updatePalette(palette.themeType.name)
+            store.updatePalette(palette.themeType.name)
         }
     }
 
@@ -156,25 +158,25 @@ class SettingsViewModel(
     fun updateVoiceRecognizer(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             if(!enabled) voice.closeRecognizer()
-            pref.setVoice(enabled)
+            store.setVoice(enabled)
         }
     }
 
     fun updateVoice(voiceName: VoiceModels) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val currentName = pref.getVoiceModel()
+            val currentName = store.getVoiceModel()
             if (currentName != voiceName.tag) voice.closeRecognizer()
-            pref.setVoiceModel(voiceName.tag)
+            store.setVoiceModel(voiceName.tag)
         }
     }
 
     fun updateListSaveTags(list: TypeLegendList) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             val key = LegendList.entries.firstOrNull { it.listId == list.listId } ?: return@launch
-            val settings = pref.getListSaveTags()
+            val settings = store.getListSaveTags()
             val enabled = !(settings[key] ?: true)
             settings[key] = enabled
-            pref.setListSaveTags(settings)
+            store.setListSaveTags(settings)
         }
     }
 

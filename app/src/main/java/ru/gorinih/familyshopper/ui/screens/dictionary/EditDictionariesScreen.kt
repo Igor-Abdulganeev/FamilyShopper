@@ -193,8 +193,7 @@ fun EditDictionariesScreen(
 
         state.warning.isWarning -> {
             ErrorDialog(
-                errorText = if (state.warning.resourceWarning != 0) stringResource(state.warning.resourceWarning)
-                else state.warning.textWarning
+                errorText = state.warning.textWarning
             ) {
                 viewModel.onDismiss()
             }

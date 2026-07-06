@@ -1,0 +1,32 @@
+package ru.gorinih.familyshopper.di
+
+import androidx.room.Room
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
+import ru.gorinih.familyshopper.data.db.ShopperDatabase
+import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
+import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
+
+
+/**
+ * Created by Igor Abdulganeev on 26.06.2026
+ */
+
+actual val platformModule = module {
+
+    single { StorageSharedPreference(get()) }
+    single<StoreRepository> { get<StorageSharedPreference>() }
+    single<PreferenceRepository> { get<StorageSharedPreference>() }
+
+    single {
+        val contextApplication = androidContext().applicationContext
+        val dbFile = contextApplication.getDatabasePath("family_shopper.db")
+        Room.databaseBuilder(
+            context = contextApplication,
+            klass = ShopperDatabase::class.java,
+            name = dbFile.absolutePath
+        )
+    }
+
+}

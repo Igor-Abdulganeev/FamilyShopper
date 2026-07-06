@@ -379,7 +379,7 @@ fun ListEntityScreen(
 
     if (state.warning.isWarning) {
         ErrorDialog(
-            errorText = if (state.warning.resourceWarning != 0) "${stringResource(state.warning.resourceWarning)}\n${
+            errorText = if (state.warning.isNetworkWarning) "${state.warning.textWarning}\n${
                 stringResource(
                     R.string.warning_local_changed
                 )

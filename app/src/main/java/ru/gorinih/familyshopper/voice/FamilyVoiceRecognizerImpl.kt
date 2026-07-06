@@ -16,7 +16,7 @@ import org.vosk.android.SpeechService
 import org.vosk.android.StorageService
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class FamilyVoiceRecognizerImpl(
     private val context: Context,
-    private val preference: StorageRepository
+    private val preference: StoreRepository
 ) : FamilyVoiceRecognizer {
     private var speechService: SpeechService? = null
     private var modelSpeech: Model? = null

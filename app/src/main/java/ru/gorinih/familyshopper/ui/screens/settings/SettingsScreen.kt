@@ -815,11 +815,7 @@ fun SettingsScreen(
             }
         }
     }
-    if (state.warning.isWarning) ErrorDialog(
-        errorText = when (state.warning.resourceWarning) {
-            0 -> state.warning.textWarning
-            else -> stringResource(state.warning.resourceWarning)
-        }
-    ) { viewModel.onDismiss() }
+    if (state.warning.isWarning) ErrorDialog(errorText = state.warning.textWarning)
+    { viewModel.onDismiss() }
 
 }

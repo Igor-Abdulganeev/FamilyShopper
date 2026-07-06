@@ -1,7 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.lists.models
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 
@@ -9,7 +8,7 @@ import ru.gorinih.familyshopper.ui.models.TypeLegendList
  * Created by Igor Abdulganeev on 09.04.2026
  */
 
-@Parcelize
+@Serializable
 data class UiListObject(
     val listId: String,
     val listVersion: Int,
@@ -23,7 +22,7 @@ data class UiListObject(
     val userName: String,
     val isEdit: Boolean = false,
     val isDelete: Boolean = false,
-) : Parcelable
+)
 
 fun ShoppedList.toUiListObject() =
     UiListObject(

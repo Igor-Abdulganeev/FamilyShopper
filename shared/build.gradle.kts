@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.android.build.api.dsl.LibraryExtension
+import java.util.Properties
 
 plugins {
     id("com.android.library")
@@ -7,6 +8,44 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    id("com.google.devtools.ksp")
+    alias(libs.plugins.room)
+}
+
+val localProperties = Properties().apply {
+    val file = File(rootProject.rootDir, "local.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    } else {
+        logger.warn("ВНИМАНИЕ: Файл local.properties не найден по пути: ${file.absolutePath}")
+    }
+}
+
+val isProd = project.hasProperty("prod")
+
+val basePoint = if (isProd) {
+    localProperties.getProperty("PROD_POINT") ?: ""
+} else {
+    localProperties.getProperty("DEV_POINT") ?: ""
+}
+
+val baseServer = if (isProd) {
+    localProperties.getProperty("PROD_SERVER") ?: ""
+} else {
+    localProperties.getProperty("DEV_SERVER") ?: ""
+}
+
+println("BASE_POINT = $basePoint")
+println("BASE_SERVER = $baseServer")
+
+compose.resources {
+    publicResClass = true
+    generateResClass =
+        org.jetbrains.compose.resources.ResourcesExtension.ResourceClassGeneration.Always
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {
@@ -23,11 +62,39 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {}
-        androidMain.dependencies {}
-        named("desktopMain") {
-            dependencies {}
+        commonMain.dependencies {
+            implementation(libs.compose.runtime)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.logging)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.compose)
+            implementation(libs.koin.core)
+            implementation(libs.room.runtime)
+            implementation(libs.kotlinx.serialization.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.datastore.core)
+            implementation(libs.sqlite.bundled) // room для недроидов
+            api(libs.compose.resources)
         }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.koin.android)
+            implementation(libs.androidx.datastore)
+        }
+        named("desktopMain") {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.ktor.client.cio)
+            }
+        }
+    }
+}
+
+dependencies {
+    configurations.filter { it.name.startsWith("ksp") }.forEach { config ->
+        add(config.name, libs.room.compiler)
     }
 }
 

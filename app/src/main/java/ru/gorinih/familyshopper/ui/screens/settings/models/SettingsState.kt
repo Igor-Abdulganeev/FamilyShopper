@@ -1,7 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.settings.models
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
@@ -9,7 +8,7 @@ import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 /**
  * Created by Igor Abdulganeev on 01.04.2026
  */
-@Parcelize
+@Serializable
 data class SettingsState(
     val clientUUID: String,
     val groupUUID: String,
@@ -25,4 +24,4 @@ data class SettingsState(
     val isVoiceRecognizer: Boolean = false, // включен ли режим ввода голосом
     val voiceRecognizerModel: VoiceModels = VoiceModels.ENGLISH,
     val listSaveTagsSettings: List<ListSaved> = emptyList() // настройки автосохранения тэгов по типам списков
-) : Parcelable
+)

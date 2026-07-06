@@ -3,7 +3,7 @@ package ru.gorinih.familyshopper.ui
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.ui.theme.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
 
@@ -12,7 +12,7 @@ import ru.gorinih.familyshopper.ui.theme.models.Palettes
  */
 
 class FamilyShopperViewModel(
-    pref: StorageRepository
+    pref: StoreRepository
 ) : ViewModel() {
 
     val dynamicColor: Flow<Boolean> = pref.paletteFlow().map { namePalette ->

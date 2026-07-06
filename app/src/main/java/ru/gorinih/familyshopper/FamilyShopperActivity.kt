@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationHost
 import ru.gorinih.familyshopper.navigation.NavigationKey
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                 val isDynamicColor by viewModel.dynamicColor.collectAsState(initial = false)
                 FamilyShopperTheme(
                     dynamicColor = isDynamicColor,
-                    dataStoreRepository = getKoin().get()
+                    dataPreferenceRepository = getKoin().get()
                 ) {
                     val navController = rememberNavController()
                     var navigationActions by remember {
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     val backStackEntry by navController.currentBackStackEntryAsState()
-                    val pref: StorageRepository = koinInject()
+                    val pref: PreferenceRepository = koinInject()
                     val startedKey: NavigationKey = when (pref.getStartedKey()) {
                         true -> NavigationKey.ListEntityScreen
                         false -> NavigationKey.SettingsScreen

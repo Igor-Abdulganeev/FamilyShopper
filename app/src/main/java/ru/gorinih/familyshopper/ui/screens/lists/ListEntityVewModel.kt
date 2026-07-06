@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
@@ -34,7 +34,7 @@ class ListEntityVewModel(
     private val database: DatabaseRepository,
     private val sync: SynchronizeListsUseCase,
     private val delete: DeleteListUseCase,
-    private val pref: StorageRepository,
+    private val pref: PreferenceRepository,
 ) : ViewModel() {
     var listsState by mutableStateOf(
         UiListsState().copy(

@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 import ru.gorinih.familyshopper.ui.widget.models.WidgetState
@@ -20,7 +20,7 @@ import ru.gorinih.familyshopper.ui.widget.models.WidgetState
 
 class WidgetViewModel(
     private val database: DatabaseRepository,
-    private val pref: StorageRepository
+    private val pref: PreferenceRepository
 ) : ViewModel() {
     val stateList = database.takeLists().map { list -> list.map { it.toUiListObject() } }
 

@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.StorageRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.getNewerOrNull
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
@@ -41,7 +42,8 @@ import java.time.format.DateTimeFormatter
 
 class EditListViewModel(
     private val listUuid: String = "",
-    private val pref: StorageRepository,
+    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
     private val database: DatabaseRepository,
     private val saveList: UpdateListUseCase,
     private val updateList: GetAndUpdateListUseCase,
@@ -67,7 +69,7 @@ class EditListViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            pref.getVoiceFlow()
+            store.getVoiceFlow()
                 .catch {
                     shoppedList = shoppedList.copy(
                         voiceRecognizer = shoppedList.voiceRecognizer.copy(
@@ -83,7 +85,7 @@ class EditListViewModel(
                         )
                     )
                 }.stateIn(viewModelScope)
-            pref.getVoiceModelFlow()
+            store.getVoiceModelFlow()
                 .catch {
                     shoppedList = shoppedList.copy(
                         voiceRecognizer = shoppedList.voiceRecognizer.copy(
