@@ -2,13 +2,19 @@ package ru.gorinih.familyshopper.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+/**
+ * Created by Igor Abdulganeev on 16.07.2026
+ */
+
 // Светло-зелёный (кардиган) PRIMARY LIGHT
 val LightGreen = Color(0xFFB5E1AD)
+
 // Средне-зелёный PRIMARY DARK
 val MediumGreen = Color(0xFF4B8D73)
 
 // Тёмно-синий
 val DarkBlue = Color(0xFF5360A8)
+
 // Светло-синий
 val LightBlue = Color(0xFF9C71EC)
 
@@ -45,5 +51,3 @@ val ListHeaderGreen = Color(0xFF5ED1A7)
 val ListHeaderBlue = Color(0xFF6EA8FF)
 val ListHeaderYellow = Color(0xFFFFD76A)
 val ListHeaderRed = Color(0xFFFF7A7A)
-
-

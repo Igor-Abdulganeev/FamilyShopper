@@ -32,7 +32,7 @@ import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
 import ru.gorinih.familyshopper.ui.screens.settings.models.ListSaved
 import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
 import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
-import ru.gorinih.familyshopper.ui.theme.ThemeType
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer

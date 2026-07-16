@@ -20,7 +20,6 @@ import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
-import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
 import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
@@ -127,5 +126,5 @@ fun koinModule(): Module = module {
         )
     }
     viewModel { WidgetViewModel(database = get(), pref = get()) }
-    viewModel { FamilyShopperViewModel(pref = get()) }
+    /*  viewModel { FamilyShopperViewModel(pref = get()) }*/
 }

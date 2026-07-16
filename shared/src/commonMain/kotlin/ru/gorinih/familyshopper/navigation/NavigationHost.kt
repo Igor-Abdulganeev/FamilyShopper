@@ -10,11 +10,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesScreen
-import ru.gorinih.familyshopper.ui.screens.editlist.EditListScreen
-import ru.gorinih.familyshopper.ui.screens.lists.ListEntityScreen
-import ru.gorinih.familyshopper.ui.screens.settings.SettingsScreen
-import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsScreen
 
 /**
  * Created by Igor Abdulganeev on 06.04.2026
@@ -48,6 +43,7 @@ fun NavigationHost(
         }
     ) {
         composable<NavigationKey.SettingsScreen> {
+/*
             SettingsScreen(
                 navigationActions = navigationActions,
                 backPressed = { popupBackStack() },
@@ -58,18 +54,24 @@ fun NavigationHost(
                         }
                     }
                 })
+*/
         }
 
         composable<NavigationKey.DictionariesScreen> {
+/*
             EditDictionariesScreen()
+*/
         }
 
         composable<NavigationKey.EditListScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()
-            EditListScreen(args.listUuid, onBack = { popupBackStack() })
+            /*
+                        EditListScreen(args.listUuid, onBack = { popupBackStack() })
+            */
         }
 
         composable<NavigationKey.ListEntityScreen> {
+/*
             ListEntityScreen(
                 router = { navigationKey ->
                     navigationController.navigate(navigationKey)
@@ -80,22 +82,25 @@ fun NavigationHost(
                     navigationController.navigate(NavigationKey.EditListScreen(listUuid = ""))
                 }
             )
+*/
         }
 
         composable<NavigationKey.ListStrikeTagsScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.ListStrikeTagsScreen>()
-            ListStrikeTagsScreen(
-                listUuid = args.listUuid,
-                backPressed = { popupBackStack() },
-                route = { listId ->
-                    navigationController.navigate(
-                        NavigationKey.EditListScreen(
-                            listUuid = listId
+            /*
+                        ListStrikeTagsScreen(
+                            listUuid = args.listUuid,
+                            backPressed = { popupBackStack() },
+                            route = { listId ->
+                                navigationController.navigate(
+                                    NavigationKey.EditListScreen(
+                                        listUuid = listId
+                                    )
+                                )
+                            },
+                            navigationActions = navigationActions
                         )
-                    )
-                },
-                navigationActions = navigationActions
-            )
+            */
         }
     }
 

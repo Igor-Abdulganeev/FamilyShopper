@@ -1,20 +1,21 @@
 package ru.gorinih.familyshopper.ui.theme
 
-import android.annotation.SuppressLint
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
+
+/**
+ * Created by Igor Abdulganeev on 16.07.2026
+ */
 
 private val DarkColorScheme = darkColorScheme(
     primary = MediumGreen,
@@ -88,7 +89,10 @@ private val LightColorScheme = lightColorScheme(
     scrim = Black
 )
 
-@SuppressLint("FlowOperatorInvokedInComposition")
+@Composable
+expect fun provideDynamicColorScheme(isDynamicColor: Boolean, isDarkTheme: Boolean): ColorScheme?
+
+@Suppress("FlowOperatorInvokedInComposition")
 @Composable
 fun FamilyShopperTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -104,13 +108,10 @@ fun FamilyShopperTheme(
     }?.collectAsState(PaletteScheme())
 
     val currentPalette = paletteScheme?.value ?: PaletteScheme()
+    val isDynamicColorScheme =
+        provideDynamicColorScheme(isDynamicColor = dynamicColor, isDarkTheme = darkTheme)
 
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
+    val colorScheme = isDynamicColorScheme ?: when {
         darkTheme -> DarkColorScheme.copy(
             primary = currentPalette.darkPrimary,
             secondary = currentPalette.secondary,
@@ -127,10 +128,10 @@ fun FamilyShopperTheme(
             surface = currentPalette.lightSurface,
         )
     }
-
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
+
 }

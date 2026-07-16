@@ -1,5 +1,5 @@
 package ru.gorinih.familyshopper
-
+/*
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -185,3 +185,5 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(context)
     }
 }
+
+ */

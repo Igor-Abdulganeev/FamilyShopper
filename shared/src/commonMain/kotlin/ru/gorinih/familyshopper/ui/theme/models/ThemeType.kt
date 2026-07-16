@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.theme
+package ru.gorinih.familyshopper.ui.theme.models
 
 /**
  * Created by Igor Abdulganeev on 05.05.2026

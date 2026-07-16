@@ -1,34 +1,35 @@
+@file:UseSerializers(ColorSerializable::class)
+
 package ru.gorinih.familyshopper.ui.theme.models
 
 import androidx.compose.ui.graphics.Color
-import kotlinx.parcelize.RawValue
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import ru.gorinih.familyshopper.ui.theme.DarkBlue
 import ru.gorinih.familyshopper.ui.theme.LightBlue
 import ru.gorinih.familyshopper.ui.theme.LightGray
 import ru.gorinih.familyshopper.ui.theme.LightGreen
 import ru.gorinih.familyshopper.ui.theme.MediumGreen
 import ru.gorinih.familyshopper.ui.theme.SurfaceDark
-import ru.gorinih.familyshopper.ui.theme.ThemeType
 import ru.gorinih.familyshopper.ui.theme.VeryDarkGray
 import ru.gorinih.familyshopper.ui.theme.VeryLightGray
 
 /**
- * Created by Igor Abdulganeev on 05.05.2026
+ * Created by Igor Abdulganeev on 16.07.2026
  */
 
 @Serializable
 data class PaletteScheme(
     val themeType: ThemeType = ThemeType.MAIN,
-    val lightPrimary: @Contextual @RawValue Color = LightGreen,
-    val darkPrimary: @Contextual @RawValue Color = MediumGreen,
-    val secondary: @Contextual @RawValue Color = DarkBlue,
-    val tertiary: @Contextual @RawValue Color = LightBlue,
-    val lightBackground: @Contextual @RawValue Color = VeryLightGray,
-    val darkBackground: @Contextual @RawValue Color = VeryDarkGray,
-    val lightSurface: @Contextual @RawValue Color = LightGray,
-    val darkSurface: @Contextual @RawValue Color = SurfaceDark,
+
+    val lightPrimary: Color = LightGreen,
+    val darkPrimary: Color = MediumGreen,
+    val secondary: Color = DarkBlue,
+    val tertiary: Color = LightBlue,
+    val lightBackground: Color = VeryLightGray,
+    val darkBackground: Color = VeryDarkGray,
+    val lightSurface: Color = LightGray,
+    val darkSurface: Color = SurfaceDark,
 ) {
     fun isDynamic() = this.themeType == ThemeType.SYSTEM
 }

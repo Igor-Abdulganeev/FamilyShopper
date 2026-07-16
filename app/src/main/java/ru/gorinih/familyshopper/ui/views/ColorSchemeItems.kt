@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
-import ru.gorinih.familyshopper.ui.theme.ThemeType
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
 

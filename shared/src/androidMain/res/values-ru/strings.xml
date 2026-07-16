@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Семейные покупки</string>
+    <string name="widget_header_preview">Список покупок</string>
+    <string name="widget_first_strikethrough_text"><s>молоко</s></string>
+    <string name="widget_second_text">хлеб</string>
+</resources>

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.gorinih.familyshopper.domain.StoreRepository
-import ru.gorinih.familyshopper.ui.theme.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
 
 /**
  * Created by Igor Abdulganeev on 03.05.2026

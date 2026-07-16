@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Porodična kupovina</string>
+    <string name="widget_header_preview">Lista za kupovinu</string>
+    <string name="widget_first_strikethrough_text"><s>mleko</s></string>
+    <string name="widget_second_text">hleb</string>
+</resources>

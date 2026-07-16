@@ -19,8 +19,12 @@ dataStoreVersion = "1.2.1"
 splashVersion = "1.2.0"
 
 composeMultiplatform = "1.11.1"
+composeMaterial3 = "1.9.0"
+composeMaterial3Adaptive = "1.2.0"
+composeMaterial3Icons = "1.7.3"
 ktor = "3.4.1"
 sqliteVersion = "2.5.2"
+buildkonfig = "0.22.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +44,15 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-material3-adaptive = {group = "androidx.compose.material3.adaptive", name ="adaptive"}
+
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "composeMultiplatform" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "composeMultiplatform" }
+compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "composeMaterial3" }
+compose-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version.ref = "composeMaterial3Adaptive" }
+compose-material3-icons = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "composeMaterial3Icons" }
+compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composeMultiplatform" }
+compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+
 
 retrofit-core = {module = "com.squareup.retrofit2:retrofit", version.ref="retrofitVersion"}
 retrofit-converter-kotlinx-serialization = {module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref="retrofitVersion"}
@@ -72,8 +85,6 @@ androidx-datastore-core = { group = "androidx.datastore", name = "datastore-pref
 androidx-datastore = {group="androidx.datastore", name="datastore-preferences", version.ref="dataStoreVersion"}
 androidx-splashscreen = {group="androidx.core", name="core-splashscreen", version.ref="splashVersion"}
 
-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composeMultiplatform" }
-compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -85,11 +96,13 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" } #
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 room = { id = "androidx.room", version.ref = "roomVersion" }
 
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }

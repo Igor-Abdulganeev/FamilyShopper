@@ -1,15 +1,18 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.android.build.api.dsl.LibraryExtension
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.gradle.kotlin.dsl.implementation
 import java.util.Properties
 
 plugins {
     id("com.android.library")
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     id("com.google.devtools.ksp")
     alias(libs.plugins.room)
+    alias(libs.plugins.buildkonfig)
 }
 
 val localProperties = Properties().apply {
@@ -71,17 +74,27 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.compose)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.room.runtime)
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.datastore.core)
             implementation(libs.sqlite.bundled) // room для недроидов
             api(libs.compose.resources)
+            implementation(libs.androidx.navigation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.material3.adaptive)
+            implementation(libs.compose.material3.icons)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.ui)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.androidx.datastore)
+            implementation(libs.androidx.splashscreen)
+            implementation(libs.androidx.glance.appwidget)
+            implementation(libs.androidx.glance.material)
         }
         named("desktopMain") {
             dependencies {
@@ -112,8 +125,24 @@ extensions.configure<LibraryExtension>("android") {
         }
     }
 
+    sourceSets {
+        getByName("main") {
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            res.srcDirs("src/androidMain/res")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+buildkonfig {
+    packageName = "ru.gorinih.familyshopper"
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "BASE_POINT", basePoint)
+        buildConfigField(FieldSpec.Type.STRING, "BASE_SERVER", baseServer)
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
     }
 }

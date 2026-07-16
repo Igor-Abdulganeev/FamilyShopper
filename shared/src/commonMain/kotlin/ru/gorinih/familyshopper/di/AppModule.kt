@@ -2,9 +2,11 @@ package ru.gorinih.familyshopper.di
 
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
 
 /**
  * Created by Igor Abdulganeev on 25.06.2026
@@ -17,7 +19,7 @@ fun provideConfig(baseUrl: String, isDebug: Boolean) = module {
 }
 
 val appModule = module {
-
+    viewModel { FamilyShopperViewModel(pref = get()) }
 }
 
 fun initKoin(

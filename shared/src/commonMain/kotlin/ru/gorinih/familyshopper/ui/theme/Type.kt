@@ -6,6 +6,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+/**
+ * Created by Igor Abdulganeev on 16.07.2026
+ */
+
 val Typography = Typography(
     // Заголовок TopBar
     titleLarge = TextStyle(
