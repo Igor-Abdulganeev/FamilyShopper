@@ -78,9 +78,9 @@ import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
-import ru.gorinih.familyshopper.navigation.ScreenLayoutType
-import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
-import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
@@ -94,7 +94,7 @@ import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
 import ru.gorinih.familyshopper.ui.theme.White
-import ru.gorinih.familyshopper.ui.toShowDate
+import ru.gorinih.familyshopper.utils.toShowDate
 import ru.gorinih.familyshopper.ui.views.ChipPanel
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox

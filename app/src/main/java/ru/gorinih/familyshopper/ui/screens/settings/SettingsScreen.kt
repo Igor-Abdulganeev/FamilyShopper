@@ -75,12 +75,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
-import ru.gorinih.familyshopper.navigation.ScreenLayoutType
-import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
-import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.legendListIdName
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
@@ -708,7 +709,7 @@ fun SettingsScreen(
                                             label = {
                                                 Text(
                                                     text = list.legend.legendListIdName()
-                                                        .takeIf { it != 0 }
+                                                        .takeIf { it != null }
                                                         ?.run { stringResource(this) } ?: ""
                                                 )
                                             },

@@ -75,9 +75,9 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.navigation.ScreenLayoutType
-import ru.gorinih.familyshopper.navigation.rememberScreenConfiguration
-import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.TypeListTags

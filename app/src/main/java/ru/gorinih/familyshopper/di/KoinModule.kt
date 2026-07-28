@@ -20,7 +20,7 @@ import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
 import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
-import ru.gorinih.familyshopper.ui.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel

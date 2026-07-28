@@ -25,8 +25,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 18
-val vName = "1.2"
+val vCode = project.property("version.code").toString().toInt()
+val vName = project.property("version.name").toString()
 
 android {
     namespace = "ru.gorinih.familyshopper"

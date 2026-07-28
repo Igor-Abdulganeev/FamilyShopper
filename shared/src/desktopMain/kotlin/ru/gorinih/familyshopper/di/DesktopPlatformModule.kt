@@ -4,6 +4,8 @@ import androidx.room.Room
 import org.koin.dsl.module
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.db.ShopperDatabaseConstructor
+import ru.gorinih.familyshopper.data.storage.DesktopStoreRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import java.io.File
 
 /**
@@ -11,6 +13,8 @@ import java.io.File
  */
 
 actual val platformModule = module {
+
+    single<StoreRepository> { DesktopStoreRepository() }
 
     single {
         val dbFile = File(System.getProperty("user.home"), ".family_shopper/family_shopper.db")

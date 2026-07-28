@@ -1,0 +1,272 @@
+package ru.gorinih.familyshopper.ui.screens.settings
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
+import ru.gorinih.familyshopper.domain.models.LegendList
+import ru.gorinih.familyshopper.domain.models.ShoppedUsers
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.models.toWarningState
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.screens.lists.models.toShoppedUsers
+import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListUsers
+import ru.gorinih.familyshopper.ui.screens.settings.models.ListSaved
+import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
+import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
+import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceState
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+import ru.gorinih.familyshopper.ui.theme.models.Palettes
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
+import java.util.UUID
+
+/**
+ * Created by Igor Abdulganeev on 01.04.2026
+ */
+
+class SettingsViewModel(
+    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
+    private val remote: UpdateUserUseCase,
+    private val database: DatabaseRepository,
+    private val updater: UpdateUsersUseCase,
+    private val voice: FamilyVoiceRecognizer,
+) : ViewModel() {
+
+    var stateSettings by mutableStateOf(getStartedKeys())
+        private set
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
+    }
+
+    private val _shareData = Channel<String>()
+    val shareEvents = _shareData.receiveAsFlow()
+
+    init {
+        updateUsers(false)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            database.takeUsers()
+                .catch { }
+                .onEach { users ->
+                    val list: List<UiListUser> = users.map { it.toUiListUsers() }
+                        .filterNot { it.userUuid == pref.getClientUUID() }.sortedBy { it.userUuid }
+                    stateSettings = stateSettings.copy(listUsers = list)
+                }.launchIn(
+                    viewModelScope
+                )
+            store.paletteFlow()
+                .catch {
+                    stateSettings = stateSettings.copy(palette = PaletteScheme())
+                }
+                .onEach { namePalette ->
+                    val themeType = ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
+                    val palette = Palettes.palettes.firstOrNull { it.themeType == themeType } ?: Palettes.instance()
+                    stateSettings = stateSettings.copy(palette = palette)
+                }
+                .launchIn(viewModelScope)
+            store.getVoiceFlow()
+                .catch {
+                    stateSettings =
+                        stateSettings.copy(voiceSetting = VoiceState(isVoiceRecognizer = false))
+                }
+                .onEach {
+                    stateSettings =
+                        stateSettings.copy(voiceSetting = VoiceState(isVoiceRecognizer = it))
+                }
+                .launchIn(viewModelScope)
+            store.getListSaveTagsFlow()
+                .catch {}
+                .onEach { lists ->
+                    val settings: List<ListSaved> =  lists.entries.map { (key, value) ->
+                        val legend = TypeLegendList.entries.firstOrNull { it.listId == key.listId } ?: TypeLegendList.NOTHING
+                        ListSaved(legend, value)
+                    }
+                    withContext(Dispatchers.Main.immediate) {
+                        stateSettings =
+                            stateSettings.copy(listSaveTagsSettings = settings.sortedBy { it.legend.listId })
+                    }
+                }.launchIn(viewModelScope)
+            store.getVoiceModelFlow().collectLatest { tag ->
+                stateSettings =
+                    stateSettings.copy(voiceSetting = VoiceState(voiceRecognizerModel = VoiceModels.entries.firstOrNull { it.tag == tag }
+                        ?: VoiceModels.ENGLISH)
+                    )
+            }
+        }
+    }
+
+    fun updateClientUuid(uuid: String) {
+        stateSettings = stateSettings.copy(clientUUID = uuid)
+    }
+
+    fun updateGroupUuid(uuid: String) {
+        stateSettings = stateSettings.copy(groupUUID = uuid)
+    }
+
+    fun updateUserName(name: String) {
+        stateSettings = stateSettings.copy(userName = name)
+    }
+
+    fun updateTypeList(type: Int) {
+        stateSettings = stateSettings.copy(defaultTypeList = type)
+        pref.setTypeList(type)
+    }
+
+    fun updateUser(user: UiListUser, isDelete: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if (isDelete) {
+                database.deleteUser(user.toShoppedUsers())
+            } else {
+                database.keepUser(user.toShoppedUsers())
+            }
+        }
+    }
+
+    fun updateUsers(replace: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            updater(replace)
+        }
+    }
+
+    fun updatePalette(palette: PaletteScheme) {
+        stateSettings = stateSettings.copy(palette = palette)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            store.updatePalette(palette.themeType.name)
+        }
+    }
+
+    fun updateBackground() {
+        stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
+        pref.setBackgroundState(stateSettings.rainbow)
+    }
+
+    fun updateVoiceRecognizer(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if(!enabled) voice.closeRecognizer()
+            store.setVoice(enabled)
+        }
+    }
+
+    fun updateVoice(voiceName: VoiceModels) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            val currentName = store.getVoiceModel()
+            if (currentName != voiceName.tag) voice.closeRecognizer()
+            store.setVoiceModel(voiceName.tag)
+        }
+    }
+
+    fun updateListSaveTags(list: TypeLegendList) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            val key = LegendList.entries.firstOrNull { it.listId == list.listId } ?: return@launch
+            val settings = store.getListSaveTags()
+            val enabled = !(settings[key] ?: true)
+            settings[key] = enabled
+            store.setListSaveTags(settings)
+        }
+    }
+
+    fun saveUserName() {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            if (stateSettings.userName != stateSettings.userNameSaved) {
+                pref.setUserName(stateSettings.userName)
+                try {
+                    database.keepUser(
+                        ShoppedUsers(
+                            pref.getClientUUID(),
+                            stateSettings.userName
+                        )
+                    )
+                    val result = remote()
+                    stateSettings = stateSettings.copy(warning = result.toWarningState())
+                } catch (_: Throwable) {
+                }
+            }
+        }
+    }
+
+    fun onDismiss() {
+        stateSettings = stateSettings.copy(warning = WarningState())
+    }
+
+    fun restoreGroupUuid() {
+        stateSettings = stateSettings.copy(groupUUID = pref.getGroupUUID())
+    }
+
+    fun applyGroupUuid() {
+        pref.setGroupUUID(stateSettings.groupUUID)
+    }
+
+    fun applyClientUuid() {
+        if (stateSettings.clientUUID.isNotBlank()) {
+            pref.setClientUUID(stateSettings.clientUUID)
+        } else {
+            stateSettings = stateSettings.copy(clientUUID = pref.getClientUUID())
+        }
+    }
+
+    fun createGroupUUID() {
+        val uuid = UUID.randomUUID().toString()
+        stateSettings = stateSettings.copy(groupUUID = uuid)
+    }
+
+    fun onShareGroupUuid() {
+        if (!stateSettings.isSharing) {
+            stateSettings = stateSettings.copy(isSharing = true)
+            viewModelScope.launch(Dispatchers.Main.immediate) {
+                try {
+                    _shareData.send(stateSettings.groupUUID)
+                } catch (_: Throwable) {
+                }
+            }
+        }
+    }
+
+    fun onShareClientUuid() {
+        if (!stateSettings.isSharing) {
+            viewModelScope.launch(Dispatchers.Main.immediate) {
+                try {
+                    _shareData.send(stateSettings.clientUUID)
+                } catch (_: Throwable) {
+                }
+            }
+        }
+    }
+
+    fun shareDone() {
+        stateSettings = stateSettings.copy(isSharing = false)
+    }
+
+    private fun getStartedKeys(): SettingsState =
+        SettingsState(
+            clientUUID = pref.getClientUUID(),
+            groupUUID = pref.getGroupUUID(),
+            isFirstTime = !pref.getStartedKey(),
+            userName = if (!pref.getStartedKey() && pref.getUserName()
+                    .isBlank()
+            ) pref.getClientUUID().substringBefore('-') else pref.getUserName(),
+            userNameSaved = pref.getUserName(),
+            rainbow = pref.getBackgroundState(),
+            defaultTypeList = pref.getTypeList()
+        ).apply {
+            pref.setStartedKey()
+        }
+}

@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.android.build.api.dsl.LibraryExtension
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.gradle.kotlin.dsl.implementation
 import java.util.Properties
 
 plugins {
@@ -87,6 +86,7 @@ kotlin {
             implementation(libs.compose.material3.icons)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
+            implementation(libs.compose.ui.tooling)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
@@ -95,6 +95,8 @@ kotlin {
             implementation(libs.androidx.splashscreen)
             implementation(libs.androidx.glance.appwidget)
             implementation(libs.androidx.glance.material)
+            implementation("net.java.dev.jna:jna:5.18.1@aar")
+            implementation("com.alphacephei:vosk-android:0.3.75@aar")
         }
         named("desktopMain") {
             dependencies {
@@ -145,4 +147,27 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "BASE_SERVER", baseServer)
         buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
     }
+}
+
+tasks.register("generateVersionFile") {
+    description = "Generate file"
+    val vCode = project.property("version.code").toString()
+    val vName = project.property("version.name").toString()
+
+    val outputDir = file("src/commonMain/composeResources/files")
+    val outputFile = file("$outputDir/version.txt")
+
+    inputs.property("vCode", vCode)
+    inputs.property("vName", vName)
+    outputs.file(outputFile)
+    doLast {
+        outputDir.mkdirs()
+        outputFile.writeText("$vName.$vCode")
+    }
+}
+
+tasks.matching {
+    it.name.contains("copyNonXmlValueResources")
+}.configureEach {
+    dependsOn("generateVersionFile")
 }

@@ -1,0 +1,27 @@
+package ru.gorinih.familyshopper.ui.screens.settings.models
+
+import kotlinx.serialization.Serializable
+import ru.gorinih.familyshopper.ui.models.WarningState
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
+
+/**
+ * Created by Igor Abdulganeev on 17.07.2026
+ */
+
+@Serializable
+data class SettingsState(
+    val clientUUID: String,
+    val groupUUID: String,
+    val isFirstTime: Boolean, // первый запуск или нет
+    val userName: String, // имя пользователя, по желанию
+    val userNameSaved: String, // старое имя, будем сохранять если отличия есть
+    val rainbow: Boolean, // анимированный или нет фон
+    val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
+    val isSharing: Boolean = false, //шаринг данных запущен
+    val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
+    val warning: WarningState = WarningState(), // обработка исключений
+    val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
+    val listSaveTagsSettings: List<ListSaved> = emptyList(), // настройки автосохранения тэгов по типам списков
+    val voiceSetting: VoiceState? = null
+)
