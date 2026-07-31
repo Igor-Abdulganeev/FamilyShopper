@@ -1,7 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.lists
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -19,6 +17,7 @@ import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -62,25 +61,32 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.label_datetime_today
+import familyshopper.shared.generated.resources.label_datetime_yesterday
+import familyshopper.shared.generated.resources.label_empty_list
+import familyshopper.shared.generated.resources.label_empty_list_comand_text
+import familyshopper.shared.generated.resources.label_empty_list_name
+import familyshopper.shared.generated.resources.label_other_names
+import familyshopper.shared.generated.resources.label_owner_name
+import familyshopper.shared.generated.resources.label_results_count
+import familyshopper.shared.generated.resources.warning_local_changed
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationKey
-import ru.gorinih.familyshopper.utils.ScreenLayoutType
-import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
-import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
@@ -94,14 +100,16 @@ import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
 import ru.gorinih.familyshopper.ui.theme.White
-import ru.gorinih.familyshopper.utils.toShowDate
 import ru.gorinih.familyshopper.ui.views.ChipPanel
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.QueryDialog
 import ru.gorinih.familyshopper.ui.views.shadow
-import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
+import ru.gorinih.familyshopper.utils.toShowDate
 import kotlin.math.roundToInt
 
 /**
@@ -119,11 +127,12 @@ fun ListEntityScreen(
 
     val state = viewModel.listsState
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current.applicationContext
     val stateLazy = rememberLazyListState()
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var isClicked by remember { mutableStateOf(false) }
     val screen = rememberScreenConfiguration()
+
+    val widgetNotifier: WidgetNotifier = koinInject<WidgetNotifier>()
 
     LaunchedEffect(Unit) {
         navigationActions(NavigationActions(onNavigationClick = { backClick() }))
@@ -133,7 +142,7 @@ fun ListEntityScreen(
         if (state.lists.isNotEmpty()) stateLazy.animateScrollToItem(0)
     }
 
-    BackHandler(enabled = false) {}
+    AppBackHandler(enable = false) {}
 
     when (screen) {
         ScreenLayoutType.SINGLE_PANE -> {
@@ -191,7 +200,7 @@ fun ListEntityScreen(
                             onClick = { addList() },
                             label = {
                                 Text(
-                                    text = stringResource(R.string.label_empty_list_comand_text),
+                                    text = stringResource(Res.string.label_empty_list_comand_text),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -213,7 +222,7 @@ fun ListEntityScreen(
                         )
                         {
                             Text(
-                                text = stringResource(R.string.label_empty_list),
+                                text = stringResource(Res.string.label_empty_list),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(8.dp)
@@ -298,7 +307,7 @@ fun ListEntityScreen(
                                 onClick = { addList() },
                                 label = {
                                     Text(
-                                        text = stringResource(R.string.label_empty_list_comand_text),
+                                        text = stringResource(Res.string.label_empty_list_comand_text),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -320,7 +329,7 @@ fun ListEntityScreen(
                             )
                             {
                                 Text(
-                                    text = stringResource(R.string.label_empty_list),
+                                    text = stringResource(Res.string.label_empty_list),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(8.dp)
@@ -381,7 +390,7 @@ fun ListEntityScreen(
         ErrorDialog(
             errorText = if (state.warning.isNetworkWarning) "${state.warning.textWarning}\n${
                 stringResource(
-                    R.string.warning_local_changed
+                    Res.string.warning_local_changed
                 )
             }"
             else state.warning.textWarning
@@ -397,7 +406,7 @@ fun ListEntityScreen(
             ),
             onDone = {
                 scope.launch {
-                    notifyWidgetAboutChanged(context)
+                    widgetNotifier.notifyWidgetChanged()
                 }
                 viewModel.deleteList(state.deleting.deletedId)
             },
@@ -413,7 +422,7 @@ fun ListEntityScreen(
             ),
             onDone = {
                 scope.launch {
-                    notifyWidgetAboutChanged(context)
+                    widgetNotifier.notifyWidgetChanged()
                 }
                 viewModel.localDeleteList(state.localDeleting.deletedId)
             },
@@ -432,295 +441,297 @@ fun CardListItem(
     onEdit: () -> Unit
 ) {
     val title = item.listName.takeIf { it.isNotBlank() }
-        ?: stringResource(R.string.label_empty_list_name)
+        ?: stringResource(Res.string.label_empty_list_name)
     val isDark = isSystemInDarkTheme()
     val density = LocalDensity.current
 
-    val widthSwipe = with(density) {
-        LocalConfiguration.current.screenWidthDp.dp.toPx()
-    } * 0.2f // сдвинем на размер...
-    val anchors = DraggableAnchors {
-        SwipedAnchor.START at -widthSwipe
-        SwipedAnchor.MEDIAN at 0f
-        SwipedAnchor.END at widthSwipe
-    }
-    val stateSwipe = remember {
-        AnchoredDraggableState(
-            initialValue = SwipedAnchor.MEDIAN,
-            anchors = anchors
-        )
-    }
-    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
-        state = stateSwipe,
-        positionalThreshold = { distance -> distance * 0.5f },
-        animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
-    )
-    val progress =
-        (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 16.dp)
-    ) {
-        Row(
-            Modifier
-                .matchParentSize()
-                .padding(horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(
-                onClick = {
-                    if (item.isDelete) onDelete()
-                    else onLocalDelete()
-                },
-            ) {
-                if (item.isDelete)
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                else
-                    Icon(
-                        imageVector = Icons.Default.DeleteOutline,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
+    BoxWithConstraints {
+        val widthSwipe = with(density) {
+            maxWidth.toPx()
+        } * 0.2f // сдвинем на размер...
+        val stateSwipe = remember(widthSwipe) {
+            val anchors = DraggableAnchors {
+                SwipedAnchor.START at -widthSwipe
+                SwipedAnchor.MEDIAN at 0f
+                SwipedAnchor.END at widthSwipe
             }
-            IconButton(
-                onClick = { onEdit() },
-                enabled = item.isEdit
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            AnchoredDraggableState(
+                initialValue = SwipedAnchor.MEDIAN,
+                anchors = anchors
+            )
         }
-
-        Column(
+        val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+            state = stateSwipe,
+            positionalThreshold = { distance -> distance * 0.5f },
+            animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+        )
+        val progress =
+            (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset { IntOffset(stateSwipe.requireOffset().roundToInt(), 0) }
-                .anchoredDraggable(
-                    state = stateSwipe,
-                    reverseDirection = false,
-                    orientation = Orientation.Horizontal,
-                    flingBehavior = flingBehavior,
-                    interactionSource = null,
-                    overscrollEffect = null,
-                )
-                .shadow(
-                    borderRadius = 16.dp,
-                    shadowRadius = 8.dp,
-                    alphaShadowLight = 0.3f,
-                    offsetXLight = 0.dp,
-                    offsetYLight = 0.dp
-                )
-                .border(
-                    1.dp,
-                    Color.White.copy(alpha = 0.06f),
-                    shape = RoundedCornerShape(16.dp)
-                )
+                .padding(vertical = 24.dp, horizontal = 16.dp)
         ) {
-            val colorBrush = MaterialTheme.colorScheme.background
-            val brush = Brush.horizontalGradient(
-                colors = if (isDark) {
-                    when (item.listLegend) {
-                        TypeLegendList.ALL -> listOf(
-                            ListDarkGreen,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.ADD -> listOf(
-                            ListDarkBlue,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.VIEW -> listOf(
-                            ListDarkYellow,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.PRIVATE -> listOf(
-                            ListDarkRed,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.NOTHING -> listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            colorBrush,
-                        )
-                    }
-                } else {
-                    when (item.listLegend) {
-                        TypeLegendList.ALL -> listOf(
-                            ListLightGreen,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.ADD -> listOf(
-                            ListLightBlue,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.VIEW -> listOf(
-                            ListLightYellow,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.PRIVATE -> listOf(
-                            ListLightRed,
-                            colorBrush,
-                        )
-
-                        TypeLegendList.NOTHING -> listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            colorBrush,
-                        )
-                    }
-                },
-                startX = 0.0f,
-                endX = 550f
-            )
-
-            MaterialGroupBox(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onClick() },
-                color = MaterialTheme.colorScheme.primary,
-                brush = brush,
+            Row(
+                Modifier
+                    .matchParentSize()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        // цветовая точка
-                        if (painter != null) {
-                            Image(
-                                painter, contentDescription = null,
-                                Modifier
-                                    .size(20.dp)
-                                    .weight(0.2f)
-                            )
-                        }
-                        //наименование
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 2.dp)
-                                .weight(1f),
-                            contentAlignment = Alignment.TopStart
-                        ) {
-                            if (!isDark) {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        drawStyle = Stroke(
-                                            width = 4f,
-                                            join = StrokeJoin.Round
-                                        )
-                                    ),
-                                    color = White,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.bodyLarge,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                        // время изменения
-                        Text(
-                            text = item.listDatetimeValue.toShowDate(
-                                todayName = stringResource(R.string.label_datetime_today),
-                                yesterdayName = stringResource(R.string.label_datetime_yesterday)
-                            ),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                baselineShift = BaselineShift.Subscript,
-                                textAlign = TextAlign.End,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .weight(0.4f),
+                IconButton(
+                    onClick = {
+                        if (item.isDelete) onDelete()
+                        else onLocalDelete()
+                    },
+                ) {
+                    if (item.isDelete)
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
-                    }
-
-                    // автор и назначеные
-                    val ownerName = if (item.userName.isNotBlank()) stringResource(
-                        R.string.label_owner_name,
-                        item.userName
+                    else
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                }
+                IconButton(
+                    onClick = { onEdit() },
+                    enabled = item.isEdit
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
-                    else ""
-                    val otherNames = if (item.listTo.isNotEmpty()) stringResource(
-                        R.string.label_other_names,
-                        item.listTo.joinToString(", ") { it.userName })
-                    else ""
-                    val names = when {
-                        item.userName.isNotBlank() && item.listTo.isNotEmpty() -> "$ownerName      $otherNames"
-                        item.userName.isNotBlank() -> ownerName
-                        else -> otherNames
-                    }
-                    Text(
-                        text = names,
-                        modifier = Modifier.padding(start = 32.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                }
+            }
 
-                    if (progress != 0f) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset { IntOffset(stateSwipe.requireOffset().roundToInt(), 0) }
+                    .anchoredDraggable(
+                        state = stateSwipe,
+                        reverseDirection = false,
+                        orientation = Orientation.Horizontal,
+                        flingBehavior = flingBehavior,
+                        interactionSource = null,
+                        overscrollEffect = null,
+                    )
+                    .shadow(
+                        borderRadius = 16.dp,
+                        shadowRadius = 8.dp,
+                        alphaShadowLight = 0.3f,
+                        offsetXLight = 0.dp,
+                        offsetYLight = 0.dp
+                    )
+                    .border(
+                        1.dp,
+                        Color.White.copy(alpha = 0.06f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+            ) {
+                val colorBrush = MaterialTheme.colorScheme.background
+                val brush = Brush.horizontalGradient(
+                    colors = if (isDark) {
+                        when (item.listLegend) {
+                            TypeLegendList.ALL -> listOf(
+                                ListDarkGreen,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.ADD -> listOf(
+                                ListDarkBlue,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.VIEW -> listOf(
+                                ListDarkYellow,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.PRIVATE -> listOf(
+                                ListDarkRed,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.NOTHING -> listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                colorBrush,
+                            )
+                        }
+                    } else {
+                        when (item.listLegend) {
+                            TypeLegendList.ALL -> listOf(
+                                ListLightGreen,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.ADD -> listOf(
+                                ListLightBlue,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.VIEW -> listOf(
+                                ListLightYellow,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.PRIVATE -> listOf(
+                                ListLightRed,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.NOTHING -> listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                colorBrush,
+                            )
+                        }
+                    },
+                    startX = 0.0f,
+                    endX = 550f
+                )
+
+                MaterialGroupBox(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onClick() },
+                    color = MaterialTheme.colorScheme.primary,
+                    brush = brush,
+                ) {
+                    Column {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 8.dp),
+                                .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.Start
                         ) {
-                            LinearProgressIndicator(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(4.dp)
-                                    .padding(start = 32.dp),
-                                progress = { progress },
-                                color = MaterialTheme.colorScheme.tertiary,
-                                trackColor = MaterialTheme.colorScheme.primary,
-                                gapSize = 0.dp,
-                                strokeCap = StrokeCap.Butt,
-                                drawStopIndicator = {}
-                            )
-                            if (progress == 1f)
-                                Icon(
-                                    imageVector = Icons.Default.Done,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier
-                                        .weight(0.3f)
-                                        .padding(horizontal = 4.dp)
+                            // цветовая точка
+                            if (painter != null) {
+                                Image(
+                                    painter, contentDescription = null,
+                                    Modifier
+                                        .size(20.dp)
+                                        .weight(0.2f)
                                 )
-                            else Spacer(modifier = Modifier.weight(0.3f))
+                            }
+                            //наименование
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 2.dp)
+                                    .weight(1f),
+                                contentAlignment = Alignment.TopStart
+                            ) {
+                                if (!isDark) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            drawStyle = Stroke(
+                                                width = 4f,
+                                                join = StrokeJoin.Round
+                                            )
+                                        ),
+                                        color = White,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                            // время изменения
+                            Text(
+                                text = item.listDatetimeValue.toShowDate(
+                                    todayName = stringResource(Res.string.label_datetime_today),
+                                    yesterdayName = stringResource(Res.string.label_datetime_yesterday)
+                                ),
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    baselineShift = BaselineShift.Subscript,
+                                    textAlign = TextAlign.End,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .weight(0.4f),
+                            )
                         }
+
+                        // автор и назначеные
+                        val ownerName = if (item.userName.isNotBlank()) stringResource(
+                            Res.string.label_owner_name,
+                            item.userName
+                        )
+                        else ""
+                        val otherNames = if (item.listTo.isNotEmpty()) stringResource(
+                            Res.string.label_other_names,
+                            item.listTo.joinToString(", ") { it.userName })
+                        else ""
+                        val names = when {
+                            item.userName.isNotBlank() && item.listTo.isNotEmpty() -> "$ownerName      $otherNames"
+                            item.userName.isNotBlank() -> ownerName
+                            else -> otherNames
+                        }
+                        Text(
+                            text = names,
+                            modifier = Modifier.padding(start = 32.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        if (progress != 0f) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(4.dp)
+                                        .padding(start = 32.dp),
+                                    progress = { progress },
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    trackColor = MaterialTheme.colorScheme.primary,
+                                    gapSize = 0.dp,
+                                    strokeCap = StrokeCap.Butt,
+                                    drawStopIndicator = {}
+                                )
+                                if (progress == 1f)
+                                    Icon(
+                                        imageVector = Icons.Default.Done,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.tertiary,
+                                        modifier = Modifier
+                                            .weight(0.3f)
+                                            .padding(horizontal = 4.dp)
+                                    )
+                                else Spacer(modifier = Modifier.weight(0.3f))
+                            }
+                        }
+                        Text(
+                            text = stringResource(
+                                Res.string.label_results_count,
+                                item.countStrikes.toString(),
+                                item.countTags.toString()
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 32.dp, top = 8.dp)
+                        )
                     }
-                    Text(
-                        text = stringResource(
-                            R.string.label_results_count,
-                            item.countStrikes.toString(),
-                            item.countTags.toString()
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 32.dp, top = 8.dp)
-                    )
                 }
             }
         }

@@ -44,6 +44,9 @@ import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
  */
 val LocalDynamicColorsSupported = staticCompositionLocalOf { false }
 
+@Composable
+expect fun AppBackHandler(enable: Boolean, onBack: () -> Unit)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(

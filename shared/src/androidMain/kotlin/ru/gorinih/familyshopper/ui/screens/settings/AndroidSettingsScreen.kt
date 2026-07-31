@@ -1,7 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.settings
 
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,13 +50,6 @@ actual fun rememberShareEventsHandler(): (String) -> Unit {
             val shareIntent = Intent.createChooser(intent, null)
             context.startActivity(shareIntent)
         }
-    }
-}
-
-@Composable
-actual fun SettingsBackHandler(enable: Boolean, onBack: () -> Unit) {
-    BackHandler(enable) {
-        onBack.invoke()
     }
 }
 

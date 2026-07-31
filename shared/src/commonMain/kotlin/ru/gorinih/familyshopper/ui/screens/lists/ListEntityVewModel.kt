@@ -5,11 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.text_delete_list
+import familyshopper.shared.generated.resources.text_delete_local_list
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
@@ -104,7 +106,7 @@ class ListEntityVewModel(
                 deleting = DeletingState(
                     isDelete = true,
                     deletedId = listId,
-                    queryText = R.string.text_delete_list,
+                    queryText = Res.string.text_delete_list,
                 ),
             )
         }
@@ -116,7 +118,7 @@ class ListEntityVewModel(
                 localDeleting = DeletingState(
                     isDelete = true,
                     deletedId = listId,
-                    queryText = R.string.text_delete_local_list,
+                    queryText = Res.string.text_delete_local_list,
                 ),
             )
         }

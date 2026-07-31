@@ -98,6 +98,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.ui.LocalDynamicColorsSupported
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.legendListIdName
@@ -122,9 +123,6 @@ import ru.gorinih.familyshopper.voice.VoicePermissionProvide
 
 @Composable
 expect fun rememberShareEventsHandler(): (String) -> Unit
-
-@Composable
-expect fun SettingsBackHandler(enable: Boolean, onBack: () -> Unit)
 
 @Composable
 expect fun LanguageSelector(modifier: Modifier)
@@ -168,7 +166,7 @@ fun SettingsScreen(
         }
     }
 
-    SettingsBackHandler(enable = true) {
+    AppBackHandler(enable = true) {
         handlerExit()
     }
 

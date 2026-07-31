@@ -70,10 +70,6 @@ actual fun rememberShareEventsHandler(): (String) -> Unit {
 }
 
 @Composable
-actual fun SettingsBackHandler(enable: Boolean, onBack: () -> Unit) {
-}
-
-@Composable
 actual fun LanguageSelector(modifier: Modifier) {
     var expanded by remember { mutableStateOf(false) }
     var currentCode by remember { mutableStateOf(Locale.getDefault().language) }
