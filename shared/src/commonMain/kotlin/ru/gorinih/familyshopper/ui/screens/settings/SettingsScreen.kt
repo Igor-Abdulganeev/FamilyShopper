@@ -1,8 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.settings
 
-import android.content.Intent
-import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -54,7 +51,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -66,22 +62,43 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.header_other_users
+import familyshopper.shared.generated.resources.help_client_key_property
+import familyshopper.shared.generated.resources.help_group_key_property
+import familyshopper.shared.generated.resources.help_keys_property
+import familyshopper.shared.generated.resources.help_user_name_property
+import familyshopper.shared.generated.resources.label_auto_save_tag_type_lists
+import familyshopper.shared.generated.resources.label_full_icon_add
+import familyshopper.shared.generated.resources.label_full_icon_all
+import familyshopper.shared.generated.resources.label_full_icon_header
+import familyshopper.shared.generated.resources.label_full_icon_private
+import familyshopper.shared.generated.resources.label_full_icon_view
+import familyshopper.shared.generated.resources.label_key_client
+import familyshopper.shared.generated.resources.label_key_group
+import familyshopper.shared.generated.resources.label_palette_select
+import familyshopper.shared.generated.resources.label_settings_background
+import familyshopper.shared.generated.resources.label_settings_background_description
+import familyshopper.shared.generated.resources.label_settings_tab_about
+import familyshopper.shared.generated.resources.label_settings_tab_default
+import familyshopper.shared.generated.resources.label_settings_tab_keys
+import familyshopper.shared.generated.resources.label_settings_tab_users
+import familyshopper.shared.generated.resources.label_settings_tab_views
+import familyshopper.shared.generated.resources.label_settings_voice_recognizer
+import familyshopper.shared.generated.resources.label_user_name
+import familyshopper.shared.generated.resources.label_voice_choice_en
+import familyshopper.shared.generated.resources.label_voice_choice_ru
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import ru.gorinih.familyshopper.R
 import ru.gorinih.familyshopper.navigation.NavigationActions
-import ru.gorinih.familyshopper.utils.ScreenLayoutType
-import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
-import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.LocalDynamicColorsSupported
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.models.legendListIdName
 import ru.gorinih.familyshopper.ui.screens.about.AboutScreen
@@ -91,14 +108,29 @@ import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.FilterChipItem
-import ru.gorinih.familyshopper.ui.views.LanguageSelector
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.Users
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
 import ru.gorinih.familyshopper.voice.LocalVoicePermission
+import ru.gorinih.familyshopper.voice.VoicePermissionProvide
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
  */
+
+@Composable
+expect fun rememberShareEventsHandler(): (String) -> Unit
+
+@Composable
+expect fun SettingsBackHandler(enable: Boolean, onBack: () -> Unit)
+
+@Composable
+expect fun LanguageSelector(modifier: Modifier)
+
+@Composable
+expect fun rememberVoicePermissionStatus(provider: VoicePermissionProvide?): Boolean
 
 @Composable
 fun SettingsScreen(
@@ -112,22 +144,18 @@ fun SettingsScreen(
     var groupIdEditable by rememberSaveable { mutableStateOf(state.groupUUID.isBlank()) }
     var clientIdEditable by rememberSaveable { mutableStateOf(state.clientUUID.isBlank()) }
     val scrollKeysPage = rememberScrollState()
-    val context = LocalContext.current
     val screen = rememberScreenConfiguration()
     val scrollAppearancePage = rememberScrollState()
     val scrollPresetsPage = rememberScrollState()
+    val shareHandler = rememberShareEventsHandler()
+    val isDynamicColorsSupported = LocalDynamicColorsSupported.current
+
     val voicePermission = LocalVoicePermission.current
-    var voiceRecognizer by remember { mutableStateOf(voicePermission.isVoiceGranted()) }
+    val voiceStatus = rememberVoicePermissionStatus(voicePermission)
 
     LaunchedEffect(Unit) {
         viewModel.shareEvents.collect { uuid ->
-            val intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, uuid)
-                type = "text/plain"
-            }
-            val shareIntent = Intent.createChooser(intent, null)
-            context.startActivity(shareIntent)
+            shareHandler(uuid)
             viewModel.shareDone()
         }
     }
@@ -140,9 +168,10 @@ fun SettingsScreen(
         }
     }
 
-    BackHandler(enabled = true) {
+    SettingsBackHandler(enable = true) {
         handlerExit()
     }
+
     DisposableEffect(Unit) {
         navigationActions(NavigationActions(onNavigationClick = {
             handlerExit()
@@ -154,11 +183,11 @@ fun SettingsScreen(
     }
 
     val pagesTitle = listOf(
-        stringResource(R.string.label_settings_tab_keys),
-        stringResource(R.string.label_settings_tab_users),
-        stringResource(R.string.label_settings_tab_views),
-        stringResource(R.string.label_settings_tab_default),
-        stringResource(R.string.label_settings_tab_about)
+        stringResource(Res.string.label_settings_tab_keys),
+        stringResource(Res.string.label_settings_tab_users),
+        stringResource(Res.string.label_settings_tab_views),
+        stringResource(Res.string.label_settings_tab_default),
+        stringResource(Res.string.label_settings_tab_about)
     )
     var expandedGroupKey by rememberSaveable { mutableStateOf(false) }
     var expandedUserKey by rememberSaveable { mutableStateOf(false) }
@@ -234,7 +263,7 @@ fun SettingsScreen(
                             onValueChange = { str ->
                                 viewModel.updateGroupUuid(str)
                             },
-                            label = stringResource(R.string.label_key_group),
+                            label = stringResource(Res.string.label_key_group),
                             isEditable = groupIdEditable,
                             trailingIcon = {
                                 Row {
@@ -289,7 +318,7 @@ fun SettingsScreen(
                         ) {
                             when (expandedGroupKey) {
                                 true -> Text(
-                                    text = stringResource(R.string.help_group_key_property),
+                                    text = stringResource(Res.string.help_group_key_property),
                                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
@@ -301,7 +330,7 @@ fun SettingsScreen(
                                 )
 
                                 false -> Text(
-                                    text = stringResource(R.string.help_group_key_property),
+                                    text = stringResource(Res.string.help_group_key_property),
                                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
@@ -321,7 +350,7 @@ fun SettingsScreen(
                             onValueChange = { str ->
                                 viewModel.updateClientUuid(str)
                             },
-                            label = stringResource(R.string.label_key_client),
+                            label = stringResource(Res.string.label_key_client),
                             isEditable = clientIdEditable,
                             trailingIcon = {
                                 Row {
@@ -370,7 +399,7 @@ fun SettingsScreen(
                         ) {
                             when (expandedUserKey) {
                                 true -> Text(
-                                    text = stringResource(R.string.help_client_key_property),
+                                    text = stringResource(Res.string.help_client_key_property),
                                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
@@ -382,7 +411,7 @@ fun SettingsScreen(
                                 )
 
                                 false -> Text(
-                                    text = stringResource(R.string.help_client_key_property),
+                                    text = stringResource(Res.string.help_client_key_property),
                                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
@@ -400,7 +429,7 @@ fun SettingsScreen(
                         DividerHorizontalTransparent(Modifier.padding(top = 16.dp))
 
                         Text(
-                            text = stringResource(R.string.help_keys_property),
+                            text = stringResource(Res.string.help_keys_property),
                             autoSize = TextAutoSize.StepBased(maxFontSize = TextAutoSizeDefaults.MaxFontSize * 0.15),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge.copy(
@@ -427,10 +456,10 @@ fun SettingsScreen(
                                 onValueChange = { str ->
                                     viewModel.updateUserName(str)
                                 },
-                                label = stringResource(R.string.label_user_name),
+                                label = stringResource(Res.string.label_user_name),
                             )
                             Text(
-                                text = stringResource(R.string.help_user_name_property),
+                                text = stringResource(Res.string.help_user_name_property),
                                 style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Justify,
@@ -449,7 +478,7 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
                                 Text(
-                                    text = stringResource(R.string.header_other_users),
+                                    text = stringResource(Res.string.header_other_users),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
@@ -496,10 +525,10 @@ fun SettingsScreen(
                                     onValueChange = { str ->
                                         viewModel.updateUserName(str)
                                     },
-                                    label = stringResource(R.string.label_user_name),
+                                    label = stringResource(Res.string.label_user_name),
                                 )
                                 Text(
-                                    text = stringResource(R.string.help_user_name_property),
+                                    text = stringResource(Res.string.help_user_name_property),
                                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = TextUnit.Unspecified),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Justify,
@@ -523,7 +552,7 @@ fun SettingsScreen(
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.header_other_users),
+                                        text = stringResource(Res.string.header_other_users),
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurface,
                                     )
@@ -572,7 +601,7 @@ fun SettingsScreen(
                         )
 
                         Text(
-                            stringResource(R.string.label_palette_select),
+                            stringResource(Res.string.label_palette_select),
                             modifier = Modifier.padding(start = 8.dp, top = 16.dp),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface,
@@ -587,10 +616,10 @@ fun SettingsScreen(
                             viewModel.updatePalette(it)
                         }
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (isDynamicColorsSupported) {
                             DividerHorizontalTransparent(Modifier.padding(vertical = 8.dp))
                             Text(
-                                stringResource(R.string.label_settings_background),
+                                stringResource(Res.string.label_settings_background),
                                 modifier = Modifier.padding(start = 8.dp, top = 16.dp),
                                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -610,7 +639,7 @@ fun SettingsScreen(
                                     )
                                 )
                                 Text(
-                                    stringResource(R.string.label_settings_background_description),
+                                    stringResource(Res.string.label_settings_background_description),
                                     modifier = Modifier.padding(start = 8.dp),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -629,61 +658,62 @@ fun SettingsScreen(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = voiceRecognizer && state.isVoiceRecognizer,
-                                onCheckedChange = { check ->
-                                    if (check) {
-                                        voicePermission.requestVoicePermission { result ->
-                                            voiceRecognizer = result
-                                            viewModel.updateVoiceRecognizer(result)
-                                        }
-                                    } else {
-                                        voiceRecognizer = false
-                                        viewModel.updateVoiceRecognizer(false)
-                                    }
-                                },
-                            )
-                            Text(
-                                text = stringResource(R.string.label_settings_voice_recognizer),
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                        AnimatedVisibility(
-                            visible = voiceRecognizer && state.isVoiceRecognizer
-                        ) {
-                            FlowRow(
+                        if (voicePermission != null) {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 4.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalArrangement = Arrangement.SpaceEvenly
+                                    .padding(top = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                for (language in VoiceModels.entries) {
-                                    FilterChipItem(
-                                        label = when (language) {
-                                            VoiceModels.ENGLISH -> stringResource(R.string.label_voice_choice_en)
-                                            VoiceModels.RUSSIAN -> stringResource(R.string.label_voice_choice_ru)
-                                        },
-                                        selected = language == state.voiceRecognizerModel,
-                                        onClick = {
-                                            viewModel.updateVoice(language)
+                                Checkbox(
+                                    checked = state.voiceSetting?.isVoiceRecognizer == true && voiceStatus,
+                                    onCheckedChange = { check ->
+                                        if (check) {
+                                            voicePermission.requestVoicePermission { result ->
+                                                viewModel.updateVoiceRecognizer(result)
+                                            }
+                                        } else {
+                                            viewModel.updateVoiceRecognizer(false)
                                         }
-                                    )
+                                    },
+                                )
+                                Text(
+                                    text = stringResource(Res.string.label_settings_voice_recognizer),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                            }
+                            AnimatedVisibility(
+                                visible = state.voiceSetting?.isVoiceRecognizer == true && voiceStatus
+                            ) {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    itemVerticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    for (language in VoiceModels.entries) {
+                                        FilterChipItem(
+                                            label = when (language) {
+                                                VoiceModels.ENGLISH -> stringResource(Res.string.label_voice_choice_en)
+                                                VoiceModels.RUSSIAN -> stringResource(Res.string.label_voice_choice_ru)
+                                            },
+                                            selected = language == state.voiceSetting?.voiceRecognizerModel,
+                                            onClick = {
+                                                viewModel.updateVoice(language)
+                                            }
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        DividerHorizontalTransparent(Modifier.padding(vertical = 16.dp))
+                            DividerHorizontalTransparent(Modifier.padding(vertical = 16.dp))
+                        }
                         Text(
-                            text = stringResource(R.string.label_auto_save_tag_type_lists),
+                            text = stringResource(Res.string.label_auto_save_tag_type_lists),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
@@ -696,7 +726,8 @@ fun SettingsScreen(
                                 .padding(top = 4.dp),
                             verticalArrangement = Arrangement.Center,
                             horizontalArrangement = Arrangement.SpaceEvenly,
-                            maxItemsInEachRow = 4
+                            maxItemsInEachRow = 4,
+                            itemVerticalAlignment = Alignment.CenterVertically
                         ) {
                             for (list in state.listSaveTagsSettings) {
                                 key(list.legend) {
@@ -744,7 +775,7 @@ fun SettingsScreen(
                             itemsIndexed((1..4).toList()) { index, item ->
                                 if (index == 0) {
                                     Text(
-                                        stringResource(R.string.label_full_icon_header),
+                                        stringResource(Res.string.label_full_icon_header),
                                         modifier = Modifier.padding(
                                             start = 8.dp,
                                             end = 8.dp,
@@ -767,12 +798,14 @@ fun SettingsScreen(
                                             }
                                         )
                                 ) {
-                                    val label = when (item) {
-                                        1 -> R.string.label_full_icon_all
-                                        2 -> R.string.label_full_icon_add
-                                        3 -> R.string.label_full_icon_view
-                                        else -> R.string.label_full_icon_private
-                                    }
+                                    val label = stringResource(
+                                        when (item) {
+                                            1 -> Res.string.label_full_icon_all
+                                            2 -> Res.string.label_full_icon_add
+                                            3 -> Res.string.label_full_icon_view
+                                            else -> Res.string.label_full_icon_private
+                                        }
+                                    )
                                     Image(
                                         painter = GlassCircleImageHolder.getImage(item),
                                         contentDescription = null,
@@ -790,7 +823,7 @@ fun SettingsScreen(
                                         }
                                     )
                                     Text(
-                                        text = stringResource(label),
+                                        text = label,
                                         modifier = Modifier
                                             .padding(start = 8.dp),
                                         style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 18.sp),

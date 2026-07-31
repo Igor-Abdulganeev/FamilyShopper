@@ -11,7 +11,7 @@ interface VoicePermissionProvide {
     fun requestVoicePermission(callback: (Boolean) -> Unit)
 }
 
-val LocalVoicePermission = staticCompositionLocalOf<VoicePermissionProvide> {
+val LocalVoicePermission = staticCompositionLocalOf<VoicePermissionProvide?> {
     object : VoicePermissionProvide {
         override fun isVoiceGranted(): Boolean = false
 

@@ -3,7 +3,7 @@ package ru.gorinih.familyshopper.ui.models
 /**
  * Created by Igor Abdulganeev on 15.05.2026
  */
-
+@Deprecated("заменить на setting")
 data class VoiceState(
     val fieldText: String = "",
     val isVisible: Boolean = false,

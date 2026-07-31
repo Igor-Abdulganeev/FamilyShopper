@@ -6,29 +6,9 @@ import android.content.Context
 import android.os.Build
 import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.core.os.LocaleListCompat
 import ru.gorinih.familyshopper.shared.R
 import ru.gorinih.familyshopper.ui.screens.settings.models.AppLanguage
@@ -60,7 +40,7 @@ fun setAppLanguage(context: Context, code: String) {
 }
 
 @Composable
-fun rememberLanguages(): Pair<List<AppLanguage>, String> {
+fun takeLanguages(): Pair<List<AppLanguage>, String> {
     val codes = stringArrayResource(R.array.languages_codes)
     val names = stringArrayResource(R.array.languages_names)
 
@@ -85,71 +65,4 @@ fun rememberLanguages(): Pair<List<AppLanguage>, String> {
     }
 
     return languages to currentCode
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LanguageSelector(
-    modifier: Modifier = Modifier
-) {
-    val (languages, currentCode) = rememberLanguages()
-    val context = LocalContext.current
-
-    var expanded by remember { mutableStateOf(false) }
-
-    val current = languages.find { it.code == currentCode }
-        ?: languages.first()
-
-    ExposedDropdownMenuBox(
-        modifier = modifier,
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        RoundedTextField(
-            value = current.title,
-            onValueChange = {},
-            isEditable = false,
-            label = stringResource(R.string.label_language_selector),
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-            },
-            modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
-                .fillMaxWidth()
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            languages.forEach { lang ->
-                DropdownMenuItem(
-                    text = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = lang.title,
-                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-
-                            if (lang.code == currentCode) {
-                                Icon(
-                                    imageVector = Icons.Default.Done,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    },
-                    onClick = {
-                        expanded = false
-                        setAppLanguage(context, lang.code)
-                    }
-                )
-            }
-        }
-    }
 }

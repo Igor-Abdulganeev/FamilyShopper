@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,6 +42,7 @@ import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
 /**
  * Created by Igor Abdulganeev on 03.07.2026
  */
+val LocalDynamicColorsSupported = staticCompositionLocalOf { false }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
