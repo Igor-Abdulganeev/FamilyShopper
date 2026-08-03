@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -15,16 +14,16 @@ import androidx.compose.ui.graphics.Color
  */
 
 @Composable
-fun AnimatedAgsl(
-    modifier: Modifier = Modifier,
-    isAnimate: Boolean = true,
-    brush: Brush = Brush.linearGradient(),
-    startedColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    endedColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    content: @Composable BoxScope.() -> Unit = {}
+actual fun AgslContainer(
+    modifier: Modifier,
+    isAnimate: Boolean,
+    brush: Brush,
+    startedColor: Color,
+    endedColor: Color,
+    content: @Composable (BoxScope.() -> Unit)
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && isAnimate) {
-        AnimatedGradientAGSL(
+        AgslAnimated(
             modifier = modifier,
             content = content,
             startedColor = startedColor,

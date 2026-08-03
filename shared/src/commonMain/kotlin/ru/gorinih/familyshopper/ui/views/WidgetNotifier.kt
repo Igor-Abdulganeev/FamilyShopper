@@ -1,4 +1,4 @@
-package ru.gorinih.familyshopper.ui.screens.lists
+package ru.gorinih.familyshopper.ui.views
 
 /**
  * Created by Igor Abdulganeev on 31.07.2026

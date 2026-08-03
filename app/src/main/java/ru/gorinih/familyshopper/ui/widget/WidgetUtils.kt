@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
-import ru.gorinih.familyshopper.ui.screens.lists.WidgetNotifier
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 
 /**
  * Created by Igor Abdulganeev on 29.04.2026

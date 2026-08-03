@@ -106,6 +106,7 @@ import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.QueryDialog
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 import ru.gorinih.familyshopper.ui.views.shadow
 import ru.gorinih.familyshopper.utils.ScreenLayoutType
 import ru.gorinih.familyshopper.utils.rememberScreenConfiguration

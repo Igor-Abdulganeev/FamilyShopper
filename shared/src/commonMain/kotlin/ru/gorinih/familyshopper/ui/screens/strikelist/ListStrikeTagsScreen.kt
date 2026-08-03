@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.strikelist
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,13 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.ui.models.ActionTag
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.theme.Black
@@ -49,12 +49,12 @@ import ru.gorinih.familyshopper.ui.theme.ListLightGreen
 import ru.gorinih.familyshopper.ui.theme.ListLightRed
 import ru.gorinih.familyshopper.ui.theme.ListLightYellow
 import ru.gorinih.familyshopper.ui.theme.White
-import ru.gorinih.familyshopper.ui.views.AnimatedAgsl
+import ru.gorinih.familyshopper.ui.views.AgslContainer
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
-import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -70,7 +70,7 @@ fun ListStrikeTagsScreen(
         parameters = { parametersOf(listUuid) }
     )
 ) {
-    val context = LocalContext.current
+    val widgetNotifier = koinInject<WidgetNotifier>()
     val handleExit = {
         viewModel.updateIfChanged()
         backPressed()
@@ -80,7 +80,7 @@ fun ListStrikeTagsScreen(
     var isClicked by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    BackHandler(enabled = true) {
+    AppBackHandler(enable = true) {
         handleExit()
     }
     DisposableEffect(Unit) {
@@ -88,9 +88,8 @@ fun ListStrikeTagsScreen(
 
         onDispose {
             scope.launch(NonCancellable) {
-                notifyWidgetAboutChanged(context)
+                widgetNotifier.notifyWidgetChanged()
             }
-
             navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
         }
     }
@@ -216,7 +215,7 @@ fun ListStrikeTagsScreen(
         }
     }
 
-    AnimatedAgsl(
+    AgslContainer(
         modifier = Modifier.fillMaxSize(),
         brush = brush,
         startedColor = colors.first(),

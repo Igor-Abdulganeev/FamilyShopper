@@ -24,7 +24,7 @@ import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
 import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
 import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
-import ru.gorinih.familyshopper.ui.screens.lists.WidgetNotifier
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
 import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
 import ru.gorinih.familyshopper.ui.widget.WidgetUtils
