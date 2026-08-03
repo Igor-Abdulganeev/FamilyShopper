@@ -1,11 +1,14 @@
 package ru.gorinih.familyshopper.ui.screens.editlist.models
 
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.new_list_name
+import org.jetbrains.compose.resources.StringResource
 import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedItem
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
-import ru.gorinih.familyshopper.ui.models.VoiceState
+import ru.gorinih.familyshopper.ui.models.VoiceWorkedState
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
 import java.util.UUID
@@ -26,7 +29,7 @@ data class UiShoppingState(
     val dateTime: Long = 0L, // дата создания/обновления списка
     val userName: String = "", // имя полльзователя что в настройках ввел
 
-    val listNameId: Int = 0, // ресурс имени для нового списка
+    val listNameId: StringResource = Res.string.new_list_name, // ресурс имени для нового списка
     val date: String = "", // дата создания, для имени
     val listAllTags: List<String> = emptyList(), //список всех тэгов для выбора, пока просто без заголовочных букв
     val saved: Boolean = false, //лист сохранен нужно вернуться на предыдущий экран
@@ -35,7 +38,7 @@ data class UiShoppingState(
     val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
     val isLocalJob: Boolean = false, // локально или сетевая (есть groupUuid или нет)
-    val voiceRecognizer: VoiceState = VoiceState(), // класс по распознованию голосового ввода
+    val voiceRecognizer: VoiceWorkedState = VoiceWorkedState(), // класс по распознованию голосового ввода
 )
 
 fun UiShoppingState.toShoppedList() =

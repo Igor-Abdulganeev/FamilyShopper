@@ -3,9 +3,8 @@ package ru.gorinih.familyshopper.ui.models
 /**
  * Created by Igor Abdulganeev on 15.05.2026
  */
-@Deprecated("заменить на setting")
-data class VoiceState(
-    val fieldText: String = "",
-    val isVisible: Boolean = false,
-    val isEnabled: Boolean = false
+data class VoiceWorkedState(
+    val fieldText: String = "", //строка распознанного текста
+    val isVisible: Boolean = false, // показывать ли иконку распознования
+    val isEnabled: Boolean = false // включать ли иконку распознования
 )

@@ -1,7 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.editlist
 
-import android.annotation.SuppressLint
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -65,16 +63,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.button_save_text
+import familyshopper.shared.generated.resources.label_icon_add
+import familyshopper.shared.generated.resources.label_icon_all
+import familyshopper.shared.generated.resources.label_icon_private
+import familyshopper.shared.generated.resources.label_icon_select_words
+import familyshopper.shared.generated.resources.label_icon_view
+import familyshopper.shared.generated.resources.label_list_add_tag
+import familyshopper.shared.generated.resources.label_list_name
+import familyshopper.shared.generated.resources.label_list_name_short
+import familyshopper.shared.generated.resources.warning_local_changed
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.utils.ScreenLayoutType
 import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
 import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
@@ -88,14 +97,13 @@ import ru.gorinih.familyshopper.ui.views.GlowRoundedTextField
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.RoundedTextField
 import ru.gorinih.familyshopper.ui.views.TagsList
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 import ru.gorinih.familyshopper.ui.views.shadow
-import ru.gorinih.familyshopper.ui.widget.notifyWidgetAboutChanged
 
 /**
  * Created by Igor Abdulganeev on 07.04.2026
  */
 
-@SuppressLint("ConfigurationScreenWidthHeight", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreen(
@@ -107,7 +115,6 @@ fun EditListScreen(
     )
 ) {
     val state = viewModel.shoppedList
-    val context = LocalContext.current.applicationContext
     val scope = rememberCoroutineScope()
     var addedTag by rememberSaveable { mutableStateOf("") }
     val keyboardManager = LocalFocusManager.current
@@ -119,14 +126,24 @@ fun EditListScreen(
     var helpWords by remember { mutableStateOf(listOf<String>()) }
     var isHelpWords by remember { mutableStateOf(false) }
     var glowFlag by remember { mutableStateOf(false) }
+    val widgetNotifier = koinInject<WidgetNotifier>()
 
-    BackHandler(enabled = false) { }
+    AppBackHandler(enable = false) { }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
     }
 
     LaunchedEffect(state.voiceRecognizer.fieldText) {
         addedTag = state.voiceRecognizer.fieldText
+    }
+
+    LaunchedEffect(state.saved) {
+        if (state.saved) {
+            scope.launch {
+                widgetNotifier.notifyWidgetChanged()
+            }
+            onBack()
+        }
     }
 
     fun addNewTag(item: String = "", comment: String = "") {
@@ -142,10 +159,10 @@ fun EditListScreen(
         true -> MaterialTheme.colorScheme.primary
     }
     val typeColorTexts = listOf(
-        stringResource(R.string.label_icon_all),
-        stringResource(R.string.label_icon_add),
-        stringResource(R.string.label_icon_view),
-        stringResource(R.string.label_icon_private),
+        stringResource(Res.string.label_icon_all),
+        stringResource(Res.string.label_icon_add),
+        stringResource(Res.string.label_icon_view),
+        stringResource(Res.string.label_icon_private),
     )
     when (screen) {
         ScreenLayoutType.SINGLE_PANE -> Column(
@@ -210,7 +227,7 @@ fun EditListScreen(
                     onValueChange = { name ->
                         viewModel.updateListName(name)
                     },
-                    label = stringResource(R.string.label_list_name),
+                    label = stringResource(Res.string.label_list_name),
                     action = {
                         keyboardManager.clearFocus()
                     },
@@ -230,7 +247,7 @@ fun EditListScreen(
                         label = {
                             Text(
                                 text = stringResource(
-                                    R.string.label_icon_select_words,
+                                    Res.string.label_icon_select_words,
                                     state.usersUuid.count()
                                 ),
                                 style = MaterialTheme.typography.labelMedium,
@@ -273,7 +290,7 @@ fun EditListScreen(
                     modifier = Modifier
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                         .fillMaxWidth(),
-                    label = stringResource(R.string.label_list_add_tag),
+                    label = stringResource(Res.string.label_list_add_tag),
                     leadingIcon = if (state.listAllTags.isNotEmpty()) {
                         {
                             IconButton(
@@ -428,7 +445,7 @@ fun EditListScreen(
                 }
             ) {
                 Text(
-                    text = stringResource(R.string.button_save_text),
+                    text = stringResource(Res.string.button_save_text),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -461,7 +478,7 @@ fun EditListScreen(
                         onValueChange = { name ->
                             viewModel.updateListName(name)
                         },
-                        label = stringResource(R.string.label_list_name_short),
+                        label = stringResource(Res.string.label_list_name_short),
                         action = {
                             keyboardManager.clearFocus()
                         },
@@ -493,7 +510,7 @@ fun EditListScreen(
                             },
                             modifier = Modifier
                                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
-                            label = stringResource(R.string.label_list_add_tag),
+                            label = stringResource(Res.string.label_list_add_tag),
                             leadingIcon = if (state.listAllTags.isNotEmpty()) {
                                 {
                                     IconButton(
@@ -599,7 +616,7 @@ fun EditListScreen(
                                 label = {
                                     Text(
                                         text = stringResource(
-                                            R.string.label_icon_select_words,
+                                            Res.string.label_icon_select_words,
                                             state.usersUuid.count()
                                         ),
                                         style = MaterialTheme.typography.labelMedium,
@@ -629,7 +646,7 @@ fun EditListScreen(
                                 viewModel.saveList()
                             }
                         ) {
-                            Text(text = stringResource(R.string.button_save_text))
+                            Text(text = stringResource(Res.string.button_save_text))
                         }
                     }
                 }
@@ -694,17 +711,11 @@ fun EditListScreen(
             true -> ErrorDialog(
                 errorText = "${state.warning.textWarning}\n${
                     stringResource(
-                        R.string.warning_local_changed
+                        Res.string.warning_local_changed
                     )
                 }"
             ) { viewModel.onDismissSaved() }
         }
-    }
-    if (state.saved) {
-        scope.launch {
-            notifyWidgetAboutChanged(context)
-        }
-        onBack()
     }
 }
 
@@ -764,7 +775,8 @@ fun UsersSheet(
         if (listUsers.isNotEmpty()) stateLazyList.scrollToItem(0)
     }
 
-    val heightSheet = LocalConfiguration.current.screenHeightDp.dp * multiplier
+    val windowInfo = LocalWindowInfo.current
+    val heightSheet = windowInfo.containerDpSize.height * multiplier
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
