@@ -5,7 +5,7 @@
 
     <string name="help_client_key_property">Your user key lets you use private lists and control access to lists you create:\n * No restrictions — anyone can edit the list\n * Limited editing — others can only check off items\n * Read-only — others can only view the list\n * Private — only you can see the list\n\nImportant: Changing this key will revoke access to your private lists and prevent you from updating permissions on previously created restricted lists.</string>
 
-    <string name="help_group_key_property">"This key is used to access your list storage:\n * Create a new key — start a new storage\n * Enter an existing key — restore your previous data\n * Enter someone else's key — access shared lists\n\nWithout a key, lists are stored on this device only."</string>
+    <string name="help_group_key_property">This key is used to access your list storage:\n * Create a new key — start a new storage\n * Enter an existing key — restore your previous data\n * Enter someone else's key — access shared lists\n\nWithout a key, lists are stored on this device only.</string>
 
     <string name="help_keys_property">We recommend saving these keys so you can restore your lists after reinstalling the app.</string>
 
@@ -17,7 +17,7 @@
     <string name="label_lists_header">All lists</string>
     <string name="label_sync_header">Saved items</string>
 
-    <string name="new_list_name">List by %s</string>
+    <string name="new_list_name">List by %1$s</string>
 
     <string name="label_list_name">List name</string>
     <string name="label_list_name_short">Name</string>
@@ -93,13 +93,13 @@
 
     <string name="about_version">Version %1$s</string>
 
-    <string name="about_description">"%1$s is a shared shopping list app.\nCreate lists, share them with family, and keep everything in sync."</string>
+    <string name="about_description">%1$s is a shared shopping list app.\nCreate lists, share them with family, and keep everything in sync.</string>
 
-    <string name="about_license_description">"This software is licensed under "</string>
+    <string name="about_license_description">This software is licensed under </string>
     <string name="about_license_name">GNU General Public License v3.0</string>
     <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
 
-    <string name="about_code_description">"Source code available on "</string>
+    <string name="about_code_description">Source code available on </string>
     <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
     <string name="about_code_name">GitHub</string>
 

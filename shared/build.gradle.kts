@@ -78,6 +78,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.datastore.core)
+            implementation(libs.androidx.datastore)
             implementation(libs.sqlite.bundled) // room для недроидов
             api(libs.compose.resources)
             implementation(libs.androidx.navigation)
@@ -91,7 +92,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
-            implementation(libs.androidx.datastore)
             implementation(libs.androidx.splashscreen)
             implementation(libs.androidx.glance.appwidget)
             implementation(libs.androidx.glance.material)

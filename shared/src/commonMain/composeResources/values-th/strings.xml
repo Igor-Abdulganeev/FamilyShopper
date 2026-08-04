@@ -15,7 +15,7 @@
     <string name="label_lists_header">รายการทั้งหมด</string>
     <string name="label_sync_header">สินค้าที่บันทึกไว้</string>
 
-    <string name="new_list_name">รายการจาก %s</string>
+    <string name="new_list_name">รายการจาก %1$s</string>
 
     <string name="label_list_name">ชื่อรายการ</string>
     <string name="label_list_name_short">ชื่อ</string>

@@ -21,9 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.glance.LocalContext
+//import androidx.glance.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -57,7 +58,7 @@ actual fun rememberShareEventsHandler(): (String) -> Unit {
 @Composable
 actual fun LanguageSelector(modifier: Modifier) {
     val (languages, currentCode) = takeLanguages()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
 
     var expanded by remember { mutableStateOf(false) }
 

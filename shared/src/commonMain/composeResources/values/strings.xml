@@ -16,7 +16,7 @@
     <string name="label_lists_header">All lists</string>
     <string name="label_sync_header">Saved items</string>
 
-    <string name="new_list_name">List by %s</string>
+    <string name="new_list_name">List by %1$s</string>
 
     <string name="label_list_name">List name</string>
     <string name="label_list_name_short">Name</string>
@@ -128,5 +128,5 @@
     <string name="label_voice_choice_en">English</string>
     <string name="label_voice_choice_ru">Russian</string>
     <string name="label_auto_save_tag_type_lists">Automatically save new entries to the dictionary only for selected list types:</string>
-    <string name="empty_resource"></string>
+
 </resources>

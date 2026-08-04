@@ -15,7 +15,7 @@
     <string name="label_lists_header">Sve liste</string>
     <string name="label_sync_header">Sačuvane stavke</string>
 
-    <string name="new_list_name">Lista od %s</string>
+    <string name="new_list_name">Lista od %1$s</string>
 
     <string name="label_list_name">Naziv liste</string>
     <string name="label_list_name_short">Naziv</string>
@@ -91,13 +91,13 @@
 
     <string name="about_version">Verzija %1$s</string>
 
-    <string name="about_description">"%1$s je aplikacija za deljene liste kupovine.\nKreirajte liste, delite ih sa porodicom i sinhronizujte izmene."</string>
+    <string name="about_description">%1$s je aplikacija za deljene liste kupovine.\nKreirajte liste, delite ih sa porodicom i sinhronizujte izmene.</string>
 
-    <string name="about_license_description">"Softver je licenciran pod "</string>
+    <string name="about_license_description">Softver je licenciran pod </string>
     <string name="about_license_name">GNU General Public License v3.0</string>
     <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
 
-    <string name="about_code_description">"Izvorni kod dostupan na "</string>
+    <string name="about_code_description">Izvorni kod dostupan na </string>
     <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
     <string name="about_code_name">GitHub</string>
 

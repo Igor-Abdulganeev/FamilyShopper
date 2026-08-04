@@ -15,7 +15,7 @@
     <string name="label_lists_header">Бары тиһиктэр</string>
     <string name="label_sync_header">Саккаабыт</string>
 
-    <string name="new_list_name">%s тиһигэ</string>
+    <string name="new_list_name">%1$s тиһигэ</string>
 
     <string name="label_list_name">Тиһик аата</string>
     <string name="label_list_name_short">Аат</string>

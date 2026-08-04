@@ -6,12 +6,12 @@
     <string name="label_key_group">Ключ группы</string>
     <string name="label_key_client">Ключ пользователя</string>
     <string name="label_enter_new_tag">введите наименование</string>
-    <string name="label_lists_header">"все списки"</string>
-    <string name="label_sync_header">"сохраненные продукты"</string>
-    <string name="new_list_name">"Список от %s"</string>
-    <string name="label_list_name">"наименование списка"</string>
-    <string name="label_list_name_short">"наименование"</string>
-    <string name="label_list_add_tag">"введите наименование"</string>
+    <string name="label_lists_header">все списки</string>
+    <string name="label_sync_header">сохраненные продукты</string>
+    <string name="new_list_name">Список от %1$s</string>
+    <string name="label_list_name">наименование списка</string>
+    <string name="label_list_name_short">наименование</string>
+    <string name="label_list_add_tag">введите наименование</string>
     <string name="label_empty_list">Отсутствуют данные</string>
     <string name="label_results_count">%1$s из %2$s выполнено</string>
 
@@ -22,7 +22,7 @@
     <string name="label_full_icon_header">тип создаваемого списка по умолчанию</string>
     <string name="label_full_icon_all">список будет доступен всем пользователям хранилища для любых действий с ним.</string>
     <string name="label_full_icon_add">другие пользователи смогут только отметить записи в списке, редактирование, добавление или удаление запрещены</string>
-    <string name="label_full_icon_view">другие пользователи могут только причесть список, любые изменения в нем запрещены</string>
+    <string name="label_full_icon_view">другие пользователи могут только прочесть список, любые изменения в нем запрещены</string>
     <string name="label_full_icon_private">данный список недоступен другим пользователям и виден только автору</string>
     <string name="label_empty_list_name">Список без названия</string>
 
@@ -63,11 +63,11 @@
     <string name="warning_local_changed">Изменения внесены только локально!</string>
 
     <string name="about_version">Версия %1$s</string>
-    <string name="about_description">"%1$s — приложение для ведения общих списков.\nПозволяет создавать списки, делиться ими с членами семьи и синхронизировать изменения."</string>
-    <string name="about_license_description">"Это программное обеспечение распространяется под лицензией "</string>
+    <string name="about_description">%1$s — приложение для ведения общих списков.\nПозволяет создавать списки, делиться ими с членами семьи и синхронизировать изменения.</string>
+    <string name="about_license_description">Это программное обеспечение распространяется под лицензией </string>
     <string name="about_license_name">GNU General Public License v3.0</string>
     <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
-    <string name="about_code_description">"Исходный код доступен на "</string>
+    <string name="about_code_description">Исходный код доступен на </string>
     <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
     <string name="about_code_name">GitHub</string>
     <string name="about_copyright">© 2026 GorInIh. Все права защищены.</string>
