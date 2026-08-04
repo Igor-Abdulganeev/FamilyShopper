@@ -6,6 +6,8 @@ import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.db.ShopperDatabaseConstructor
 import ru.gorinih.familyshopper.data.storage.DesktopStoreRepository
 import ru.gorinih.familyshopper.domain.StoreRepository
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
+import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
 import java.io.File
 
 /**
@@ -15,6 +17,9 @@ import java.io.File
 actual val platformModule = module {
 
     single<StoreRepository> { DesktopStoreRepository() }
+//    single<PreferenceRepository> { get<???>() }
+    single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl() }
+
 
     single {
         val dbFile = File(System.getProperty("user.home"), ".family_shopper/family_shopper.db")

@@ -6,7 +6,29 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCase
+import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
+import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesGetAllRemoteUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeDictionariesUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCase
+import ru.gorinih.familyshopper.domain.usecases.SynchronizeListsUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUserUseCaseImpl
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCase
+import ru.gorinih.familyshopper.domain.usecases.UpdateUsersUseCaseImpl
 import ru.gorinih.familyshopper.ui.FamilyShopperViewModel
+import ru.gorinih.familyshopper.ui.screens.dictionary.EditDictionariesViewModel
+import ru.gorinih.familyshopper.ui.screens.editlist.EditListViewModel
+import ru.gorinih.familyshopper.ui.screens.lists.ListEntityVewModel
+import ru.gorinih.familyshopper.ui.screens.settings.SettingsViewModel
+import ru.gorinih.familyshopper.ui.screens.strikelist.ListStrikeTagsViewModel
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
 
 /**
  * Created by Igor Abdulganeev on 25.06.2026
@@ -19,7 +41,95 @@ fun provideConfig(baseUrl: String, isDebug: Boolean) = module {
 }
 
 val appModule = module {
+    factory<SynchronizeDictionariesUseCase> {
+        SynchronizeDictionariesUseCaseImpl(
+            remote = get(),
+            database = get(),
+            pref = get(),
+        )
+    }
+    factory<UpdateListUseCase> {
+        UpdateListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get(),
+            store = get(),
+        )
+    }
+    factory<SynchronizeListsUseCase> {
+        SynchronizeListsUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get(),
+        )
+    }
+    factory<GetAndUpdateListUseCase> {
+        GetAndUpdateListUseCaseImpl(
+            database = get(),
+            remote = get()
+        )
+    }
+    factory<UpdateUsersUseCase> { UpdateUsersUseCaseImpl(remote = get(), database = get()) }
+    factory<DeleteListUseCase> {
+        DeleteListUseCaseImpl(
+            database = get(),
+            remote = get(),
+            pref = get(),
+        )
+    }
+    factory<SynchronizeDictionariesGetAllRemoteUseCase> {
+        SynchronizeDictionariesGetAllRemoteUseCaseImpl(
+            remote = get(),
+            database = get(),
+            pref = get(),
+        )
+    }
+    factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
+
+    single { GlassCircleImageHolder }
+
     viewModel { FamilyShopperViewModel(pref = get()) }
+    viewModel {
+        SettingsViewModel(
+            pref = get(),
+            remote = get(),
+            database = get(),
+            updater = get(),
+            voice = get(),
+            store = get()
+        )
+    }
+    viewModel {
+        EditDictionariesViewModel(
+            database = get(),
+            syncRemote = get(),
+            syncAllRemote = get(),
+            pref = get(),
+            voice = get(),
+            store = get()
+        )
+    }
+    viewModel { (listUuid: String) ->
+        EditListViewModel(
+            listUuid = listUuid,
+            pref = get(),
+            database = get(),
+            saveList = get(),
+            updateList = get(),
+            voice = get(),
+            store = get()
+        )
+    }
+    viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
+    viewModel { (listId: String) ->
+        ListStrikeTagsViewModel(
+            listUuid = listId,
+            database = get(),
+            updateList = get(),
+            pref = get()
+        )
+    }
+
 }
 
 fun initKoin(
