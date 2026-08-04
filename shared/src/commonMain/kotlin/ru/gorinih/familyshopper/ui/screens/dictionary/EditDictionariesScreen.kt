@@ -1,6 +1,5 @@
 package ru.gorinih.familyshopper.ui.screens.dictionary
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -39,12 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.label_empty_list
+import familyshopper.shared.generated.resources.label_enter_new_tag
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import ru.gorinih.familyshopper.R
+import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.DividerVerticalTransparent
@@ -95,7 +97,7 @@ fun EditDictionariesScreen(
         }
     }
 
-    BackHandler(enabled = false) { }
+    AppBackHandler(enable = false) { }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -133,7 +135,7 @@ fun EditDictionariesScreen(
                         currentPosition = allPositions.indexOf(char)
                                     }
                 },
-                placeholder = stringResource(R.string.label_enter_new_tag),
+                placeholder = stringResource(Res.string.label_enter_new_tag),
                 trailingIcon = {
                     Row(verticalAlignment = Alignment.CenterVertically){
                         AnimatedVisibility(
@@ -211,7 +213,7 @@ fun EmptyAlphabet(
             .padding(2.dp)
     ) {
         Text(
-            text = stringResource(R.string.label_empty_list),
+            text = stringResource(Res.string.label_empty_list),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(16.dp))
