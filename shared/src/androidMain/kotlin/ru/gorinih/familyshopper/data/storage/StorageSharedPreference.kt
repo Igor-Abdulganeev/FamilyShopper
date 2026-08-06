@@ -3,33 +3,21 @@ package ru.gorinih.familyshopper.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.SETTINGS_DATA_STORE
-import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
-import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
 import java.util.UUID
-import kotlin.collections.iterator
 
 /**
  * Created by Igor Abdulganeev on 01.04.2026
  */
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS_DATA_STORE)
+//val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS_DATA_STORE)
 
 class StorageSharedPreference(
-    private val context: Context
-) : PreferenceRepository, StoreRepository {
+    context: Context
+) : PreferenceRepository {
+    //, StoreRepository
     private val preference: SharedPreferences =
         context.getSharedPreferences(SETTING_FILE_NAME, Context.MODE_PRIVATE)
 
@@ -109,89 +97,90 @@ class StorageSharedPreference(
         }
     }
 
-    override suspend fun updatePalette(palette: String) {
-        context.dataStore.edit { pref ->
-            pref[stringPreferencesKey(COLOR_NAME_SCHEME)] = palette
-        }
-    }
-
-    override fun paletteFlow(): Flow<String> =
-        context.dataStore.data.map { pref ->
-            pref[stringPreferencesKey(COLOR_NAME_SCHEME)] ?: ""
-        }
-
-    override suspend fun getVoice(): Boolean =
-        context.dataStore.data.map { pref ->
-            pref[booleanPreferencesKey(VOICE_RECOGNIZER)]
-        }.firstOrNull() ?: false
-
-    override fun getVoiceFlow(): Flow<Boolean> =
-        context.dataStore.data.map { pref ->
-            pref[booleanPreferencesKey(VOICE_RECOGNIZER)] == true
-        }
-
-    override suspend fun setVoice(enabled: Boolean) {
-        context.dataStore.edit { pref ->
-            pref[booleanPreferencesKey(VOICE_RECOGNIZER)] = enabled
-        }
-    }
-
-    override suspend fun setVoiceModel(name: String) {
-        context.dataStore.edit { pref ->
-            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] = name
-        }
-    }
-
-    override suspend fun getVoiceModel(): String =
-        context.dataStore.data.map { pref ->
-            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)]
-        }.firstOrNull() ?: "model-en-us"
-
-    override fun getVoiceModelFlow(): Flow<String> =
-        context.dataStore.data.map { pref ->
-            pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] ?: "model-en-us"
-        }
-
-    override suspend fun setListSaveTags(listSettings: HashMap<LegendList, Boolean>) {
-        context.dataStore.edit { pref ->
-            for (list in listSettings) {
-                pref[getListKey(list.key)] = list.value
+    /*
+        override suspend fun updatePalette(palette: String) {
+            context.dataStore.edit { pref ->
+                pref[stringPreferencesKey(COLOR_NAME_SCHEME)] = palette
             }
         }
-    }
 
-    override fun getListSaveTagsFlow(): Flow<HashMap<LegendList, Boolean>> =
-        context.dataStore.data.map { pref ->
-            val result: HashMap<LegendList, Boolean> = HashMap()
-            for (list in LegendList.entries) {
-                result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
+        override fun paletteFlow(): Flow<String> =
+            context.dataStore.data.map { pref ->
+                pref[stringPreferencesKey(COLOR_NAME_SCHEME)] ?: ""
             }
-            result
+
+        override suspend fun getVoice(): Boolean =
+            context.dataStore.data.map { pref ->
+                pref[booleanPreferencesKey(VOICE_RECOGNIZER)]
+            }.firstOrNull() ?: false
+
+        override fun getVoiceFlow(): Flow<Boolean> =
+            context.dataStore.data.map { pref ->
+                pref[booleanPreferencesKey(VOICE_RECOGNIZER)] == true
+            }
+
+        override suspend fun setVoice(enabled: Boolean) {
+            context.dataStore.edit { pref ->
+                pref[booleanPreferencesKey(VOICE_RECOGNIZER)] = enabled
+            }
         }
 
-    override suspend fun getListSaveTags(): HashMap<LegendList, Boolean> =
-        context.dataStore.data.map { pref ->
-            val result: HashMap<LegendList, Boolean> = HashMap()
-            for (list in LegendList.entries) {
-                result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
+        override suspend fun setVoiceModel(name: String) {
+            context.dataStore.edit { pref ->
+                pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] = name
             }
-            result
-        }.firstOrNull() ?: HashMap()
+        }
 
+        override suspend fun getVoiceModel(): String =
+            context.dataStore.data.map { pref ->
+                pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)]
+            }.firstOrNull() ?: "model-en-us"
 
+        override fun getVoiceModelFlow(): Flow<String> =
+            context.dataStore.data.map { pref ->
+                pref[stringPreferencesKey(VOICE_RECOGNIZER_MODEL)] ?: "model-en-us"
+            }
+
+        override suspend fun setListSaveTags(listSettings: HashMap<LegendList, Boolean>) {
+            context.dataStore.edit { pref ->
+                for (list in listSettings) {
+                    pref[getListKey(list.key)] = list.value
+                }
+            }
+        }
+
+        override fun getListSaveTagsFlow(): Flow<HashMap<LegendList, Boolean>> =
+            context.dataStore.data.map { pref ->
+                val result: HashMap<LegendList, Boolean> = HashMap()
+                for (list in LegendList.entries) {
+                    result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
+                }
+                result
+            }
+
+        override suspend fun getListSaveTags(): HashMap<LegendList, Boolean> =
+            context.dataStore.data.map { pref ->
+                val result: HashMap<LegendList, Boolean> = HashMap()
+                for (list in LegendList.entries) {
+                    result[list] = pref[getListKey(list)] ?: (list != LegendList.PRIVATE)
+                }
+                result
+            }.firstOrNull() ?: HashMap()
+
+    */
     companion object {
         const val WIDGET_LIST = "family_shopper_widget_list"
         const val WIDGET_EDIT = "family_shopper_widget_list_edit"
         const val WIDGET_FORCE_UPDATE = "family_shopper_widget_force_update"
 
-        const val SETTINGS_DATA_STORE = "family_shopper_settings"
-        private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
-        private const val VOICE_RECOGNIZER = "family_shopper_voice_recognizer"
-        private const val VOICE_RECOGNIZER_MODEL = "family_shopper_voice_recognizer_model"
-        private const val TAG_SAVER_LIST_ALL = "family_shopper_tag_saver_all"
-        private const val TAG_SAVER_LIST_ADD = "family_shopper_tag_saver_add"
-        private const val TAG_SAVER_LIST_VIEW = "family_shopper_tag_saver_view"
-        private const val TAG_SAVER_LIST_PRIVATE = "family_shopper_tag_saver_private"
+//        const val SETTINGS_DATA_STORE = "family_shopper_settings"
+//        private const val COLOR_NAME_SCHEME = "family_shopper_color_name_scheme"
+//        private const val VOICE_RECOGNIZER = "family_shopper_voice_recognizer"
+//        private const val VOICE_RECOGNIZER_MODEL = "family_shopper_voice_recognizer_model"
+//        private const val TAG_SAVER_LIST_ALL = "family_shopper_tag_saver_all"
+//        private const val TAG_SAVER_LIST_ADD = "family_shopper_tag_saver_add"
+//        private const val TAG_SAVER_LIST_VIEW = "family_shopper_tag_saver_view"
+//        private const val TAG_SAVER_LIST_PRIVATE = "family_shopper_tag_saver_private"
 
         private const val GROUP_UUID = "family_shopper_uuid_group"
         private const val CLIENT_UUID = "family_shopper_uuid_client"
@@ -205,14 +194,14 @@ class StorageSharedPreference(
 
         private const val SETTING_FILE_NAME = "family_settings"
 
-        fun getListKey(type: LegendList): Preferences.Key<Boolean> =
-            booleanPreferencesKey(
-                when (type) {
-                    LegendList.ALL -> TAG_SAVER_LIST_ALL
-                    LegendList.ADD -> TAG_SAVER_LIST_ADD
-                    LegendList.VIEW -> TAG_SAVER_LIST_VIEW
-                    LegendList.PRIVATE -> TAG_SAVER_LIST_PRIVATE
-                }
-            )
+//        fun getListKey(type: LegendList): Preferences.Key<Boolean> =
+//            booleanPreferencesKey(
+//                when (type) {
+//                    LegendList.ALL -> TAG_SAVER_LIST_ALL
+//                    LegendList.ADD -> TAG_SAVER_LIST_ADD
+//                    LegendList.VIEW -> TAG_SAVER_LIST_VIEW
+//                    LegendList.PRIVATE -> TAG_SAVER_LIST_PRIVATE
+//                }
+//            )
     }
 }

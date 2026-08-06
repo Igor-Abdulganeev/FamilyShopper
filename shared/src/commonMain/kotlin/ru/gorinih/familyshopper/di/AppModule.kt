@@ -1,11 +1,16 @@
 package ru.gorinih.familyshopper.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import ru.gorinih.familyshopper.data.storage.StoreRepositoryImpl
+import ru.gorinih.familyshopper.domain.StoreRepository
+import ru.gorinih.familyshopper.domain.createDataStore
 import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCase
 import ru.gorinih.familyshopper.domain.usecases.DeleteListUseCaseImpl
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
@@ -41,6 +46,10 @@ fun provideConfig(baseUrl: String, isDebug: Boolean) = module {
 }
 
 val appModule = module {
+    single<DataStore<Preferences>> { createDataStore() }
+
+    single<StoreRepository> { StoreRepositoryImpl(dataStore = get(), voiceService = get()) }
+
     factory<SynchronizeDictionariesUseCase> {
         SynchronizeDictionariesUseCaseImpl(
             remote = get(),

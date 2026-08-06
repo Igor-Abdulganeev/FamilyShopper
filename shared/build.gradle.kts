@@ -36,6 +36,7 @@ val baseServer = if (isProd) {
 } else {
     localProperties.getProperty("DEV_SERVER") ?: ""
 }
+val appNameToPath = localProperties.getProperty("APP_NAME") ?: ""
 
 println("BASE_POINT = $basePoint")
 println("BASE_SERVER = $baseServer")
@@ -146,6 +147,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "BASE_POINT", basePoint)
         buildConfigField(FieldSpec.Type.STRING, "BASE_SERVER", baseServer)
         buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
+        buildConfigField(FieldSpec.Type.STRING, "APP_NAME_TO_PATH", appNameToPath)
     }
 }
 

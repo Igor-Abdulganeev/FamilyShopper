@@ -6,9 +6,10 @@ import org.koin.dsl.module
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
 import ru.gorinih.familyshopper.domain.PreferenceRepository
-import ru.gorinih.familyshopper.domain.StoreRepository
+import ru.gorinih.familyshopper.voice.AndroidVoicePlatformServiceImpl
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
+import ru.gorinih.familyshopper.voice.VoicePlatformService
 
 
 /**
@@ -18,7 +19,6 @@ import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
 actual val platformModule = module {
 
     single { StorageSharedPreference(get()) }
-    single<StoreRepository> { get<StorageSharedPreference>() }
     single<PreferenceRepository> { get<StorageSharedPreference>() }
     single<FamilyVoiceRecognizer> {
         FamilyVoiceRecognizerImpl(
@@ -26,6 +26,7 @@ actual val platformModule = module {
             preference = get()
         )
     }
+    single<VoicePlatformService> { AndroidVoicePlatformServiceImpl() }
 
 
     single {
