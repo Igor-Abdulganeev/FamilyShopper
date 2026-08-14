@@ -37,7 +37,7 @@ data class UiShoppingState(
     val warning: WarningState = WarningState(), // показ ошибки
     val isOwner: Boolean = false,
     val allUsersUuid: List<UiListUser> = emptyList(), // список всех пользователей
-    val isLocalJob: Boolean = false, // локально или сетевая (есть groupUuid или нет)
+    val isLocalJob: Boolean = true, // локально или сетевая (есть groupUuid или нет)
     val voiceRecognizer: VoiceWorkedState = VoiceWorkedState(), // класс по распознованию голосового ввода
 )
 

@@ -9,7 +9,7 @@ import okio.IOException
 import org.jetbrains.compose.resources.getString
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.Results
@@ -27,7 +27,7 @@ interface SynchronizeDictionariesUseCase {
 }
 
 class SynchronizeDictionariesUseCaseImpl(
-    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
 ) : SynchronizeDictionariesUseCase {
@@ -97,7 +97,7 @@ class SynchronizeDictionariesUseCaseImpl(
                 textComplete = if (needUpdateFromRemoteKeys.isEmpty() && updates.isEmpty()) "not data" else ""
             )
         } catch (_: IOException) {
-            if (pref.getGroupUUID().isNotBlank())
+            if (store.getGroupUUID().isNotBlank())
                 Results(
                     isError = true,
                     isNetworkError = true,

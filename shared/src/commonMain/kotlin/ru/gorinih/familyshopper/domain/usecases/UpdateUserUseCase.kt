@@ -5,7 +5,7 @@ import familyshopper.shared.generated.resources.error_network_state
 import okio.IOException
 import org.jetbrains.compose.resources.getString
 import ru.gorinih.familyshopper.domain.RemoteRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.Results
 
 /**
@@ -17,14 +17,14 @@ interface UpdateUserUseCase {
 }
 
 class UpdateUserUseCaseImpl(
-    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
     private val remote: RemoteRepository,
 ) : UpdateUserUseCase {
     override suspend fun invoke(): Results = try {
         remote.setUserName()
         Results(isError = false)
     } catch (_: IOException) {
-        if (pref.getGroupUUID().isNotBlank())
+        if (store.getGroupUUID().isNotBlank())
             Results(
                 isError = true,
                 isNetworkError = true,

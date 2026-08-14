@@ -14,5 +14,5 @@ import ru.gorinih.familyshopper.ui.widget.WidgetViewModel
 fun koinModule(): Module = module {
     single<WidgetNotifier> { WidgetUtils(context = get()) }
 
-    viewModel { WidgetViewModel(database = get(), pref = get()) }
+    viewModel { WidgetViewModel(database = get(), store = get()) }
 }

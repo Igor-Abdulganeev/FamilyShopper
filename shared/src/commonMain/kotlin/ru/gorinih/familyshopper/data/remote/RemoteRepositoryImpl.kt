@@ -17,8 +17,8 @@ import ru.gorinih.familyshopper.data.remote.models.RemoteDictionary
 import ru.gorinih.familyshopper.data.remote.models.toDictionaryRemoteTags
 import ru.gorinih.familyshopper.data.remote.models.toListRemoteInfo
 import ru.gorinih.familyshopper.data.remote.models.toShoppedList
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
 import ru.gorinih.familyshopper.domain.models.ShoppedList
@@ -29,10 +29,10 @@ import ru.gorinih.familyshopper.domain.models.ShoppedList
 
 class RemoteRepositoryImpl(
     private val client: HttpClient,
-    private val pref: PreferenceRepository
+    private val store: StoreRepository
 ) : RemoteRepository {
     override suspend fun updateDictionaryWithVersion(updates: List<DictionaryRemoteTag>) {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return
         val maps = mutableMapOf<String, Any?>()
         updates.forEach {
@@ -47,7 +47,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun updateListWithVersion(updates: List<ShoppedList>) {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return
         val maps = mutableMapOf<String, Any?>()
         updates.forEach {
@@ -62,7 +62,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun deleteListWithVersion(listId: String) {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return
         val maps = listId.toDeleteRemote()
         client.request("/shared_data/$groupId.json") {
@@ -73,9 +73,9 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun setUserName() {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return
-        val user = pref.getClientUUID().toUpdateRemote(pref.getUserName())
+        val user = store.getClientUUID().toUpdateRemote(store.getUserName())
         client.request("/shared_data/$groupId.json") {
             method = HttpMethod.Patch
             contentType(ContentType.Application.Json)
@@ -84,7 +84,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getUsersNames(): Map<String, String> {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return emptyMap()
         return try {
             val response = client.get("shared_data/$groupId/current_users.json")
@@ -95,7 +95,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getDictionariesVersions(): Map<String, Int> {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return emptyMap()
         return try {
             val response = client.get("shared_data/$groupId/dictionaries_versions.json")
@@ -106,7 +106,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getAllDictionaries(): Map<String, DictionaryRemoteTag> {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return emptyMap()
         return try {
             val response = client.get("shared_data/$groupId/dictionaries.json")
@@ -119,7 +119,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getDictionaryById(tagId: String): DictionaryRemoteTag {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return DictionaryRemoteTag(
             tagId = "",
             tagVersion = 0,
@@ -138,7 +138,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getListsVersions(): Map<String, ListRemoteInfo> {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return emptyMap()
         val response = client.get("shared_data/$groupId/current_lists_versions.json")
         return response.body<Map<String, ListVersionInfo>?>()
@@ -146,7 +146,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getAllCurrentLists(): Map<String, ShoppedList> {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return emptyMap()
         val response = client.get("shared_data/$groupId/current_lists.json")
         return response.body<Map<String, ListObject>?>()
@@ -154,7 +154,7 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun getCurrentListById(listId: String): ShoppedList? {
-        val groupId = pref.getGroupUUID()
+        val groupId = store.getGroupUUID()
         if (groupId.isBlank()) return null
         val response = client.get("shared_data/$groupId/current_lists/$listId.json")
         return response.body<ListObject?>()?.toShoppedList()

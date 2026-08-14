@@ -17,5 +17,5 @@ val networkModule = module {
         createHttpClient(baseUrl)
     }
 
-    single<RemoteRepository> { RemoteRepositoryImpl(client = get(), pref = get()) }
+    single<RemoteRepository> { RemoteRepositoryImpl(client = get(), store = get()) }
 }

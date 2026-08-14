@@ -5,7 +5,6 @@ import familyshopper.shared.generated.resources.error_network_state
 import okio.IOException
 import org.jetbrains.compose.resources.getString
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
 import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.Results
@@ -21,7 +20,6 @@ interface UpdateListUseCase {
 }
 
 class UpdateListUseCaseImpl(
-    private val pref: PreferenceRepository,
     private val store: StoreRepository,
     private val database: DatabaseRepository,
     private val remote: RemoteRepository,
@@ -60,7 +58,7 @@ class UpdateListUseCaseImpl(
         val localListVersion = data.listVersion + 1
         val saveData = data.copy(listVersion = localListVersion)
         database.updateList(saveData)
-        if (pref.getGroupUUID().isNotBlank())
+        if (store.getGroupUUID().isNotBlank())
             Results(
                 isError = true,
                 isNetworkError = true,

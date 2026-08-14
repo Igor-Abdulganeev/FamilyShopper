@@ -11,13 +11,13 @@ import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 
 @Serializable
 data class SettingsState(
-    val clientUUID: String,
-    val groupUUID: String,
-    val isFirstTime: Boolean, // первый запуск или нет
-    val userName: String, // имя пользователя, по желанию
-    val userNameSaved: String, // старое имя, будем сохранять если отличия есть
-    val rainbow: Boolean, // анимированный или нет фон
-    val defaultTypeList: Int, // используемый по умолчанию тип списка при создании
+    val clientUUID: String = "",
+    val groupUUID: String = "",
+    val isFirstTime: Boolean = true, // первый запуск или нет
+    val userName: String = "", // имя пользователя, по желанию
+    val userNameSaved: String = "", // старое имя, будем сохранять если отличия есть
+    val rainbow: Boolean = false, // анимированный или нет фон
+    val defaultTypeList: Int = 1, // используемый по умолчанию тип списка при создании
     val isSharing: Boolean = false, //шаринг данных запущен
     val listUsers: List<UiListUser> = emptyList(),//список имеющихся поьзователей
     val warning: WarningState = WarningState(), // обработка исключений

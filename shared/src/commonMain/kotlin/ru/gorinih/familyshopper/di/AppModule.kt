@@ -54,14 +54,13 @@ val appModule = module {
         SynchronizeDictionariesUseCaseImpl(
             remote = get(),
             database = get(),
-            pref = get(),
+            store = get(),
         )
     }
     factory<UpdateListUseCase> {
         UpdateListUseCaseImpl(
             database = get(),
             remote = get(),
-            pref = get(),
             store = get(),
         )
     }
@@ -69,7 +68,7 @@ val appModule = module {
         SynchronizeListsUseCaseImpl(
             database = get(),
             remote = get(),
-            pref = get(),
+            store = get()
         )
     }
     factory<GetAndUpdateListUseCase> {
@@ -83,24 +82,23 @@ val appModule = module {
         DeleteListUseCaseImpl(
             database = get(),
             remote = get(),
-            pref = get(),
+            store = get()
         )
     }
     factory<SynchronizeDictionariesGetAllRemoteUseCase> {
         SynchronizeDictionariesGetAllRemoteUseCaseImpl(
             remote = get(),
             database = get(),
-            pref = get(),
+            store = get(),
         )
     }
-    factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(pref = get(), remote = get()) }
+    factory<UpdateUserUseCase> { UpdateUserUseCaseImpl(store = get(), remote = get()) }
 
     single { GlassCircleImageHolder }
 
     viewModel { FamilyShopperViewModel(pref = get()) }
     viewModel {
         SettingsViewModel(
-            pref = get(),
             remote = get(),
             database = get(),
             updater = get(),
@@ -113,7 +111,6 @@ val appModule = module {
             database = get(),
             syncRemote = get(),
             syncAllRemote = get(),
-            pref = get(),
             voice = get(),
             store = get()
         )
@@ -121,7 +118,6 @@ val appModule = module {
     viewModel { (listUuid: String) ->
         EditListViewModel(
             listUuid = listUuid,
-            pref = get(),
             database = get(),
             saveList = get(),
             updateList = get(),
@@ -129,13 +125,20 @@ val appModule = module {
             store = get()
         )
     }
-    viewModel { ListEntityVewModel(database = get(), sync = get(), delete = get(), pref = get()) }
+    viewModel {
+        ListEntityVewModel(
+            database = get(),
+            sync = get(),
+            delete = get(),
+            store = get()
+        )
+    }
     viewModel { (listId: String) ->
         ListStrikeTagsViewModel(
             listUuid = listId,
             database = get(),
             updateList = get(),
-            pref = get()
+            store = get()
         )
     }
 

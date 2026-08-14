@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.getNewerOrNull
 import ru.gorinih.familyshopper.domain.usecases.GetAndUpdateListUseCase
@@ -43,7 +42,6 @@ import java.time.format.DateTimeFormatter
 
 class EditListViewModel(
     private val listUuid: String = "",
-    private val pref: PreferenceRepository,
     private val store: StoreRepository,
     private val database: DatabaseRepository,
     private val saveList: UpdateListUseCase,
@@ -59,7 +57,6 @@ class EditListViewModel(
             date = DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(System.currentTimeMillis())),
-            isLocalJob = pref.getGroupUUID().isBlank()
         )
     )
         private set
@@ -70,6 +67,17 @@ class EditListViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            store.getGroupUuidFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(
+                        isLocalJob = true
+                    )
+                }
+                .onEach { uuid ->
+                    shoppedList = shoppedList.copy(
+                        isLocalJob = uuid.isBlank()
+                    )
+                }.stateIn(viewModelScope)
             store.getVoiceFlow()
                 .catch {
                     shoppedList = shoppedList.copy(
@@ -113,7 +121,7 @@ class EditListViewModel(
                 .catch { }
                 .onEach { listUuids ->
                     val selectedUsers = shoppedList.usersUuid.associateBy { it }
-                    val allUsers = listUuids.filter { it.userUuid != pref.getClientUUID() }
+                    val allUsers = listUuids.filter { it.userUuid != store.getClientUUID() }
                         .map { it.toUiListUsers(selectedUsers.containsKey(it.userUuid)) }
                     shoppedList = shoppedList.copy(allUsersUuid = allUsers)
                 }.stateIn(
@@ -124,7 +132,7 @@ class EditListViewModel(
                     .apply {
                         val selectedUsers = this.usersUuid.associateBy { it.userUuid }
                         val allUsers =
-                            shoppedList.allUsersUuid.filter { it.userUuid != pref.getClientUUID() }
+                            shoppedList.allUsersUuid.filter { it.userUuid != store.getClientUUID() }
                                 .map { it.copy(isSelected = selectedUsers.containsKey(it.userUuid)) }
                         shoppedList = shoppedList.copy(
                             listName = this.listName,
@@ -137,7 +145,7 @@ class EditListViewModel(
                             loading = false,
                             userName = this.userName,
                             allUsersUuid = allUsers,
-                            isOwner = pref.getClientUUID() == this.ownerUuid
+                            isOwner = store.getClientUUID() == this.ownerUuid
                         )
                     }
                 updateList(listUuid)?.let { list ->
@@ -153,18 +161,18 @@ class EditListViewModel(
                                 usersUuid = usersUuid.map { it.userUuid },
                                 loading = false,
                                 userName = this.userName,
-                                isOwner = pref.getClientUUID() == this.ownerUuid
+                                isOwner = store.getClientUUID() == this.ownerUuid
                             )
                         }
                     }
                 }
             } else {
                 shoppedList = shoppedList.copy(
-                    ownerUuid = pref.getClientUUID(),
+                    ownerUuid = store.getClientUUID(),
                     listUuid = listUuid,
                     loading = false,
                     isOwner = true,
-                    listLegend = TypeLegendList.entries.first { it.listId == pref.getTypeList() }
+                    listLegend = TypeLegendList.entries.first { it.listId == store.getTypeList() }
                 )
             }
         }

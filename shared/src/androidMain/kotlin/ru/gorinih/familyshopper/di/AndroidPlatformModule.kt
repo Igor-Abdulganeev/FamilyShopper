@@ -4,8 +4,6 @@ import androidx.room.Room
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.voice.AndroidVoicePlatformServiceImpl
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
@@ -18,8 +16,6 @@ import ru.gorinih.familyshopper.voice.VoicePlatformService
 
 actual val platformModule = module {
 
-    single { StorageSharedPreference(get()) }
-    single<PreferenceRepository> { get<StorageSharedPreference>() }
     single<FamilyVoiceRecognizer> {
         FamilyVoiceRecognizerImpl(
             context = androidContext().applicationContext,

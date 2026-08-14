@@ -9,10 +9,13 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
 import ru.gorinih.familyshopper.domain.usecases.UpdateListUseCase
@@ -34,14 +37,12 @@ class ListStrikeTagsViewModel(
     listUuid: String = "",
     private val database: DatabaseRepository,
     private val updateList: UpdateListUseCase,
-    private val pref: PreferenceRepository
+    private val store: StoreRepository
 ) : ViewModel() {
 
 
     var shoppedList by mutableStateOf(
         UiStrikeState(
-            background = pref.getBackgroundState(),
-            isUpdate = pref.getGroupUUID().isNotBlank(),
             listId = listUuid
         )
     )
@@ -54,8 +55,20 @@ class ListStrikeTagsViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            store.getBackgroundStateFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(background = false)
+                }.onEach { bg ->
+                    shoppedList = shoppedList.copy(background = bg)
+                }.stateIn(viewModelScope)
+            store.getGroupUuidFlow()
+                .catch {
+                    shoppedList = shoppedList.copy(isUpdate = false)
+                }.onEach { uuid ->
+                    shoppedList = shoppedList.copy(isUpdate = uuid.isNotBlank())
+                }.stateIn(viewModelScope)
             database.observeList(listId = listUuid).collect { listData ->
-                if (memoryList == null && pref.getGroupUUID().isNotBlank()) {
+                if (memoryList == null && store.getGroupUUID().isNotBlank()) {
                     memoryList = listData
                     memoryList?.let {
                         hiddenUpdater = true
@@ -64,7 +77,7 @@ class ListStrikeTagsViewModel(
                 } else {
                     memoryList = listData
                 }
-                val ownerUuid = pref.getClientUUID() == listData.ownerUuid
+                val ownerUuid = store.getClientUUID() == listData.ownerUuid
                 val isEditable = when {
                     ownerUuid -> true
                     listData.listLegend.listId == TypeLegendList.ALL.listId -> true

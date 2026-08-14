@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 
 /**
@@ -29,6 +28,12 @@ class WidgetUtils(
             }
             WidgetLists().update(context, glanceId)
         }
+    }
+
+    companion object {
+        const val WIDGET_LIST = "family_shopper_widget_list"
+        const val WIDGET_EDIT = "family_shopper_widget_list_edit"
+        const val WIDGET_FORCE_UPDATE = "family_shopper_widget_force_update"
     }
 }
 

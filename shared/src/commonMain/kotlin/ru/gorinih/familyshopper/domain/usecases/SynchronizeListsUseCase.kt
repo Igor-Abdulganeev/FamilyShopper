@@ -10,8 +10,8 @@ import kotlinx.coroutines.coroutineScope
 import okio.IOException
 import org.jetbrains.compose.resources.getString
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.ListRemoteInfo
 import ru.gorinih.familyshopper.domain.models.Results
 import ru.gorinih.familyshopper.domain.models.ShoppedList
@@ -27,12 +27,12 @@ interface SynchronizeListsUseCase {
 class SynchronizeListsUseCaseImpl(
     private val database: DatabaseRepository,
     private val remote: RemoteRepository,
-    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
 ) : SynchronizeListsUseCase {
     override suspend fun invoke(): Results =
         try {
-            if (pref.getGroupUUID().isNotBlank()) {
-                val userUuid = pref.getClientUUID()
+            if (store.getGroupUUID().isNotBlank()) {
+                val userUuid = store.getClientUUID()
                 // получить версии списков с сервера
                 val remoteListsInfo: Map<String, ListRemoteInfo> = remote.getListsVersions()
 
@@ -123,7 +123,7 @@ class SynchronizeListsUseCaseImpl(
                 Results(isError = false)
             }
         } catch (_: IOException) {
-            if (pref.getGroupUUID().isNotBlank())
+            if (store.getGroupUUID().isNotBlank())
                 Results(
                     isError = true,
                     isNetworkError = true,

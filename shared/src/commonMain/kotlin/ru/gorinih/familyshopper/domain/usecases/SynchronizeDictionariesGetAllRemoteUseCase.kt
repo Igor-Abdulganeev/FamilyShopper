@@ -6,7 +6,7 @@ import okio.IOException
 import org.jetbrains.compose.resources.getString
 import ru.gorinih.familyshopper.domain.DatabaseRepository
 import ru.gorinih.familyshopper.domain.RemoteRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.DictionaryLocalVersionTag
 import ru.gorinih.familyshopper.domain.models.DictionaryRemoteTag
 import ru.gorinih.familyshopper.domain.models.Results
@@ -20,7 +20,7 @@ interface SynchronizeDictionariesGetAllRemoteUseCase {
 }
 
 class SynchronizeDictionariesGetAllRemoteUseCaseImpl(
-    private val pref: PreferenceRepository,
+    private val store: StoreRepository,
     private val remote: RemoteRepository,
     private val database: DatabaseRepository,
 ) : SynchronizeDictionariesGetAllRemoteUseCase {
@@ -39,7 +39,7 @@ class SynchronizeDictionariesGetAllRemoteUseCaseImpl(
             database.updateDictionaries(dictionaries = updatingDictionaries)
             Results(false)
         } catch (_: IOException) {
-            if (pref.getGroupUUID().isNotBlank())
+            if (store.getGroupUUID().isNotBlank())
                 Results(
                     isError = true,
                     isNetworkError = true,

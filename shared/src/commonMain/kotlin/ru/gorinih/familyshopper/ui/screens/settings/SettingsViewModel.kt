@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
 import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.LegendList
 import ru.gorinih.familyshopper.domain.models.ShoppedUsers
@@ -33,9 +32,9 @@ import ru.gorinih.familyshopper.ui.screens.settings.models.ListSaved
 import ru.gorinih.familyshopper.ui.screens.settings.models.SettingsState
 import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceModels
 import ru.gorinih.familyshopper.ui.screens.settings.models.VoiceState
-import ru.gorinih.familyshopper.ui.theme.models.ThemeType
 import ru.gorinih.familyshopper.ui.theme.models.PaletteScheme
 import ru.gorinih.familyshopper.ui.theme.models.Palettes
+import ru.gorinih.familyshopper.ui.theme.models.ThemeType
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import java.util.UUID
 
@@ -44,7 +43,6 @@ import java.util.UUID
  */
 
 class SettingsViewModel(
-    private val pref: PreferenceRepository,
     private val store: StoreRepository,
     private val remote: UpdateUserUseCase,
     private val database: DatabaseRepository,
@@ -52,7 +50,8 @@ class SettingsViewModel(
     private val voice: FamilyVoiceRecognizer,
 ) : ViewModel() {
 
-    var stateSettings by mutableStateOf(getStartedKeys())
+    var stateSettings by mutableStateOf(SettingsState())
+        //getStartedKeys()
         private set
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
@@ -64,11 +63,12 @@ class SettingsViewModel(
     init {
         updateUsers(false)
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            stateSettings = getStartedKeys()
             database.takeUsers()
                 .catch { }
                 .onEach { users ->
                     val list: List<UiListUser> = users.map { it.toUiListUsers() }
-                        .filterNot { it.userUuid == pref.getClientUUID() }.sortedBy { it.userUuid }
+                        .filterNot { it.userUuid == store.getClientUUID() }.sortedBy { it.userUuid }
                     stateSettings = stateSettings.copy(listUsers = list)
                 }.launchIn(
                     viewModelScope
@@ -78,8 +78,10 @@ class SettingsViewModel(
                     stateSettings = stateSettings.copy(palette = PaletteScheme())
                 }
                 .onEach { namePalette ->
-                    val themeType = ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
-                    val palette = Palettes.palettes.firstOrNull { it.themeType == themeType } ?: Palettes.instance()
+                    val themeType =
+                        ThemeType.entries.firstOrNull { it.name == namePalette } ?: ThemeType.MAIN
+                    val palette = Palettes.palettes.firstOrNull { it.themeType == themeType }
+                        ?: Palettes.instance()
                     stateSettings = stateSettings.copy(palette = palette)
                 }
                 .launchIn(viewModelScope)
@@ -96,8 +98,9 @@ class SettingsViewModel(
             store.getListSaveTagsFlow()
                 .catch {}
                 .onEach { lists ->
-                    val settings: List<ListSaved> =  lists.entries.map { (key, value) ->
-                        val legend = TypeLegendList.entries.firstOrNull { it.listId == key.listId } ?: TypeLegendList.NOTHING
+                    val settings: List<ListSaved> = lists.entries.map { (key, value) ->
+                        val legend = TypeLegendList.entries.firstOrNull { it.listId == key.listId }
+                            ?: TypeLegendList.NOTHING
                         ListSaved(legend, value)
                     }
                     withContext(Dispatchers.Main.immediate) {
@@ -128,7 +131,9 @@ class SettingsViewModel(
 
     fun updateTypeList(type: Int) {
         stateSettings = stateSettings.copy(defaultTypeList = type)
-        pref.setTypeList(type)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            store.setTypeList(type)
+        }
     }
 
     fun updateUser(user: UiListUser, isDelete: Boolean) {
@@ -155,13 +160,15 @@ class SettingsViewModel(
     }
 
     fun updateBackground() {
-        stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
-        pref.setBackgroundState(stateSettings.rainbow)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            stateSettings = stateSettings.copy(rainbow = !stateSettings.rainbow)
+            store.setBackgroundState(stateSettings.rainbow)
+        }
     }
 
     fun updateVoiceRecognizer(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            if(!enabled) voice.closeRecognizer()
+            if (!enabled) voice.closeRecognizer()
             store.setVoice(enabled)
         }
     }
@@ -187,11 +194,11 @@ class SettingsViewModel(
     fun saveUserName() {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             if (stateSettings.userName != stateSettings.userNameSaved) {
-                pref.setUserName(stateSettings.userName)
+                store.setUserName(stateSettings.userName)
                 try {
                     database.keepUser(
                         ShoppedUsers(
-                            pref.getClientUUID(),
+                            store.getClientUUID(),
                             stateSettings.userName
                         )
                     )
@@ -208,18 +215,24 @@ class SettingsViewModel(
     }
 
     fun restoreGroupUuid() {
-        stateSettings = stateSettings.copy(groupUUID = pref.getGroupUUID())
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            stateSettings = stateSettings.copy(groupUUID = store.getGroupUUID())
+        }
     }
 
     fun applyGroupUuid() {
-        pref.setGroupUUID(stateSettings.groupUUID)
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            store.setGroupUUID(stateSettings.groupUUID)
+        }
     }
 
     fun applyClientUuid() {
-        if (stateSettings.clientUUID.isNotBlank()) {
-            pref.setClientUUID(stateSettings.clientUUID)
-        } else {
-            stateSettings = stateSettings.copy(clientUUID = pref.getClientUUID())
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            if (stateSettings.clientUUID.isNotBlank()) {
+                store.setClientUUID(stateSettings.clientUUID)
+            } else {
+                stateSettings = stateSettings.copy(clientUUID = store.getClientUUID())
+            }
         }
     }
 
@@ -255,18 +268,18 @@ class SettingsViewModel(
         stateSettings = stateSettings.copy(isSharing = false)
     }
 
-    private fun getStartedKeys(): SettingsState =
+    private suspend fun getStartedKeys(): SettingsState =
         SettingsState(
-            clientUUID = pref.getClientUUID(),
-            groupUUID = pref.getGroupUUID(),
-            isFirstTime = !pref.getStartedKey(),
-            userName = if (!pref.getStartedKey() && pref.getUserName()
+            clientUUID = store.getClientUUID(),
+            groupUUID = store.getGroupUUID(),
+            isFirstTime = !store.getStartedKey(),
+            userName = if (!store.getStartedKey() && store.getUserName()
                     .isBlank()
-            ) pref.getClientUUID().substringBefore('-') else pref.getUserName(),
-            userNameSaved = pref.getUserName(),
-            rainbow = pref.getBackgroundState(),
-            defaultTypeList = pref.getTypeList()
+            ) store.getClientUUID().substringBefore('-') else store.getUserName(),
+            userNameSaved = store.getUserName(),
+            rainbow = store.getBackgroundState(),
+            defaultTypeList = store.getTypeList()
         ).apply {
-            pref.setStartedKey()
+            store.setStartedKey()
         }
 }

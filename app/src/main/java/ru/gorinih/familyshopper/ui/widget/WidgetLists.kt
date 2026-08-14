@@ -51,10 +51,10 @@ import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_EDIT
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_EDIT
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_FORCE_UPDATE
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.ui.widget.models.WidgetItem
 import ru.gorinih.familyshopper.ui.widget.models.WidgetTagItem
 import ru.gorinih.familyshopper.ui.widget.models.toListWidgetItem

@@ -18,7 +18,7 @@ data class UiStrikeState(
     val listLegend: TypeLegendList = TypeLegendList.ALL,
     val listName: String = "",
     val background: Boolean = false,
-    val isUpdate: Boolean = true,
+    val isUpdate: Boolean = false,
     val hiddenUpdate: Boolean = false,
     val listId: String = "",
 )

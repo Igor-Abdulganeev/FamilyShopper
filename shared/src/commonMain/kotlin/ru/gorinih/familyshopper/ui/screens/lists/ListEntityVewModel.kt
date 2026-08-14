@@ -9,11 +9,14 @@ import familyshopper.shared.generated.resources.Res
 import familyshopper.shared.generated.resources.text_delete_list
 import familyshopper.shared.generated.resources.text_delete_local_list
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.domain.models.AuthorFilter
 import ru.gorinih.familyshopper.domain.models.SortDirection
 import ru.gorinih.familyshopper.domain.models.SortType
@@ -36,14 +39,13 @@ class ListEntityVewModel(
     private val database: DatabaseRepository,
     private val sync: SynchronizeListsUseCase,
     private val delete: DeleteListUseCase,
-    private val pref: PreferenceRepository,
+    private val store: StoreRepository
 ) : ViewModel() {
     var listsState by mutableStateOf(
         UiListsState().copy(
-            sortType = pref.getSort().first,
-            sortDirection = pref.getSort().second,
-            filterRule = pref.getAuthorFilter(),
-            isUpdate = pref.getGroupUUID().isNotBlank()
+            sortType = SortType.NOTHING,
+            sortDirection = SortDirection.NOTHING,
+            filterRule = AuthorFilter.ALL,
         )
     )
         private set
@@ -51,8 +53,31 @@ class ListEntityVewModel(
     private val keepLists = mutableListOf<UiListObject>()
 
     init {
-        val userUuid = pref.getClientUUID()
         viewModelScope.launch(Dispatchers.IO) {
+            val userUuid = store.getClientUUID()
+            store.getAuthorFilterFlow()
+                .catch {
+                    listsState = listsState.copy(filterRule = AuthorFilter.ALL)
+                }.onEach { filtered ->
+                    listsState = listsState.copy(filterRule = filtered)
+                }.stateIn(viewModelScope)
+            store.getSortFlow()
+                .catch {
+                    listsState = listsState.copy(
+                        sortType = SortType.NOTHING,
+                        sortDirection = SortDirection.NOTHING
+                    )
+                }.onEach { sorted ->
+                    listsState =
+                        listsState.copy(sortType = sorted.first, sortDirection = sorted.second)
+                }.stateIn(viewModelScope)
+            store.getGroupUuidFlow()
+                .catch {
+                    listsState = listsState.copy(isUpdate = false)
+                }
+                .onEach { uuid ->
+                    listsState = listsState.copy(isUpdate = uuid.isNotBlank())
+                }.stateIn(viewModelScope)
             combine(
                 database.takeLists(),
                 database.takeUsers()
@@ -72,7 +97,7 @@ class ListEntityVewModel(
                 keepLists.clear()
                 keepLists.addAll(list)
                 withContext(Dispatchers.Main.immediate) {
-                    val filter = pref.getAuthorFilter()
+                    val filter = store.getAuthorFilter()
                     filter(filter)
                 }
             }
@@ -157,13 +182,15 @@ class ListEntityVewModel(
     }
 
     fun filter(filterType: AuthorFilter) {
-        val userId = pref.getClientUUID()
-        val filterList = when (filterType) {
-            AuthorFilter.ALL -> keepLists
-            AuthorFilter.MY -> keepLists.filter { it.listOwner == userId }
-            AuthorFilter.OTHERS -> keepLists.filterNot { it.listOwner == userId }
-        }.toMutableList()
-        sortedList(filterList, listsState.sortType, listsState.sortDirection, filterType)
+        viewModelScope.launch(Dispatchers.Main) {
+            val userId = store.getClientUUID()
+            val filterList = when (filterType) {
+                AuthorFilter.ALL -> keepLists
+                AuthorFilter.MY -> keepLists.filter { it.listOwner == userId }
+                AuthorFilter.OTHERS -> keepLists.filterNot { it.listOwner == userId }
+            }.toMutableList()
+            sortedList(filterList, listsState.sortType, listsState.sortDirection, filterType)
+        }
     }
 
     private fun sortedList(
@@ -172,41 +199,43 @@ class ListEntityVewModel(
         sortDirection: SortDirection,
         filterType: AuthorFilter
     ) {
-        pref.setSort(sortType, sortDirection)
-        pref.setAuthorFilter(filterType)
-        val updatedList = mutableListOf<UiListObject>()
-        when {
-            sortType == SortType.DATE && sortDirection == SortDirection.UP -> {
-                updatedList.addAll(list.sortedByDescending { it.listDatetimeValue })
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            store.setSort(sortType, sortDirection)
+            store.setAuthorFilter(filterType)
+            val updatedList = mutableListOf<UiListObject>()
+            when {
+                sortType == SortType.DATE && sortDirection == SortDirection.UP -> {
+                    updatedList.addAll(list.sortedByDescending { it.listDatetimeValue })
+                }
 
-            sortType == SortType.DATE && sortDirection == SortDirection.DOWN -> {
-                updatedList.addAll(list.sortedBy { it.listDatetimeValue })
-            }
+                sortType == SortType.DATE && sortDirection == SortDirection.DOWN -> {
+                    updatedList.addAll(list.sortedBy { it.listDatetimeValue })
+                }
 
-            sortType == SortType.TYPE && sortDirection == SortDirection.UP -> {
-                updatedList.addAll(list.sortedByDescending { it.listLegend.listId })
-            }
+                sortType == SortType.TYPE && sortDirection == SortDirection.UP -> {
+                    updatedList.addAll(list.sortedByDescending { it.listLegend.listId })
+                }
 
-            sortType == SortType.TYPE && sortDirection == SortDirection.DOWN -> {
-                updatedList.addAll(list.sortedBy { it.listLegend.listId })
-            }
+                sortType == SortType.TYPE && sortDirection == SortDirection.DOWN -> {
+                    updatedList.addAll(list.sortedBy { it.listLegend.listId })
+                }
 
-            sortType == SortType.NOTHING -> {
-                updatedList.addAll(list)
-            }
+                sortType == SortType.NOTHING -> {
+                    updatedList.addAll(list)
+                }
 
-            sortDirection == SortDirection.NOTHING -> {
-                updatedList.addAll(list)
+                sortDirection == SortDirection.NOTHING -> {
+                    updatedList.addAll(list)
+                }
             }
+            listsState = listsState.copy(
+                sortDirection = sortDirection,
+                sortType = sortType,
+                filterRule = filterType,
+                lists = updatedList,
+                loading = false,
+                isUpdate = store.getGroupUUID().isNotBlank()
+            )
         }
-        listsState = listsState.copy(
-            sortDirection = sortDirection,
-            sortType = sortType,
-            filterRule = filterType,
-            lists = updatedList,
-            loading = false,
-            isUpdate = pref.getGroupUUID().isNotBlank()
-        )
     }
 }

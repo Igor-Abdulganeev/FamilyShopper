@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.navigation.NavigationHost
 import ru.gorinih.familyshopper.navigation.NavigationKey
@@ -67,11 +68,15 @@ fun App(
             )
         }
         val backStackEntry by navController.currentBackStackEntryAsState()
-        val pref: PreferenceRepository = koinInject()
-        val startedKey: NavigationKey = when (pref.getStartedKey()) {
-            true -> NavigationKey.ListEntityScreen
-            false -> NavigationKey.SettingsScreen
+        val store: StoreRepository = koinInject()
+        var startedKey: NavigationKey by remember { mutableStateOf(NavigationKey.ListEntityScreen) }
+        LaunchedEffect(Unit) {
+            startedKey = when (store.getStartedKey()) {
+                true -> NavigationKey.ListEntityScreen
+                false -> NavigationKey.SettingsScreen
+            }
         }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {

@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.gorinih.familyshopper.domain.DatabaseRepository
-import ru.gorinih.familyshopper.domain.PreferenceRepository
+import ru.gorinih.familyshopper.domain.StoreRepository
 import ru.gorinih.familyshopper.ui.models.TypeLegendList
 import ru.gorinih.familyshopper.ui.screens.lists.models.toUiListObject
 import ru.gorinih.familyshopper.ui.widget.models.WidgetState
@@ -20,7 +20,7 @@ import ru.gorinih.familyshopper.ui.widget.models.WidgetState
 
 class WidgetViewModel(
     private val database: DatabaseRepository,
-    private val pref: PreferenceRepository
+    private val store: StoreRepository
 ) : ViewModel() {
     val stateList = database.takeLists().map { list -> list.map { it.toUiListObject() } }
 
@@ -36,7 +36,7 @@ class WidgetViewModel(
             clickTime = currentTime
             viewModelScope.launch(Dispatchers.IO) {
                 val data = database.takeUpdatedList(listId = listUuid).toUiListObject()
-                val clientUuid = pref.getClientUUID()
+                val clientUuid = store.getClientUUID()
                 val isEdit =
                     (clientUuid == data.listOwner && data.listLegend != TypeLegendList.VIEW) || (data.listLegend == TypeLegendList.ALL || data.listLegend == TypeLegendList.ADD)
                 val list = data.copy(isEdit = isEdit)

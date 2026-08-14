@@ -1,5 +1,7 @@
 package ru.gorinih.familyshopper.domain
 
+import androidx.datastore.core.DataMigration
+import androidx.datastore.preferences.core.Preferences
 import ru.gorinih.familyshopper.BuildKonfig
 import ru.gorinih.familyshopper.domain.StoreRepository.Companion.SETTINGS_DATA_STORE
 import java.io.File
@@ -15,3 +17,5 @@ actual fun provideDataStorePath(): String {
     if (!dataDir.exists()) dataDir.mkdirs()
     return File(dataDir, SETTINGS_DATA_STORE).absolutePath
 }
+
+actual fun provideDataStoreMigration(): List<DataMigration<Preferences>> = emptyList()
