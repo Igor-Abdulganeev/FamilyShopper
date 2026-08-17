@@ -20,7 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.gorinih.familyshopper.navigation.NavigationActions
@@ -54,7 +52,6 @@ import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.views.ErrorDialog
 import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 import ru.gorinih.familyshopper.ui.views.TagsList
-import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 
 /**
  * Created by Igor Abdulganeev on 10.04.2026
@@ -64,34 +61,29 @@ import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 fun ListStrikeTagsScreen(
     listUuid: String = "",
     route: (String) -> Unit = {},
-    backPressed: () -> Unit,
+    onBack: () -> Unit,
     navigationActions: (NavigationActions) -> Unit,
     viewModel: ListStrikeTagsViewModel = koinViewModel(
         parameters = { parametersOf(listUuid) }
     )
 ) {
-    val widgetNotifier = koinInject<WidgetNotifier>()
-    val handleExit = {
-        viewModel.updateIfChanged()
-        backPressed()
+    val scope = rememberCoroutineScope()
+
+    val handlerExit = {
+        scope.launch {
+            viewModel.updateIfChanged()
+            onBack()
+        }
     }
 
     val state = viewModel.shoppedList
     var isClicked by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     AppBackHandler(enable = true) {
-        handleExit()
+        handlerExit()
     }
-    DisposableEffect(Unit) {
-        navigationActions(NavigationActions(onNavigationClick = handleExit))
-
-        onDispose {
-            scope.launch(NonCancellable) {
-                widgetNotifier.notifyWidgetChanged()
-            }
-            navigationActions(NavigationActions(onNavigationClick = { backPressed() }))
-        }
+    LaunchedEffect(handlerExit) {
+        navigationActions(NavigationActions(onBackClick = { handlerExit() }))
     }
 
     val brush =

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
@@ -28,6 +27,7 @@ import ru.gorinih.familyshopper.ui.screens.editlist.models.UiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toShoppedItem
 import ru.gorinih.familyshopper.ui.screens.editlist.models.toUiShoppingItem
 import ru.gorinih.familyshopper.ui.screens.strikelist.models.UiStrikeState
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 
 /**
  * Created by Igor Abdulganeev on 11.04.2026
@@ -37,7 +37,8 @@ class ListStrikeTagsViewModel(
     listUuid: String = "",
     private val database: DatabaseRepository,
     private val updateList: UpdateListUseCase,
-    private val store: StoreRepository
+    private val store: StoreRepository,
+    private val widgetNotifier: WidgetNotifier
 ) : ViewModel() {
 
 
@@ -83,7 +84,8 @@ class ListStrikeTagsViewModel(
                     listData.listLegend.listId == TypeLegendList.ALL.listId -> true
                     else -> false
                 }
-                val legend = TypeLegendList.entries.first { it.listId == listData.listLegend.listId }
+                val legend =
+                    TypeLegendList.entries.first { it.listId == listData.listLegend.listId }
                 val type = when {
                     legend in listOf(TypeLegendList.ALL, TypeLegendList.ADD) -> TypeListTags.STRIKE
                     legend == TypeLegendList.VIEW -> TypeListTags.VIEW
@@ -205,19 +207,18 @@ class ListStrikeTagsViewModel(
         }
     }
 
-    fun updateIfChanged() {
-        viewModelScope.launch(NonCancellable + Dispatchers.IO) {
-            var diff = (memoryList?.tagNames?.count() ?: 0) != shoppedList.tagNames.count()
-            if (!diff) {
-                memoryList?.tagNames?.let { savedList ->
-                    for (tag in shoppedList.tagNames) {
-                        if (!savedList.any { it.tagId == tag.tagId && it.tagName == tag.tagName && it.isStrike == tag.isStrike && it.tagComment == tag.tagComment }) diff =
-                            true
-                    }
+    suspend fun updateIfChanged() {
+        var diff = (memoryList?.tagNames?.count() ?: 0) != shoppedList.tagNames.count()
+        if (!diff) {
+            memoryList?.tagNames?.let { savedList ->
+                for (tag in shoppedList.tagNames) {
+                    if (!savedList.any { it.tagId == tag.tagId && it.tagName == tag.tagName && it.isStrike == tag.isStrike && it.tagComment == tag.tagComment }) diff =
+                        true
                 }
             }
-            if (diff) saveChanged()
         }
+        if (diff) saveChanged()
+        widgetNotifier.notifyWidgetChanged()
     }
 
     private suspend fun saveChanged() {
@@ -226,6 +227,6 @@ class ListStrikeTagsViewModel(
         memoryList?.let {
             val result = updateList(it)
             if (result.isError && result.textError.isNotBlank()) database.updateList(it)
-            }
         }
+    }
 }

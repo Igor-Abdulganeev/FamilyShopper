@@ -138,7 +138,8 @@ val appModule = module {
             listUuid = listId,
             database = get(),
             updateList = get(),
-            store = get()
+            store = get(),
+            widgetNotifier = get()
         )
     }
 

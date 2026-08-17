@@ -51,7 +51,6 @@ expect fun AppBackHandler(enable: Boolean, onBack: () -> Unit)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
-    modifier: Modifier = Modifier,
     finishApp: () -> Unit,
 ) {
     val viewModel: FamilyShopperViewModel = koinViewModel()
@@ -61,10 +60,10 @@ fun App(
         dataPreferenceRepository = getKoin().get()
     ) {
         val navController = rememberNavController()
-        var navigationActions by remember {
+        var navActions by remember {
             mutableStateOf(
                 NavigationActions(
-                    onNavigationClick = { navController.popBackStack() })
+                    onBackClick = { navController.popBackStack() })
             )
         }
         val backStackEntry by navController.currentBackStackEntryAsState()
@@ -91,7 +90,7 @@ fun App(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navigationActions.onNavigationClick()
+                                navActions.onBackClick()
                             }
                         ) {
                             Icon(
@@ -148,7 +147,7 @@ fun App(
                     startedScreenKey = startedKey,
                     navigationController = navController,
                     onExit = { finishApp() },
-                    navigationActions = { actions -> navigationActions = actions }
+                    navigationActions = { actions -> navActions = actions }
                 )
             }
         }

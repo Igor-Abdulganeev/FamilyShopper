@@ -26,15 +26,8 @@ fun NavigationHost(
     startedScreenKey: NavigationKey,
     navigationController: NavHostController,
     onExit: () -> Unit,
-    navigationActions: (NavigationActions) -> Unit = {}
+    navigationActions: (NavigationActions) -> Unit
 ) {
-
-    fun popupBackStack(destination: NavigationKey? = null) {
-        when (destination) {
-            null -> if (!navigationController.popBackStack()) onExit()
-            else -> navigationController.popBackStack(route = destination, true)
-        }
-    }
 
     NavHost(
         modifier = modifier,
@@ -47,10 +40,23 @@ fun NavigationHost(
             fadeOut(animationSpec = tween(durationMillis = 250))
         }
     ) {
+        composable<NavigationKey.ListEntityScreen> {
+            ListEntityScreen(
+                router = { navigationKey ->
+                    navigationController.navigate(navigationKey)
+                },
+                onClose = { onExit() },
+                navigationActions = navigationActions,
+                addList = {
+                    navigationController.navigate(NavigationKey.EditListScreen(listUuid = ""))
+                }
+            )
+        }
+
         composable<NavigationKey.SettingsScreen> {
             SettingsScreen(
                 navigationActions = navigationActions,
-                backPressed = { popupBackStack() },
+                onBack = { navigationController.popBackStack() },
                 firstTimeBackPressed = {
                     navigationController.navigate(NavigationKey.ListEntityScreen) {
                         popUpTo(NavigationKey.SettingsScreen) {
@@ -61,24 +67,17 @@ fun NavigationHost(
         }
 
         composable<NavigationKey.DictionariesScreen> {
-            EditDictionariesScreen()
+            EditDictionariesScreen(
+                onBack = { navigationController.popBackStack() },
+                navigationActions = navigationActions
+            )
         }
 
         composable<NavigationKey.EditListScreen> { backStackEntry ->
             val args = backStackEntry.toRoute<NavigationKey.EditListScreen>()
-                        EditListScreen(args.listUuid, onBack = { popupBackStack() })
-        }
-
-        composable<NavigationKey.ListEntityScreen> {
-            ListEntityScreen(
-                router = { navigationKey ->
-                    navigationController.navigate(navigationKey)
-                },
-                backClick = { popupBackStack() },
-                navigationActions = navigationActions,
-                addList = {
-                    navigationController.navigate(NavigationKey.EditListScreen(listUuid = ""))
-                }
+            EditListScreen(
+                listUuid = args.listUuid, onBack = { navigationController.popBackStack() },
+                navigationActions = navigationActions
             )
         }
 
@@ -86,7 +85,7 @@ fun NavigationHost(
             val args = backStackEntry.toRoute<NavigationKey.ListStrikeTagsScreen>()
                         ListStrikeTagsScreen(
                             listUuid = args.listUuid,
-                            backPressed = { popupBackStack() },
+                            onBack = { navigationController.popBackStack() },
                             route = { listId ->
                                 navigationController.navigate(
                                     NavigationKey.EditListScreen(

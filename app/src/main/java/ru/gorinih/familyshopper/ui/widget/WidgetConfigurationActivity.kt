@@ -43,6 +43,7 @@ import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
 import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_EDIT
 import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_LIST
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Created by Igor Abdulganeev on 28.04.2026
@@ -116,7 +117,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 withContext(Dispatchers.Main.immediate) {
                     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     setResult(RESULT_OK, result)
-                    delay(300) // дать виджету отрисоваться
+                    delay(300.milliseconds) // дать виджету отрисоваться
                     finishAfterTransition()
                 }
             }

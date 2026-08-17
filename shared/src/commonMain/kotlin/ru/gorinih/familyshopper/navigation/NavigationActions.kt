@@ -5,5 +5,5 @@ package ru.gorinih.familyshopper.navigation
  */
 
 data class NavigationActions(
-    val onNavigationClick: ()-> Unit = {}
+    val onBackClick: () -> Unit = {}
 )

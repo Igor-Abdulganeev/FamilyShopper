@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -51,7 +50,6 @@ class SettingsViewModel(
 ) : ViewModel() {
 
     var stateSettings by mutableStateOf(SettingsState())
-        //getStartedKeys()
         private set
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
@@ -191,8 +189,7 @@ class SettingsViewModel(
         }
     }
 
-    fun saveUserName() {
-        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+    suspend fun saveUserName() {
             if (stateSettings.userName != stateSettings.userNameSaved) {
                 store.setUserName(stateSettings.userName)
                 try {
@@ -207,7 +204,6 @@ class SettingsViewModel(
                 } catch (_: Throwable) {
                 }
             }
-        }
     }
 
     fun onDismiss() {

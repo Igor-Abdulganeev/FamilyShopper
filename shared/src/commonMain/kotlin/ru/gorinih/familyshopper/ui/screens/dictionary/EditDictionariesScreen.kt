@@ -46,6 +46,7 @@ import familyshopper.shared.generated.resources.label_empty_list
 import familyshopper.shared.generated.resources.label_enter_new_tag
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.ui.screens.dictionary.models.UiDictionary
 import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
@@ -61,6 +62,8 @@ import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
 @Composable
 fun EditDictionariesScreen(
     modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    navigationActions: (NavigationActions) -> Unit,
     viewModel: EditDictionariesViewModel = koinViewModel()
 ) {
     val state by viewModel.dictionaryState.collectAsStateWithLifecycle()
@@ -70,9 +73,19 @@ fun EditDictionariesScreen(
     var selectedTab by remember { mutableStateOf("") }
     var glowFlag by remember { mutableStateOf(false) }
 
+    AppBackHandler(enable = true) {
+        onBack()
+    }
+    LaunchedEffect(Unit) {
+        navigationActions(NavigationActions(onBackClick = { onBack() }))
+    }
+
     LaunchedEffect(currentPosition) {
         if (currentPosition >= 0)
-            pagerState.animateScrollToPage(currentPosition, animationSpec = tween(durationMillis = 400))
+            pagerState.animateScrollToPage(
+                currentPosition,
+                animationSpec = tween(durationMillis = 400)
+            )
     }
 
     LaunchedEffect(state.list.size) {
@@ -133,11 +146,11 @@ fun EditDictionariesScreen(
                         val allPositions = state.list.map { it.tagId }.toMutableSet()
                         val char = text.first().uppercaseChar().toString()
                         currentPosition = allPositions.indexOf(char)
-                                    }
+                    }
                 },
                 placeholder = stringResource(Res.string.label_enter_new_tag),
                 trailingIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically){
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         AnimatedVisibility(
                             visible = state.voiceRecognizer.isVisible,
                             enter = fadeIn(),
@@ -169,7 +182,12 @@ fun EditDictionariesScreen(
                             onClick = {
                                 addNewTag()
                             },
-                        ) { Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = null) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = null
+                            )
+                        }
                     }
                 },
                 action = {
@@ -216,7 +234,8 @@ fun EmptyAlphabet(
             text = stringResource(Res.string.label_empty_list),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(16.dp))
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 

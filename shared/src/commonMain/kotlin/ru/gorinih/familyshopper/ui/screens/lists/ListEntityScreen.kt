@@ -121,7 +121,7 @@ import kotlin.math.roundToInt
 fun ListEntityScreen(
     router: (NavigationKey) -> Unit,
     addList: () -> Unit,
-    backClick: () -> Unit,
+    onClose: () -> Unit,
     navigationActions: (NavigationActions) -> Unit,
     viewModel: ListEntityVewModel = koinViewModel()
 ) {
@@ -136,14 +136,13 @@ fun ListEntityScreen(
     val widgetNotifier: WidgetNotifier = koinInject<WidgetNotifier>()
 
     LaunchedEffect(Unit) {
-        navigationActions(NavigationActions(onNavigationClick = { backClick() }))
+        navigationActions(NavigationActions(onBackClick = { onClose() }))
     }
-
     LaunchedEffect(state.lists) {
         if (state.lists.isNotEmpty()) stateLazy.animateScrollToItem(0)
     }
 
-    AppBackHandler(enable = false) {}
+    AppBackHandler(enable = true) { onClose() }
 
     when (screen) {
         ScreenLayoutType.SINGLE_PANE -> {

@@ -83,6 +83,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import ru.gorinih.familyshopper.navigation.NavigationActions
 import ru.gorinih.familyshopper.ui.AppBackHandler
 import ru.gorinih.familyshopper.utils.ScreenLayoutType
 import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
@@ -110,6 +111,7 @@ fun EditListScreen(
     listUuid: String,
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    navigationActions: (NavigationActions) -> Unit,
     viewModel: EditListViewModel = koinViewModel(
         parameters = { parametersOf(listUuid) }
     )
@@ -128,7 +130,18 @@ fun EditListScreen(
     var glowFlag by remember { mutableStateOf(false) }
     val widgetNotifier = koinInject<WidgetNotifier>()
 
-    AppBackHandler(enable = false) { }
+    val handlerExit = {
+        scope.launch {
+            if (state.saved) {
+                widgetNotifier.notifyWidgetChanged()
+            }
+            onBack()
+        }
+    }
+
+    AppBackHandler(enable = true) {
+        handlerExit()
+    }
     LaunchedEffect(Unit) {
         if (state.listName.isEmpty() && listUuid.isEmpty()) viewModel.updateListName(named)
     }
@@ -137,13 +150,8 @@ fun EditListScreen(
         addedTag = state.voiceRecognizer.fieldText
     }
 
-    LaunchedEffect(state.saved) {
-        if (state.saved) {
-            scope.launch {
-                widgetNotifier.notifyWidgetChanged()
-            }
-            onBack()
-        }
+    LaunchedEffect(handlerExit) {
+        navigationActions(NavigationActions(onBackClick = { handlerExit() }))
     }
 
     fun addNewTag(item: String = "", comment: String = "") {

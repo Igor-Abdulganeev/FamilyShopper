@@ -46,7 +46,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -134,7 +133,7 @@ expect fun rememberVoicePermissionStatus(provider: VoicePermissionProvide?): Boo
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     navigationActions: (NavigationActions) -> Unit,
-    backPressed: () -> Unit,
+    onBack: () -> Unit,
     firstTimeBackPressed: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
@@ -147,6 +146,7 @@ fun SettingsScreen(
     val scrollPresetsPage = rememberScrollState()
     val shareHandler = rememberShareEventsHandler()
     val isDynamicColorsSupported = LocalDynamicColorsSupported.current
+    val scope = rememberCoroutineScope()
 
     val voicePermission = LocalVoicePermission.current
     val voiceStatus = rememberVoicePermissionStatus(voicePermission)
@@ -159,25 +159,21 @@ fun SettingsScreen(
     }
 
     val handlerExit = {
-        viewModel.saveUserName()
-        when (state.isFirstTime) {
-            true -> firstTimeBackPressed()
-            false -> backPressed()
+        scope.launch {
+            viewModel.saveUserName()
+            when (state.isFirstTime) {
+                true -> firstTimeBackPressed()
+                false -> onBack()
+            }
         }
+    }
+
+    LaunchedEffect(handlerExit) {
+        navigationActions(NavigationActions(onBackClick = { handlerExit() }))
     }
 
     AppBackHandler(enable = true) {
         handlerExit()
-    }
-
-    DisposableEffect(Unit) {
-        navigationActions(NavigationActions(onNavigationClick = {
-            handlerExit()
-        }))
-
-        onDispose {
-            navigationActions(NavigationActions(onNavigationClick = { handlerExit() }))
-        }
     }
 
     val pagesTitle = listOf(
