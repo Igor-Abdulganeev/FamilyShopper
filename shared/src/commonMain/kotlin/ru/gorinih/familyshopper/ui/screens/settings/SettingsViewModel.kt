@@ -85,12 +85,23 @@ class SettingsViewModel(
                 .launchIn(viewModelScope)
             store.getVoiceFlow()
                 .catch {
-                    stateSettings =
-                        stateSettings.copy(voiceSetting = VoiceState(isVoiceRecognizer = false))
+                    withContext(Dispatchers.Main.immediate) {
+                        stateSettings =
+                            stateSettings.copy(
+                                voiceSetting = stateSettings.voiceSetting?.copy(
+                                    isVoiceRecognizer = false
+                                )
+                            )
+                    }
                 }
                 .onEach {
-                    stateSettings =
-                        stateSettings.copy(voiceSetting = VoiceState(isVoiceRecognizer = it))
+                    val voice = when (stateSettings.voiceSetting) {
+                        null -> VoiceState(isVoiceRecognizer = it)
+                        else -> stateSettings.voiceSetting?.copy(
+                            isVoiceRecognizer = it
+                        )
+                    }
+                    stateSettings = stateSettings.copy(voiceSetting = voice)
                 }
                 .launchIn(viewModelScope)
             store.getListSaveTagsFlow()
@@ -107,10 +118,13 @@ class SettingsViewModel(
                     }
                 }.launchIn(viewModelScope)
             store.getVoiceModelFlow().collectLatest { tag ->
+                val model = VoiceModels.entries.firstOrNull { it.tag == tag } ?: VoiceModels.ENGLISH
+                val voice = when (stateSettings.voiceSetting) {
+                    null -> VoiceState(voiceRecognizerModel = model)
+                    else -> stateSettings.voiceSetting?.copy(voiceRecognizerModel = model)
+                }
                 stateSettings =
-                    stateSettings.copy(voiceSetting = VoiceState(voiceRecognizerModel = VoiceModels.entries.firstOrNull { it.tag == tag }
-                        ?: VoiceModels.ENGLISH)
-                    )
+                    stateSettings.copy(voiceSetting = voice)
             }
         }
     }

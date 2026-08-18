@@ -1,5 +1,6 @@
 package ru.gorinih.familyshopper.ui.screens.settings.models
 
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 import ru.gorinih.familyshopper.ui.models.WarningState
 import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
@@ -23,5 +24,6 @@ data class SettingsState(
     val warning: WarningState = WarningState(), // обработка исключений
     val palette: PaletteScheme = PaletteScheme(), // цветовая схема приложения
     val listSaveTagsSettings: List<ListSaved> = emptyList(), // настройки автосохранения тэгов по типам списков
+    @Stable
     val voiceSetting: VoiceState? = null
 )
