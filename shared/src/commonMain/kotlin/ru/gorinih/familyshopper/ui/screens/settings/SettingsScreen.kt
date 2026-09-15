@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Checkbox
@@ -268,7 +267,7 @@ fun SettingsScreen(
                                             }
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.Restore,
+                                                imageVector = Icons.Default.SettingsBackupRestore,
                                                 contentDescription = null
                                             )
                                         }

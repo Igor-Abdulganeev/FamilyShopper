@@ -105,6 +105,7 @@ import ru.gorinih.familyshopper.ui.views.shadow
  * Created by Igor Abdulganeev on 07.04.2026
  */
 
+@Suppress("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditListScreen(
@@ -724,6 +725,12 @@ fun EditListScreen(
                 }"
             ) { viewModel.onDismissSaved() }
         }
+    }
+    if (state.saved) {
+        scope.launch {
+            widgetNotifier.notifyWidgetChanged()
+        }
+        onBack()
     }
 }
 
