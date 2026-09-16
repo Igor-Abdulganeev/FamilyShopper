@@ -103,6 +103,8 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.ktor.client.cio)
+                implementation(libs.kotlin.coroutine.swing)
+                implementation(libs.slf4j.simple)
             }
         }
     }

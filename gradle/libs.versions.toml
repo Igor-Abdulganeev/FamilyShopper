@@ -26,6 +26,9 @@ ktor = "3.4.1"
 sqliteVersion = "2.5.2"
 buildkonfig = "0.22.0"
 
+coroutinesSwingVersion = "1.10.2"
+slf4jVersion = "2.0.17"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -54,6 +57,8 @@ compose-material3-icons = { group = "org.jetbrains.compose.material", name = "ma
 compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composeMultiplatform" }
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
+kotlin-coroutine-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutinesSwingVersion" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jVersion" }
 
 retrofit-core = {module = "com.squareup.retrofit2:retrofit", version.ref="retrofitVersion"}
 retrofit-converter-kotlinx-serialization = {module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref="retrofitVersion"}
@@ -68,7 +73,6 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
 
-#androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
 androidx-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
 
 androidx-firebase-bom = {module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom"}
