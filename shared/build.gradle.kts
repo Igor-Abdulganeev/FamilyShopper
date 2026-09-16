@@ -108,6 +108,12 @@ kotlin {
     }
 }
 
+compose.desktop {
+    application {
+        mainClass = "ru.gorinih.familyshopper.ui.DesktopMainKt"
+    }
+}
+
 dependencies {
     configurations.filter { it.name.startsWith("ksp") }.forEach { config ->
         add(config.name, libs.room.compiler)
@@ -148,6 +154,14 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "BASE_SERVER", baseServer)
         buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
         buildConfigField(FieldSpec.Type.STRING, "APP_NAME_TO_PATH", appNameToPath)
+    }
+    targetConfigs {
+        create("desktopMain") {
+            buildConfigField(FieldSpec.Type.STRING, "BASE_POINT", basePoint)
+            buildConfigField(FieldSpec.Type.STRING, "BASE_SERVER", baseServer)
+            buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
+            buildConfigField(FieldSpec.Type.STRING, "APP_NAME_TO_PATH", appNameToPath)
+        }
     }
 }
 

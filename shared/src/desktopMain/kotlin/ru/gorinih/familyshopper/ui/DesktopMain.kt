@@ -7,6 +7,8 @@ import androidx.compose.ui.window.application
 import familyshopper.shared.generated.resources.Res
 import familyshopper.shared.generated.resources.toolbar_main_header
 import org.jetbrains.compose.resources.stringResource
+import ru.gorinih.familyshopper.BuildKonfig
+import ru.gorinih.familyshopper.di.initKoin
 import ru.gorinih.familyshopper.voice.LocalVoicePermission
 
 /**
@@ -14,6 +16,11 @@ import ru.gorinih.familyshopper.voice.LocalVoicePermission
  */
 
 fun main() = application {
+    initKoin(
+        baseUrl = "${BuildKonfig.BASE_POINT}${BuildKonfig.BASE_SERVER}",
+        isDebug = BuildKonfig.DEBUG
+    ) {
+    }
 
     val windowTitle = stringResource(Res.string.toolbar_main_header)
     Window(onCloseRequest = ::exitApplication, title = windowTitle) {

@@ -4,10 +4,12 @@ import androidx.room.Room
 import org.koin.dsl.module
 import ru.gorinih.familyshopper.data.db.ShopperDatabase
 import ru.gorinih.familyshopper.data.db.ShopperDatabaseConstructor
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
 import ru.gorinih.familyshopper.voice.DesktopVoicePlatformServiceImpl
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizer
 import ru.gorinih.familyshopper.voice.FamilyVoiceRecognizerImpl
 import ru.gorinih.familyshopper.voice.VoicePlatformService
+import ru.gorinih.familyshopper.widget.WidgetStub
 import java.io.File
 
 /**
@@ -18,6 +20,7 @@ actual val platformModule = module {
 
     single<FamilyVoiceRecognizer> { FamilyVoiceRecognizerImpl() }
     single<VoicePlatformService> { DesktopVoicePlatformServiceImpl() }
+    single<WidgetNotifier> { WidgetStub() }
 
 
     single {

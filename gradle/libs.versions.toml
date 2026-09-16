@@ -11,7 +11,7 @@ composeBom = "2026.03.01"
 retrofitVersion = "3.0.0"
 koinBom = "4.2.0"
 kotlinSerializationCoreVersion = "1.10.0"
-navigationVersion = "2.9.7"
+navigationVersion = "2.9.2"
 firebaseBom = "34.11.0"
 roomVersion = "2.8.4"
 glanceVersion = "1.1.1"
@@ -68,7 +68,8 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
 
-androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
+#androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
+androidx-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
 
 androidx-firebase-bom = {module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom"}
 androidx-firebase-database = {group = "com.google.firebase", name="firebase-database"}
