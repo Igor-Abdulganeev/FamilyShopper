@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.android.build.api.dsl.LibraryExtension
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import java.util.Properties
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     id("com.android.library")
@@ -37,6 +38,9 @@ val baseServer = if (isProd) {
     localProperties.getProperty("DEV_SERVER") ?: ""
 }
 val appNameToPath = localProperties.getProperty("APP_NAME") ?: ""
+
+val vCode = project.property("version.code").toString().toInt()
+val vName = project.property("version.name").toString()
 
 println("BASE_POINT = $basePoint")
 println("BASE_SERVER = $baseServer")
@@ -113,6 +117,15 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "ru.gorinih.familyshopper.ui.DesktopMainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Exe)
+
+            packageName = "${appNameToPath}_$vName.$vCode"
+            packageVersion = "$vName.$vCode"
+
+            includeAllModules = true
+        }
     }
 }
 
@@ -164,6 +177,12 @@ buildkonfig {
             buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", (!isProd).toString())
             buildConfigField(FieldSpec.Type.STRING, "APP_NAME_TO_PATH", appNameToPath)
         }
+    }
+}
+
+tasks.configureEach {
+    if (name == "kspKotlinDesktop") {
+        dependsOn("generateBuildKonfig")
     }
 }
 
