@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">PorodiÄna kupovina</string>
+    <string name="widget_header_preview">Lista za kupovinu</string>
+    <string name="widget_first_strikethrough_text"><s>mleko</s></string>
+    <string name="widget_second_text">hleb</string>
+    <string name="label_language_selector">Jezik</string>
+    <string name="label_datetime_today">danas</string>
+    <string name="label_datetime_yesterday">ju-Íe</string>
+
+</resources>

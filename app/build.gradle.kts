@@ -25,8 +25,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val vCode = 18
-val vName = "1.2"
+val vCode = project.property("version.code").toString().toInt()
+val vName = project.property("version.name").toString()
 
 android {
     namespace = "ru.gorinih.familyshopper"
@@ -163,6 +163,7 @@ android {
 
 dependencies {
     implementation(project(":models"))
+    implementation(project(":shared"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -184,6 +185,8 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)

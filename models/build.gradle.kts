@@ -26,6 +26,7 @@ android {
 
 tasks.register<DefaultTask>(name = "genUuid") {
 
+    description = ""
     val models = mapOf(
         "ru" to "model-ru",
         "en-us" to "model-en-us"
@@ -55,6 +56,7 @@ tasks.register<DefaultTask>(name = "genUuid") {
 }
 
 tasks.register("buildProd") {
+    description = ""
     dependsOn(":models:genUuid")
     dependsOn(":app:assembleProdReleaseApk")
 }

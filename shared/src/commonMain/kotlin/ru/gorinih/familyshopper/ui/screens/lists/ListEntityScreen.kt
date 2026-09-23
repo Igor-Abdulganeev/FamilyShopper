@@ -1,0 +1,857 @@
+package ru.gorinih.familyshopper.ui.screens.lists
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import familyshopper.shared.generated.resources.Res
+import familyshopper.shared.generated.resources.label_datetime_today
+import familyshopper.shared.generated.resources.label_datetime_yesterday
+import familyshopper.shared.generated.resources.label_empty_list
+import familyshopper.shared.generated.resources.label_empty_list_comand_text
+import familyshopper.shared.generated.resources.label_empty_list_name
+import familyshopper.shared.generated.resources.label_other_names
+import familyshopper.shared.generated.resources.label_owner_name
+import familyshopper.shared.generated.resources.label_results_count
+import familyshopper.shared.generated.resources.warning_local_changed
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import ru.gorinih.familyshopper.domain.models.AuthorFilter
+import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.navigation.NavigationKey
+import ru.gorinih.familyshopper.ui.AppBackHandler
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListObject
+import ru.gorinih.familyshopper.ui.screens.lists.models.UiListUser
+import ru.gorinih.familyshopper.ui.theme.FamilyShopperTheme
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
+import ru.gorinih.familyshopper.ui.views.ChipPanel
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.GlassCircleImageHolder
+import ru.gorinih.familyshopper.ui.views.MaterialGroupBox
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.QueryDialog
+import ru.gorinih.familyshopper.ui.views.WidgetNotifier
+import ru.gorinih.familyshopper.ui.views.shadow
+import ru.gorinih.familyshopper.utils.ScreenLayoutType
+import ru.gorinih.familyshopper.utils.rememberScreenConfiguration
+import ru.gorinih.familyshopper.utils.toShowDate
+import kotlin.math.roundToInt
+
+/**
+ * Created by Igor Abdulganeev on 09.04.2026
+ */
+
+@Composable
+fun ListEntityScreen(
+    router: (NavigationKey) -> Unit,
+    addList: () -> Unit,
+    onClose: () -> Unit,
+    navigationActions: (NavigationActions) -> Unit,
+    viewModel: ListEntityVewModel = koinViewModel()
+) {
+
+    val state = viewModel.listsState
+    val scope = rememberCoroutineScope()
+    val stateLazy = rememberLazyListState()
+    var lastClickTime by remember { mutableLongStateOf(0L) }
+    var isClicked by remember { mutableStateOf(false) }
+    val screen = rememberScreenConfiguration()
+
+    val widgetNotifier: WidgetNotifier = koinInject<WidgetNotifier>()
+
+    LaunchedEffect(Unit) {
+        navigationActions(NavigationActions(onBackClick = { onClose() }))
+    }
+    LaunchedEffect(state.lists) {
+        if (state.lists.isNotEmpty()) stateLazy.animateScrollToItem(0)
+    }
+
+    AppBackHandler(enable = true) { onClose() }
+
+    when (screen) {
+        ScreenLayoutType.SINGLE_PANE -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                ) {
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            addList()
+                        },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    ChipPanel(
+                        modifier = Modifier.weight(1f),
+                        startSelectedAuthorFilter = state.filterRule,
+                        sortDirection = state.sortDirection,
+                        sortType = state.sortType,
+                        onSelectAuthorFilter = { filterType -> viewModel.filter(filterType) },
+                        onSorted = { type, direction -> viewModel.sorter(type, direction) }
+                    )
+
+                    if (state.isUpdate) {
+                        IconButton(
+                            onClick = { viewModel.updateList() },
+                            modifier = Modifier.weight(0.3f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+                if (state.lists.isEmpty()) {
+                    if (state.filterRule != AuthorFilter.OTHERS)
+                        AssistChip(
+                            modifier = Modifier.padding(16.dp),
+                            onClick = { addList() },
+                            label = {
+                                Text(
+                                    text = stringResource(Res.string.label_empty_list_comand_text),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    else
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                        )
+                        {
+                            Text(
+                                text = stringResource(Res.string.label_empty_list),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+
+                } else {
+                    LazyColumn(state = stateLazy) {
+                        items(state.lists, key = { item -> item.listId }) { item ->
+                            val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                            CardListItem(
+                                item = item,
+                                painter = painter,
+                                onClick = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                    }
+                                },
+                                onDelete = {
+                                    viewModel.startDeleteList(item.listId)
+                                },
+                                onLocalDelete = {
+                                    viewModel.startLocalDeleteList(item.listId)
+                                },
+                                onEdit = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        ScreenLayoutType.TWO_PANE -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(0.1f)) {
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            addList()
+                        },
+                        modifier = Modifier.weight(0.3f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    if (state.isUpdate) {
+                        IconButton(
+                            onClick = { viewModel.updateList() },
+                            modifier = Modifier.weight(0.3f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+                if (state.lists.isEmpty()) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (state.filterRule != AuthorFilter.OTHERS)
+                            AssistChip(
+                                onClick = { addList() },
+                                label = {
+                                    Text(
+                                        text = stringResource(Res.string.label_empty_list_comand_text),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            )
+                        else
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                            )
+                            {
+                                Text(
+                                    text = stringResource(Res.string.label_empty_list),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                    }
+                } else {
+                    LazyColumn(state = stateLazy, modifier = Modifier.weight(1f)) {
+                        items(state.lists, key = { item -> item.listId }) { item ->
+                            val painter = GlassCircleImageHolder.getImage(item.listLegend.listId)
+                            CardListItem(
+                                item = item,
+                                painter = painter,
+                                onClick = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.ListStrikeTagsScreen(listUuid = item.listId))
+                                    }
+                                },
+                                onDelete = {
+                                    viewModel.startDeleteList(item.listId)
+                                },
+                                onLocalDelete = {
+                                    viewModel.startLocalDeleteList(item.listId)
+                                },
+                                onEdit = {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastClickTime > 500L) {
+                                        lastClickTime = currentTime
+                                        router(NavigationKey.EditListScreen(listUuid = item.listId))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+                ChipPanel(
+                    modifier = Modifier.weight(0.25f),
+                    startSelectedAuthorFilter = state.filterRule,
+                    sortDirection = state.sortDirection,
+                    sortType = state.sortType,
+                    onSelectAuthorFilter = { filterType -> viewModel.filter(filterType) },
+                    onSorted = { type, direction -> viewModel.sorter(type, direction) }
+                )
+            }
+        }
+    }
+    AnimatedVisibility(
+        visible = state.loading,
+        enter = fadeIn(animationSpec = tween(durationMillis = 200)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 200))
+    ) {
+        ProgressLoadingOverlay()
+    }
+
+    if (state.warning.isWarning) {
+        ErrorDialog(
+            errorText = if (state.warning.isNetworkWarning) "${state.warning.textWarning}\n${
+                stringResource(
+                    Res.string.warning_local_changed
+                )
+            }"
+            else state.warning.textWarning
+        ) {
+            viewModel.onDismiss()
+        }
+    }
+    if (state.deleting.isDelete) {
+        QueryDialog(
+            text = stringResource(
+                state.deleting.queryText,
+                state.lists.firstOrNull { it.listId == state.deleting.deletedId }?.listName ?: ""
+            ),
+            onDone = {
+                scope.launch {
+                    widgetNotifier.notifyWidgetChanged()
+                }
+                viewModel.deleteList(state.deleting.deletedId)
+            },
+            onCancel = { viewModel.stopDeleteList() }
+        )
+    }
+    if (state.localDeleting.isDelete) {
+        QueryDialog(
+            text = stringResource(
+                state.localDeleting.queryText,
+                state.lists.firstOrNull { it.listId == state.localDeleting.deletedId }?.listName
+                    ?: ""
+            ),
+            onDone = {
+                scope.launch {
+                    widgetNotifier.notifyWidgetChanged()
+                }
+                viewModel.localDeleteList(state.localDeleting.deletedId)
+            },
+            onCancel = { viewModel.stopDeleteList() }
+        )
+    }
+}
+
+@Composable
+fun CardListItem(
+    item: UiListObject,
+    painter: Painter? = null,
+    onClick: () -> Unit,
+    onDelete: () -> Unit,
+    onLocalDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+    val title = item.listName.takeIf { it.isNotBlank() }
+        ?: stringResource(Res.string.label_empty_list_name)
+    val isDark = isSystemInDarkTheme()
+    val density = LocalDensity.current
+
+    BoxWithConstraints {
+        val widthSwipe = with(density) {
+            maxWidth.toPx()
+        } * 0.2f // сдвинем на размер...
+        val stateSwipe = remember(widthSwipe) {
+            val anchors = DraggableAnchors {
+                SwipedAnchor.START at -widthSwipe
+                SwipedAnchor.MEDIAN at 0f
+                SwipedAnchor.END at widthSwipe
+            }
+            AnchoredDraggableState(
+                initialValue = SwipedAnchor.MEDIAN,
+                anchors = anchors
+            )
+        }
+        val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+            state = stateSwipe,
+            positionalThreshold = { distance -> distance * 0.5f },
+            animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+        )
+        val progress =
+            (item.countStrikes.toFloat() / (item.countTags.takeIf { it > 0 } ?: 1))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp, horizontal = 16.dp)
+        ) {
+            Row(
+                Modifier
+                    .matchParentSize()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(
+                    onClick = {
+                        if (item.isDelete) onDelete()
+                        else onLocalDelete()
+                    },
+                ) {
+                    if (item.isDelete)
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    else
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                }
+                IconButton(
+                    onClick = { onEdit() },
+                    enabled = item.isEdit
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset { IntOffset(stateSwipe.requireOffset().roundToInt(), 0) }
+                    .anchoredDraggable(
+                        state = stateSwipe,
+                        reverseDirection = false,
+                        orientation = Orientation.Horizontal,
+                        flingBehavior = flingBehavior,
+                        interactionSource = null,
+                        overscrollEffect = null,
+                    )
+                    .shadow(
+                        borderRadius = 16.dp,
+                        shadowRadius = 8.dp,
+                        alphaShadowLight = 0.3f,
+                        offsetXLight = 0.dp,
+                        offsetYLight = 0.dp
+                    )
+                    .border(
+                        1.dp,
+                        Color.White.copy(alpha = 0.06f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+            ) {
+                val colorBrush = MaterialTheme.colorScheme.background
+                val brush = Brush.horizontalGradient(
+                    colors = if (isDark) {
+                        when (item.listLegend) {
+                            TypeLegendList.ALL -> listOf(
+                                ListDarkGreen,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.ADD -> listOf(
+                                ListDarkBlue,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.VIEW -> listOf(
+                                ListDarkYellow,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.PRIVATE -> listOf(
+                                ListDarkRed,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.NOTHING -> listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                colorBrush,
+                            )
+                        }
+                    } else {
+                        when (item.listLegend) {
+                            TypeLegendList.ALL -> listOf(
+                                ListLightGreen,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.ADD -> listOf(
+                                ListLightBlue,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.VIEW -> listOf(
+                                ListLightYellow,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.PRIVATE -> listOf(
+                                ListLightRed,
+                                colorBrush,
+                            )
+
+                            TypeLegendList.NOTHING -> listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                colorBrush,
+                            )
+                        }
+                    },
+                    startX = 0.0f,
+                    endX = 550f
+                )
+
+                MaterialGroupBox(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onClick() },
+                    color = MaterialTheme.colorScheme.primary,
+                    brush = brush,
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            // цветовая точка
+                            if (painter != null) {
+                                Image(
+                                    painter, contentDescription = null,
+                                    Modifier
+                                        .size(20.dp)
+                                        .weight(0.2f)
+                                )
+                            }
+                            //наименование
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 2.dp)
+                                    .weight(1f),
+                                contentAlignment = Alignment.TopStart
+                            ) {
+                                if (!isDark) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            drawStyle = Stroke(
+                                                width = 4f,
+                                                join = StrokeJoin.Round
+                                            )
+                                        ),
+                                        color = White,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                            // время изменения
+                            Text(
+                                text = item.listDatetimeValue.toShowDate(
+                                    todayName = stringResource(Res.string.label_datetime_today),
+                                    yesterdayName = stringResource(Res.string.label_datetime_yesterday)
+                                ),
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    baselineShift = BaselineShift.Subscript,
+                                    textAlign = TextAlign.End,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .weight(0.4f),
+                            )
+                        }
+
+                        // автор и назначеные
+                        val ownerName = if (item.userName.isNotBlank()) stringResource(
+                            Res.string.label_owner_name,
+                            item.userName
+                        )
+                        else ""
+                        val otherNames = if (item.listTo.isNotEmpty()) stringResource(
+                            Res.string.label_other_names,
+                            item.listTo.joinToString(", ") { it.userName })
+                        else ""
+                        val names = when {
+                            item.userName.isNotBlank() && item.listTo.isNotEmpty() -> "$ownerName      $otherNames"
+                            item.userName.isNotBlank() -> ownerName
+                            else -> otherNames
+                        }
+                        Text(
+                            text = names,
+                            modifier = Modifier.padding(start = 32.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        if (progress != 0f) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(4.dp)
+                                        .padding(start = 32.dp),
+                                    progress = { progress },
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    trackColor = MaterialTheme.colorScheme.primary,
+                                    gapSize = 0.dp,
+                                    strokeCap = StrokeCap.Butt,
+                                    drawStopIndicator = {}
+                                )
+                                if (progress == 1f)
+                                    Icon(
+                                        imageVector = Icons.Default.Done,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.tertiary,
+                                        modifier = Modifier
+                                            .weight(0.3f)
+                                            .padding(horizontal = 4.dp)
+                                    )
+                                else Spacer(modifier = Modifier.weight(0.3f))
+                            }
+                        }
+                        Text(
+                            text = stringResource(
+                                Res.string.label_results_count,
+                                item.countStrikes.toString(),
+                                item.countTags.toString()
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 32.dp, top = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showSystemUi = true, showBackground = true, uiMode = UI_MODE_NIGHT_NO)
+@Composable
+fun PreviewCardListItem() {
+    FamilyShopperTheme {
+        Column(
+            Modifier
+                .padding(top = 32.dp)
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
+            CardListItem(
+                UiListObject(
+                    listId = "sdgsgsd",
+                    listVersion = 1,
+                    listName = "Тестовый зеленый",
+                    listLegend = TypeLegendList.ALL,
+                    listOwner = "asdas0,",
+                    listTo = listOf(
+                        UiListUser(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "Марья",
+                            isSelected = false
+                        ),
+                        UiListUser(
+                            userUuid = "fkgjfkddfkккlgk",
+                            userName = "Олег",
+                            isSelected = false
+                        ),
+                    ),
+                    countTags = 10,
+                    countStrikes = 2,
+                    userName = "Иван",
+                    listDatetimeValue = 0,
+                ),
+                GlassCircleImageHolder.getImage(1),
+                onClick = {},
+                onDelete = {},
+                onEdit = {},
+                onLocalDelete = {}
+            )
+            CardListItem(
+                UiListObject(
+                    listId = "sdgsfggsd",
+                    listVersion = 1,
+                    listName = "Тестовый синий",
+                    listLegend = TypeLegendList.ADD,
+                    listOwner = "asdas0,",
+                    listTo = emptyList(),
+                    countTags = 5,
+                    countStrikes = 3,
+                    userName = "",
+                    listDatetimeValue = 0
+                ),
+                GlassCircleImageHolder.getImage(2),
+                onClick = {},
+                onDelete = {},
+                onEdit = {},
+                onLocalDelete = {}
+            )
+            CardListItem(
+                UiListObject(
+                    listId = "sdgsgsd",
+                    listVersion = 1,
+                    listName = "Тестовый желтый",
+                    listLegend = TypeLegendList.VIEW,
+                    listOwner = "asdas0,",
+                    listTo = listOf(
+                        UiListUser(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "Марья",
+                            isSelected = false
+                        )
+                    ),
+                    countTags = 4,
+                    countStrikes = 4,
+                    userName = "Олег",
+                    listDatetimeValue = 0
+                ),
+                GlassCircleImageHolder.getImage(3),
+                onClick = {},
+                onDelete = {},
+                onEdit = {},
+                onLocalDelete = {}
+            )
+            CardListItem(
+                UiListObject(
+                    listId = "sdgsgsd",
+                    listVersion = 1,
+                    listName = "Тестовый красный бла бла бла опять красный урря",
+                    listLegend = TypeLegendList.PRIVATE,
+                    listOwner = "asdas0,",
+                    listTo = listOf(
+                        UiListUser(
+                            userUuid = "fkgjfkddfklgk",
+                            userName = "",
+                            isSelected = true
+                        )
+                    ),
+                    countTags = 0,
+                    countStrikes = 0,
+                    userName = "Игорь",
+                    listDatetimeValue = 0
+                ),
+                GlassCircleImageHolder.getImage(4),
+                onClick = {},
+                onDelete = {},
+                onEdit = {},
+                onLocalDelete = {}
+            )
+        }
+    }
+}
+
+enum class SwipedAnchor {
+    START,
+    MEDIAN,
+    END
+}
