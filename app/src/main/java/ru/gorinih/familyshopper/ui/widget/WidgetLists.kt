@@ -51,13 +51,14 @@ import kotlinx.coroutines.withTimeout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.gorinih.familyshopper.R
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_EDIT
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_EDIT
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_FORCE_UPDATE
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_LIST
 import ru.gorinih.familyshopper.ui.widget.models.WidgetItem
 import ru.gorinih.familyshopper.ui.widget.models.WidgetTagItem
 import ru.gorinih.familyshopper.ui.widget.models.toListWidgetItem
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Created by Igor Abdulganeev on 28.04.2026
@@ -96,7 +97,7 @@ class WidgetLists : GlanceAppWidget(), KoinComponent {
                 val list = produceState(initialValue = WidgetItem(), listUuid, isUpdate) {
                     value = try {
                         if (listUuid.isNotBlank()) {
-                            withTimeout(3000) {
+                            withTimeout(3000.milliseconds) {
                                 withContext(Dispatchers.IO) {
                                     val data = database.takeList(listUuid)
                                         .toListWidgetItem()

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Shopping</string>
+    <string name="widget_header_preview">Shopping list</string>
+    <string name="widget_first_strikethrough_text"><s>milk</s></string>
+    <string name="widget_second_text">bread</string>
+    <string name="label_language_selector">Language</string>
+    <string name="label_datetime_today">today</string>
+    <string name="label_datetime_yesterday">yesterday</string>
+
+</resources>

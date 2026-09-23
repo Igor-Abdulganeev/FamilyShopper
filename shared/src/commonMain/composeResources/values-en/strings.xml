@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Family Shopping</string>
+
+    <string name="help_client_key_property">Your user key lets you use private lists and control access to lists you create:\n * No restrictions — anyone can edit the list\n * Limited editing — others can only check off items\n * Read-only — others can only view the list\n * Private — only you can see the list\n\nImportant: Changing this key will revoke access to your private lists and prevent you from updating permissions on previously created restricted lists.</string>
+
+    <string name="help_group_key_property">This key is used to access your list storage:\n * Create a new key — start a new storage\n * Enter an existing key — restore your previous data\n * Enter someone else's key — access shared lists\n\nWithout a key, lists are stored on this device only.</string>
+
+    <string name="help_keys_property">We recommend saving these keys so you can restore your lists after reinstalling the app.</string>
+
+    <string name="label_key_group">Group Key</string>
+    <string name="label_key_client">User Key</string>
+
+    <string name="label_enter_new_tag">Enter name</string>
+
+    <string name="label_lists_header">All lists</string>
+    <string name="label_sync_header">Saved items</string>
+
+    <string name="new_list_name">List by %1$s</string>
+
+    <string name="label_list_name">List name</string>
+    <string name="label_list_name_short">Name</string>
+    <string name="label_list_add_tag">Enter name</string>
+
+    <string name="label_empty_list">No items yet</string>
+
+    <string name="label_results_count">%1$s of %2$s completed</string>
+
+    <string name="label_icon_all">Open</string>
+    <string name="label_icon_add">Check only</string>
+    <string name="label_icon_view">Read-only</string>
+    <string name="label_icon_private">Private</string>
+
+    <string name="label_full_icon_header">Default list type</string>
+    <string name="label_full_icon_all">Anyone can view and edit this list.</string>
+    <string name="label_full_icon_add">Others can only check off items. Editing is disabled.</string>
+    <string name="label_full_icon_view">Others can only view this list.</string>
+    <string name="label_full_icon_private">Only you can access this list.</string>
+
+    <string name="label_empty_list_name">Untitled</string>
+
+    <string name="warning_list_not_found_text">This list couldn’t be found.</string>
+
+    <string name="help_user_name_property">Enter a display name so others can see who created the list and easily assign lists.</string>
+
+    <string name="label_user_name">User name</string>
+
+    <string name="label_owner_name">Created by: %1$s</string>
+    <string name="label_other_names">Shared with: %1$s</string>
+    <string name="label_member_name">Members: </string>
+
+    <string name="toolbar_main_header">Family Shopping</string>
+
+    <string name="text_delete_list">Delete this list?\n%1$s</string>
+    <string name="text_delete_local_list">Delete this list from this device?\n%1$s</string>
+
+    <string name="warning_caption_text">Warning</string>
+
+    <string name="button_save_text">Save</string>
+
+    <string name="label_filter_chip_author_owner">Mine</string>
+    <string name="label_filter_chip_author_other">Shared</string>
+    <string name="label_filter_chip_author_all">All</string>
+
+    <string name="label_sort_chip_date">By date</string>
+    <string name="label_sort_chip_type">By type</string>
+
+    <string name="warning_text_not_changed">No changes</string>
+    <string name="warning_text_changed">Updated: %1$s</string>
+    <string name="warning_text_deleted">Deleted: %1$s</string>
+
+    <string name="label_icon_select_words">Shared with: %1$s</string>
+
+    <string name="label_settings_tab_keys">Keys</string>
+    <string name="label_settings_tab_users">Users</string>
+
+    <string name="header_other_users">Storage users:</string>
+
+    <string name="label_settings_tab_views">Appearance</string>
+    <string name="label_settings_tab_about">About</string>
+
+    <string name="label_settings_background">List background:</string>
+    <string name="label_settings_background_description">dynamic (selected)\nstatic (not selected)</string>
+    <string name="label_settings_dynamic_color_text">Dynamic colors</string>
+    <string name="label_settings_dynamic_color_description">Use your wallpaper colors for the app theme.</string>
+
+    <string name="error_title_text">Error</string>
+    <string name="error_network_text">Something went wrong</string>
+    <string name="error_network_state">Check your internet connection.</string>
+
+    <string name="warning_local_changed">Changes saved locally only</string>
+
+    <string name="about_version">Version %1$s</string>
+
+    <string name="about_description">%1$s is a shared shopping list app.\nCreate lists, share them with family, and keep everything in sync.</string>
+
+    <string name="about_license_description">This software is licensed under </string>
+    <string name="about_license_name">GNU General Public License v3.0</string>
+    <string name="about_license_url">https://www.gnu.org/licenses/gpl-3.0.html</string>
+
+    <string name="about_code_description">Source code available on </string>
+    <string name="about_code_url">https://github.com/Igor-Abdulganeev/FamilyShopper</string>
+    <string name="about_code_name">GitHub</string>
+
+    <string name="about_copyright">© 2026 GorInIh. All rights reserved.</string>
+
+    <string name="label_empty_list_comand_text">Create your first list</string>
+
+    <string name="button_text_ok">OK</string>
+    <string name="button_text_positive">Yes</string>
+    <string name="button_text_negative">Cancel</string>
+
+    <string name="label_language_selector">Language</string>
+    <string name="label_datetime_today">today</string>
+    <string name="label_datetime_yesterday">yesterday</string>
+
+    <string name="widget_warning_empty_data">List is empty or not selected</string>
+    <string name="widget_header_preview">Shopping list</string>
+    <string name="widget_first_strikethrough_text"><s>milk</s></string>
+    <string name="widget_second_text">bread</string>
+    <string name="widget_header_select_list">Select a list for the widget</string>
+
+    <string name="label_palette_select">Color scheme selection:</string>
+    <string name="label_settings_tab_default">Presets</string>
+    <string name="label_settings_voice_recognizer">Voice text input</string>
+
+    <string name="label_voice_choice_en">English</string>
+    <string name="label_voice_choice_ru">Russian</string>
+    <string name="label_auto_save_tag_type_lists">Automatically save new entries to the dictionary only for selected list types:</string>
+
+</resources>

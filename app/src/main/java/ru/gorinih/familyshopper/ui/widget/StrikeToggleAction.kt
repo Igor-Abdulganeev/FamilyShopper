@@ -11,8 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.gorinih.familyshopper.data.storage.StorageSharedPreference.Companion.WIDGET_FORCE_UPDATE
 import ru.gorinih.familyshopper.domain.DatabaseRepository
+import ru.gorinih.familyshopper.ui.widget.WidgetUtils.Companion.WIDGET_FORCE_UPDATE
 
 /**
  * Created by Igor Abdulganeev on 28.04.2026

@@ -1,0 +1,322 @@
+package ru.gorinih.familyshopper.ui.screens.strikelist
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import ru.gorinih.familyshopper.navigation.NavigationActions
+import ru.gorinih.familyshopper.ui.AppBackHandler
+import ru.gorinih.familyshopper.ui.models.ActionTag
+import ru.gorinih.familyshopper.ui.models.TypeLegendList
+import ru.gorinih.familyshopper.ui.theme.Black
+import ru.gorinih.familyshopper.ui.theme.ListDarkBlue
+import ru.gorinih.familyshopper.ui.theme.ListDarkGreen
+import ru.gorinih.familyshopper.ui.theme.ListDarkRed
+import ru.gorinih.familyshopper.ui.theme.ListDarkYellow
+import ru.gorinih.familyshopper.ui.theme.ListLightBlue
+import ru.gorinih.familyshopper.ui.theme.ListLightGreen
+import ru.gorinih.familyshopper.ui.theme.ListLightRed
+import ru.gorinih.familyshopper.ui.theme.ListLightYellow
+import ru.gorinih.familyshopper.ui.theme.White
+import ru.gorinih.familyshopper.ui.views.AgslContainer
+import ru.gorinih.familyshopper.ui.views.DividerHorizontalTransparent
+import ru.gorinih.familyshopper.ui.views.ErrorDialog
+import ru.gorinih.familyshopper.ui.views.ProgressLoadingOverlay
+import ru.gorinih.familyshopper.ui.views.TagsList
+
+/**
+ * Created by Igor Abdulganeev on 10.04.2026
+ */
+
+@Composable
+fun ListStrikeTagsScreen(
+    listUuid: String = "",
+    route: (String) -> Unit = {},
+    onBack: () -> Unit,
+    navigationActions: (NavigationActions) -> Unit,
+    viewModel: ListStrikeTagsViewModel = koinViewModel(
+        parameters = { parametersOf(listUuid) }
+    )
+) {
+    val scope = rememberCoroutineScope()
+
+    val handlerExit = {
+        scope.launch {
+            viewModel.updateIfChanged()
+            onBack()
+        }
+    }
+
+    val state = viewModel.shoppedList
+    var isClicked by remember { mutableStateOf(false) }
+
+    AppBackHandler(enable = true) {
+        handlerExit()
+    }
+    LaunchedEffect(handlerExit) {
+        navigationActions(NavigationActions(onBackClick = { handlerExit() }))
+    }
+
+    val brush =
+        Brush.linearGradient(
+            colors = if (isSystemInDarkTheme()) {
+                when (state.listLegend) {// цвета статика темная тема
+                    TypeLegendList.ALL -> listOf(
+                        Black,
+                        ListDarkGreen.copy(alpha = 0.6f),
+                        Black,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        Black,
+                        ListDarkBlue.copy(alpha = 0.6f),
+                        Black,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        Black,
+                        ListDarkYellow.copy(alpha = 0.6f),
+                        Black,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        Black,
+                        ListDarkRed.copy(alpha = 0.7f),
+                        Black,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        Black,
+                    )
+                }
+            } else { // цвета статика светлая тема
+                when (state.listLegend) {
+                    TypeLegendList.ALL -> listOf(
+                        White,
+                        ListLightGreen.copy(alpha = 0.5f),
+                        White,
+                    )
+
+                    TypeLegendList.ADD -> listOf(
+                        White,
+                        ListLightBlue.copy(alpha = 0.5f),
+                        White,
+                    )
+
+                    TypeLegendList.VIEW -> listOf(
+                        White,
+                        ListLightYellow.copy(alpha = 0.7f),
+                        White,
+                    )
+
+                    TypeLegendList.PRIVATE -> listOf(
+                        White,
+                        ListLightRed.copy(alpha = 0.7f),
+                        White,
+                    )
+
+                    TypeLegendList.NOTHING -> listOf(
+                        White,
+                    )
+                }
+            }
+        )
+
+    val colors = if (isSystemInDarkTheme()) {
+        when (state.listLegend) { //темный градиент
+            TypeLegendList.ALL -> listOf(
+                MaterialTheme.colorScheme.surface,
+                ListDarkGreen,
+            )
+
+            TypeLegendList.ADD -> listOf(
+                MaterialTheme.colorScheme.surface,
+                ListDarkBlue,
+            )
+
+            TypeLegendList.VIEW -> listOf(
+                ListDarkYellow,
+                MaterialTheme.colorScheme.surface
+            )
+
+            TypeLegendList.PRIVATE -> listOf(
+                MaterialTheme.colorScheme.surface,
+                ListDarkRed,
+            )
+
+            TypeLegendList.NOTHING -> listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surface,
+            )
+        }
+    } else { // светлый градиент
+        when (state.listLegend) {
+            TypeLegendList.ALL -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
+                ListLightGreen,
+            )
+
+            TypeLegendList.ADD -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
+                ListLightBlue,
+            )
+
+            TypeLegendList.VIEW -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
+                ListLightYellow,
+            )
+
+            TypeLegendList.PRIVATE -> listOf(
+                MaterialTheme.colorScheme.onSecondary,
+                ListLightRed,
+            )
+
+            TypeLegendList.NOTHING -> listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.onSecondary,
+            )
+        }
+    }
+
+    AgslContainer(
+        modifier = Modifier.fillMaxSize(),
+        brush = brush,
+        startedColor = colors.first(),
+        endedColor = colors.last(),
+        isAnimate = state.background
+    ) {
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (state.isEditable) {
+                    IconButton(
+                        enabled = !isClicked,
+                        onClick = {
+                            isClicked = true
+                            route(listUuid)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.EditNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } else IconButton(
+                    enabled = false,
+                    onClick = { }
+                ) {
+                    Spacer(Modifier.width(48.dp))
+                }
+                Text(
+                    text = state.listName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (state.isUpdate && (state.listLegend == TypeLegendList.ALL || state.listLegend == TypeLegendList.ADD
+                            || state.isEditable)
+                ) {
+                    Box(
+                        Modifier
+                            .width(48.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        if (state.hiddenUpdate) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier
+                                    .padding(start = 4.dp, top = 4.dp)
+                                    .size(36.dp)
+                            )
+                        }
+                        IconButton(
+                            enabled = !state.hiddenUpdate,
+                            onClick = { viewModel.updatingList() },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                } else Spacer(Modifier.width(48.dp))
+            }
+            DividerHorizontalTransparent(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
+            )
+            TagsList(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, bottom = 4.dp),
+                list = state.tagNames,
+                typeList = state.typeList,
+                onClick = { name ->
+                    viewModel.updateTag(name, ActionTag.STRIKE)
+                },
+                onDelete = { name ->
+                    viewModel.updateTag(
+                        addedTagName = name,
+                        action = ActionTag.DELETE
+                    )
+                },
+                onEditComment = { name, comment ->
+                    viewModel.updateTag(
+                        name,
+                        ActionTag.COMMENT,
+                        comment
+                    )
+                },
+                onFocusRegister = { _, _ -> },
+                onFocusUnRegister = { },
+                onClearCurrentField = {}
+
+            )
+        }
+    }
+    if (state.loading) ProgressLoadingOverlay()
+    if (state.warning.isWarning) ErrorDialog(errorText = state.warning.textWarning)
+    { viewModel.onDismiss() }
+
+}
+

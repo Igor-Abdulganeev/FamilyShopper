@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="languages_names">
+        <item>Sistemski</item>
+        <item>Engleski</item>
+        <item>Ruski</item>
+        <item>Srpski (latinica)</item>
+        <item>Srpski (ćirilica)</item>
+        <item>Tajlandski</item>
+        <item>Jakutski</item>
+    </string-array>
+</resources>

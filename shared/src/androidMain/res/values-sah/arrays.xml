@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="languages_names">
+        <item>Систэмэ</item>
+        <item>Ааҥыллыы</item>
+        <item>Нууччалыы</item>
+        <item>Серб тыла (латын)</item>
+        <item>Серб тыла (кириллица)</item>
+        <item>Таай тыла</item>
+        <item>Саха тыла</item>
+    </string-array>
+</resources>

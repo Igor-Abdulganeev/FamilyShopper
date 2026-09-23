@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="languages_codes">
+        <item>system</item>
+        <item>en</item>
+        <item>ru</item>
+        <item>sr</item>
+        <item>sr-RS</item>
+        <item>th</item>
+        <item>sah</item>
+    </string-array>
+
+    <string-array name="languages_names">
+        <item>System default</item>
+        <item>English</item>
+        <item>Russian</item>
+        <item>Serbian (Latin)</item>
+        <item>Serbian (Cyrillic)</item>
+        <item>Thai</item>
+        <item>Yakut</item>
+    </string-array>
+
+</resources>
